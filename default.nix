@@ -18,6 +18,6 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out/bin
-    mv bin/ft_IRC $out/bin
+    mv bin/* $out/bin
   '';
 }

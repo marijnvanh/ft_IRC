@@ -22,7 +22,7 @@
 
       defaultApp = forAllSystems (system: {
         type = "app";
-        program = "${self.defaultPackage."${system}"}/bin/ft_IRC";
+        program = "${self.defaultPackage."${system}"}/bin/irc_server";
       });
     };
 }
