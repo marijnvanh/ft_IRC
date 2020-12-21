@@ -9,5 +9,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code")
 
 
+add_subdirectory(tcp_boost)
 add_subdirectory(server)
 add_subdirectory(client)
