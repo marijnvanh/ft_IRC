@@ -6,37 +6,41 @@
 #include <iostream>
 #include <string.h>
 
+TCP::AddressInfo::AddressInfo(struct addrinfo *address_info) : address_info_(address_info)
+{}
+
+TCP::AddressInfo::~AddressInfo()
+{
+    freeaddrinfo(address_info_);
+}
+
 /**
  * @brief Print the addr_info linked list
  * 
  * @param addr_info linked list of addr_info
  */
-void TCP::Resolver::PrintAddressInfo(struct addrinfo *addr_info)
+void TCP::AddressInfo::Print()
 {
-    struct addrinfo *addr_info_i;
     char ipstr[INET6_ADDRSTRLEN];
 
-    for (addr_info_i = addr_info; addr_info_i != NULL; addr_info_i = addr_info_i->ai_next)
+    for (struct addrinfo *addr_info_i = address_info_; addr_info_i != NULL; addr_info_i = addr_info_i->ai_next)
     {
         void *address;
         const char *ip_version;
 
-        // get the pointer to the address itself,
-        // different fields in IPv4 and IPv6:
-        if (addr_info_i->ai_family == AF_INET)
+        if (addr_info_i->ai_family == AF_INET) // IPv4
         { // IPv4
             struct sockaddr_in *ipv4 = (struct sockaddr_in *)addr_info_i->ai_addr;
             address = &(ipv4->sin_addr);
             ip_version = "IPv4";
         }
-        else
-        { // IPv6
+        else // IPv6
+        {
             struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)addr_info_i->ai_addr;
             address = &(ipv6->sin6_addr);
             ip_version = "IPv6";
         }
 
-        // convert the IP to a string and print it:
         inet_ntop(addr_info_i->ai_family, address, ipstr, sizeof(ipstr));
         printf("  %s: %s\n", ip_version, ipstr);
     }
@@ -47,11 +51,12 @@ void TCP::Resolver::PrintAddressInfo(struct addrinfo *addr_info)
  * 
  * To resolve a local IP for server sockets provide an empty string for the node parameter
  * @param node e.g. "www.example.com" or IP
- * 
  * @param service e.g. "http" or port number
+ * 
+ * @exception TCP::Resolver::Error
  * @return addrinfo* list of addrinfo
  */
-addrinfo *TCP::Resolver::Resolve(const std::string &node, const std::string &service)
+TCP::AddressInfo TCP::Resolver::Resolve(const std::string &node, const std::string &service)
 {
     struct addrinfo hints;
     struct addrinfo *result;
@@ -64,14 +69,7 @@ addrinfo *TCP::Resolver::Resolve(const std::string &node, const std::string &ser
 
     int error = getaddrinfo(node.c_str(), service.c_str(), &hints, &result);
     if (error != 0)
-    {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(error)); //TODO make proper error logging
-        //TODO throw error
-        return NULL;
-    }
+        throw TCP::Resolver::Error(gai_strerror(error));
 
-    return result;
+    return AddressInfo(result);
 }
-
-//TODO Create a data structure that encapsulates the addr info data so it can be unique pointer
-// freeaddrinfo(result);

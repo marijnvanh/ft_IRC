@@ -1,10 +1,9 @@
-#include <iostream>
 #include "Socket.h"
 
 
 
-TCP::Socket::Socket()
+TCP::Socket::Socket(TCP::AddressInfo &&address_info)
 {
-    std::cout << "init";
+    address_info.Print();
 }
 
