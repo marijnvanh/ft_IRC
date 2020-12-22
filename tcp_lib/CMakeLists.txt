@@ -1,4 +1,4 @@
-project(tcp_boost VERSION 1.0)
+project(tcp_lib VERSION 1.0)
 
 include_directories(include)
 

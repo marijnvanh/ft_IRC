@@ -1,7 +1,10 @@
 #include <iostream>
-#include "Resolver.h"
+#include "Socket.h"
 
-Resolver::Resolver()
+
+
+TCP::Socket::Socket()
 {
     std::cout << "init";
 }
+
