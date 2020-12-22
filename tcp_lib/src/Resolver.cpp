@@ -4,6 +4,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include <string.h>
 
 /**
  * @brief Print the addr_info linked list
