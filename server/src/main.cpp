@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <optional>
 #include "../include/parser.hpp"
 
 /*
@@ -51,70 +52,11 @@ namespace ft_irc {
 }
 
 
-auto parseAlpha(CharStream &s) -> char {
-    char peeked = s.peek();
-    if ((peeked >= 'a' && peeked <= 'z') ||
-        (peeked >= 'A' && peeked <= 'Z'))
-        return s.consume();
-    else
-        throw MatchFailureException(s.location(), peeked);
-}
 
-auto parseSymbol(char c, CharStream &s) -> char {
-    char peeked = s.peek();
-    if (peeked == c)
-        return s.consume();
-    else
-        throw MatchFailureException(s.location(), peeked);
-}
-
-auto whitespace(CharStream &s) -> void {
+using namespace ft_irc::parser;
+auto greeting(CharStream& s) -> std::string {
     try {
-        for (;;) {
-            char peeked = s.peek();
-            if (peeked == ' ')
-                s.consume();
-            else
-                return;
-        }
-    } catch(ParseException& e) {
-        if (e.recoverable)
-            return;
-        else
-            throw e;
-    }
-}
-
-auto parseWord(CharStream &s) -> std::string {
-    std::string accum("");
-
-    accum += parseAlpha(s);
-    for (;;) {
-        try {
-            accum += parseAlpha(s);
-        } catch(ParseException& e) {
-            if (e.recoverable)
-                return accum;
-            else
-                throw e;
-        }
-    }
-}
-
-auto parseString(std::string expected, CharStream &s) -> std::string {
-    for (size_t i = 0; i < expected.size(); i++) {
-        parseSymbol(expected[i], s);
-    }
-
-    return expected;
-}
-
-auto greeting(CharStream &s) -> std::string {
-    try {
-        CharStream s2 = s;
-        std::string ret = parseString("hello", s2);
-        s = s2;
-        return ret;
+        return attempt<std::string>([](CharStream& s) { return parseString("hello", s); }, s);
     } catch (const ParseException& e) {
         return parseString("hi", s);
     }
@@ -122,13 +64,13 @@ auto greeting(CharStream &s) -> std::string {
 
 int main()
 {
-    CharStream s1 = CharStream::from_string("hi, world");
+    CharStream s1 = CharStream::from_string("hello, world");
 
     try {
         std::string a = greeting(s1);
-        whitespace(s1);
+        parseWhitespace(s1);
         parseSymbol(',', s1);
-        whitespace(s1);
+        parseWhitespace(s1);
         std::string b = parseWord(s1);
         std::cout << "Got two words: '" << a << "', '" << b << "'" << std::endl;
     } catch (ParseException& e) {
