@@ -14,12 +14,17 @@ TCP::AddressInfo::~AddressInfo()
     freeaddrinfo(address_info_);
 }
 
+struct addrinfo *TCP::AddressInfo::GetAddrInfo() const
+{
+    return address_info_;
+}
+
 /**
  * @brief Print the addr_info linked list
  * 
  * @param addr_info linked list of addr_info
  */
-void TCP::AddressInfo::Print()
+void TCP::AddressInfo::Print() const
 {
     char ipstr[INET6_ADDRSTRLEN];
 

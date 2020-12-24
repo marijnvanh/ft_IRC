@@ -10,29 +10,25 @@ namespace TCP
     public:
         AddressInfo(struct addrinfo *address_info);
         ~AddressInfo();
-        void Print();
-        AddressInfo(AddressInfo&& other)
+        void Print() const;
+        struct addrinfo *GetAddrInfo() const;
+
+        AddressInfo (AddressInfo&& other)
         {
-            (void)other;
-            std::cout << "hello" << std::endl;
+            address_info_ = other.address_info_;
+            other.address_info_ = NULL;
         }
-        AddressInfo& operator=(const AddressInfo&& other)
+
+        AddressInfo &operator= (AddressInfo&& other)
         {
-            std::cout << "hello" << std::endl;
-            (void)other;
-            return *this;
-        };
-        AddressInfo(const AddressInfo& other){
-            std::cout << "hello" << std::endl;
-            (void)other;
-            };
-        AddressInfo& operator=(const AddressInfo& other){
-            std::cout << "hello" << std::endl;
-            (void)other; 
-        return *this;
-        };
+            address_info_ = other.address_info_;
+            other.address_info_ = NULL;
+            return (*this);
+        }
 
     private:
+        AddressInfo (AddressInfo& other) = delete;
+        AddressInfo &operator =(AddressInfo& other) = delete;
         struct addrinfo *address_info_;
 
     };
