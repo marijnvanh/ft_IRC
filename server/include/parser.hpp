@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef PARSER_HPP
+#define PARSER_HPP
 
 #include <stdexcept>
 #include <iostream>
@@ -74,12 +74,22 @@ namespace ft_irc {
             ~MatchFailureException() = default;
         };
 
+
         template<typename T>
-        auto attempt(std::function<T(CharStream& s)> fun, CharStream& s) -> T {
-            CharStream s2 = s;
+        using Parser = std::function<T(CharStream& s)>;
+
+        template<typename T>
+        auto run(Parser<T> p, const std::string s) -> T {
+            CharStream cs = CharStream::from_string(s);
+            return p(cs);
+        }
+
+        template<typename T>
+        auto attempt(Parser<T> fun, CharStream& s) -> T {
+            CharStream ss = s;
             try {
-                auto ret = fun(s2);
-                s = s2;
+                auto ret = fun(ss);
+                s = ss;
                 return ret;
             } catch (ParseException& e) {
                 throw e;
@@ -87,7 +97,8 @@ namespace ft_irc {
         }
 
         template<typename T>
-        auto maybe(std::function<T(CharStream& s)> fun, CharStream& s) -> std::optional<T> {
+        auto maybe(Parser<T> fun, CharStream & s)
+            ->std::optional<T> {
             CharStream s2 = s;
             try {
                 auto ret = fun(s);
@@ -96,9 +107,34 @@ namespace ft_irc {
             } catch (ParseException& e) {
                 return std::nullopt;
             }
+          }
+
+        auto replicate(Parser<char> fun, int n, CharStream &s)
+            -> std::string;
+
+        template<typename T>
+        auto some(Parser<T> fun, CharStream &s)
+            -> std::vector<T> {
+            std::vector<T> accum;
+
+            accum += fun(s);
+            for (;;) {
+                try {
+                    accum += fun(s);
+                } catch(ParseException& e) {
+                    if (e.recoverable)
+                        return accum;
+                    else
+                        throw e;
+                }
+            }
         }
 
+        auto some(std::function<char(CharStream &s)> fun, CharStream &s)
+            -> std::string;
+
         auto parseAlpha(CharStream &s) -> char;
+        auto parseDigit(CharStream &s) -> char;
         auto parseSymbol(char c, CharStream &s) -> char;
         auto parseWhitespace(CharStream &s) -> void;
         auto parseWord(CharStream &s) -> std::string;
@@ -106,4 +142,4 @@ namespace ft_irc {
     }
 }
 
-#endif // CLIENT_HPP
+#endif // PARSER_HPP

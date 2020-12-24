@@ -42,6 +42,37 @@ auto CharStream::location() const -> size_t {
     return read_head_;
 }
 
+auto ft_irc::parser::replicate(std::function<char(CharStream &s)> fun, int n, CharStream &s)
+  -> std::string {
+  std::string accum("");
+
+  for (auto i = 0; i < n; i++) {
+    try {
+      accum += fun(s);
+    } catch(ParseException& e) {
+      throw e;
+    }
+  }
+  return accum;
+}
+
+auto ft_irc::parser::some(std::function<char(CharStream &s)> fun, CharStream &s)
+  -> std::string {
+  std::string accum("");
+
+  accum += fun(s);
+  for (;;) {
+    try {
+      accum += fun(s);
+    } catch(ParseException& e) {
+      if (e.recoverable)
+        return accum;
+      else
+        throw e;
+    }
+  }
+}
+
 auto ft_irc::parser::parseAlpha(CharStream &s) -> char {
     char peeked = s.peek();
     if ((peeked >= 'a' && peeked <= 'z') ||
@@ -49,6 +80,14 @@ auto ft_irc::parser::parseAlpha(CharStream &s) -> char {
         return s.consume();
     else
         throw MatchFailureException(s.location(), peeked);
+}
+
+auto ft_irc::parser::parseDigit(CharStream &s) -> char {
+  char peeked = s.peek();
+  if (peeked >= '0' && peeked <= '9')
+    return s.consume();
+  else
+    throw MatchFailureException(s.location(), peeked);
 }
 
 auto ft_irc::parser::parseSymbol(char c, CharStream &s) -> char {
