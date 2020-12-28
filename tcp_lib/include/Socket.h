@@ -25,6 +25,7 @@ namespace TCP
         void Connect(AddressInfo &address_info, bool block = NON_BLOCKING);
         void Accept(int listener_fd);
         std::string Read();
+        void Send(const std::string &data);
         int GetFD();
         std::string ToStr();
 
@@ -32,6 +33,12 @@ namespace TCP
         {
         public:
             Error(const char *msg) : std::runtime_error(msg) {}
+        };
+
+        class Closed : public Error
+        {
+            public:
+            Closed() : Error("Socket closed") {}
         };
 
         Socket (Socket& other) = delete;

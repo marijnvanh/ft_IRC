@@ -3,6 +3,7 @@
 
 #include "Resolver.h"
 #include "Socket.h"
+#include "Message.h"
 
 #include <map>
 #include <queue>
@@ -14,7 +15,7 @@ namespace TCP
     {
     private:
         std::map<int, std::unique_ptr<Socket>> sockets_;
-        std::queue<std::string> &message_queue_;
+        std::queue<TCP::Message> &message_queue_;
 
         fd_set master_fd_list_;
         int max_fd_;
@@ -25,10 +26,17 @@ namespace TCP
 
     public:
         IOController(AddressInfo &address_info,
-                     std::queue<std::string> &message_queue,
+                     std::queue<TCP::Message> &message_queue,
                      int backlog = DEFAULT_BACKLOG);
         ~IOController();
         void RunOnce(int timeout);
+
+        class Error : public std::runtime_error
+        {
+        public:
+            Error(const char *msg) : std::runtime_error(msg) {}
+        };
+
     };
 } // namespace TCP
 

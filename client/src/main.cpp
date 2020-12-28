@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
         TCP::AddressInfo address_info = TCP::Resolver::Resolve(server_address, PORT);
         TCP::Socket socket;
         socket.Connect(address_info);
+        socket.Send("Some data");
         std::cout << socket.ToStr() << std::endl;
     }
     catch (TCP::Resolver::Error &ex)

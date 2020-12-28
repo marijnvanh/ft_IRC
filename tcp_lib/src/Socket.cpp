@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #define UNINITIALIZED -1
+#define BUFFER_SIZE 512
 
 TCP::Socket::Socket() : socket_fd_(UNINITIALIZED), address_size_(UNINITIALIZED)
 {}
@@ -16,13 +17,19 @@ TCP::Socket::~Socket()
         close(socket_fd_);
 }
 
+/**
+ * @brief Initialize socket data
+ * 
+ * @param addr_info 
+ * @param block set to true for non-blocking socket
+ * @return int 
+ */
 int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
 {
     socket_fd_ = socket(addr_info->ai_family, addr_info->ai_socktype, addr_info->ai_protocol);
     if (socket_fd_ == -1)
         return -1; // Error information ?
 
-    /* Set socket to non blocking */
     if (block == true && fcntl(socket_fd_, F_SETFL, O_NONBLOCK) == -1)
     {
         close(socket_fd_);
@@ -30,12 +37,18 @@ int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
         return -1; // Error information ?
     }
 
-    /* Init Address data */
     address_size_ = addr_info->ai_addrlen;
     memcpy(&address_, addr_info->ai_addr, addr_info->ai_addrlen);
     return socket_fd_;
 }
 
+/**
+ * @brief Create a listening socket
+ * 
+ * @param address_info 
+ * @param backlog pending connection queue size, default is 20
+ * @param block set to true for non-blocking socket
+ */
 void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
 {
     if (socket_fd_ != UNINITIALIZED)
@@ -71,7 +84,12 @@ void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
         throw TCP::Socket::Error(strerror(errno));
     }
 }
-
+/**
+ * @brief Create a basic connection socket
+ * 
+ * @param address_info 
+ * @param block set to true for non-blocking socket
+ */
 void TCP::Socket::Connect(AddressInfo &address_info, bool block)
 {
     if (socket_fd_ != UNINITIALIZED)
@@ -95,6 +113,11 @@ void TCP::Socket::Connect(AddressInfo &address_info, bool block)
         throw TCP::Socket::Error(strerror(errno));
 }
 
+/**
+ * @brief Accept an incomming connection
+ * 
+ * @param listener_fd 
+ */
 void TCP::Socket::Accept(int listener_fd)
 {
     if (socket_fd_ != UNINITIALIZED)
@@ -113,22 +136,36 @@ void TCP::Socket::Accept(int listener_fd)
     }
 }
 
+//TODO how do we determine if there's nothing to read anymore?
 std::string TCP::Socket::Read()
 {
-    return "Something";
-    // if ((nbytes = recv(i, buf, sizeof buf, 0)) <= 0)
-    //     {
-    //         // got error or connection closed by client
-    //         if (nbytes == 0) {
-    //             // connection closed
-    //             printf("selectserver: socket %d hung up\n", i);
-    //         } else {
-    //             perror("recv");
-    //         }
-    //         close(i); // bye!
-    //         FD_CLR(i, &master); // remove from master set
-    //     }
+    char buffer[BUFFER_SIZE];
+    
+    int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
+    if (received_bytes == 0)
+        throw TCP::Socket::Closed();
 
+    if (received_bytes == -1)
+        throw TCP::Socket::Error(strerror(errno)); // What to do with errors?
+    
+    buffer[received_bytes] = '\0';
+    return std::string(buffer);
+}
+
+void TCP::Socket::Send(const std::string &data)
+{
+    size_t bytesleft = data.size();
+    size_t total_send = 0;
+    const char *raw_data = data.c_str();
+    while(total_send < data.size())
+    {
+        int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, 0);
+        if (send_bytes == -1)
+            throw TCP::Socket::Error(strerror(errno)); // Could return EAGAIN or WOULDBLOCK ?
+        
+        total_send += send_bytes;
+        bytesleft -= send_bytes;
+    }
 }
 
 int TCP::Socket::GetFD()
