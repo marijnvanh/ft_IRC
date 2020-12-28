@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdio.h>
+#include <string.h>
 
 #define UNINITIALIZED -1
 #define BUFFER_SIZE 512

@@ -1,7 +1,7 @@
 #include "IOController.h"
 #include <sys/select.h>
 #include <sys/time.h>
-#include <stdio.h>
+#include <string.h>
 #include <memory>
 
 TCP::IOController::IOController(AddressInfo &address_info,

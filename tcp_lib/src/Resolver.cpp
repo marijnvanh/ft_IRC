@@ -4,7 +4,6 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <iostream>
-#include <stdio.h>
 #include <string.h>
 
 TCP::AddressInfo::AddressInfo(struct addrinfo *address_info) : address_info_(address_info)
