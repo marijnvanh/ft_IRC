@@ -20,6 +20,8 @@ namespace ft_irc {
             auto remaining() const -> std::string;
             auto location() const -> size_t;
 
+            auto debug_stream() const -> void;
+
             static auto from_string(const std::string source_string) -> CharStream {
                 return CharStream(std::make_shared<const std::string>(source_string));
             }
@@ -97,7 +99,7 @@ namespace ft_irc {
         }
 
         template<typename T>
-        auto maybe(Parser<T> fun, CharStream & s)
+        auto maybe(Parser<T> fun, CharStream& s)
             ->std::optional<T> {
             CharStream s2 = s;
             try {
@@ -130,14 +132,17 @@ namespace ft_irc {
             }
         }
 
-        auto some(std::function<char(CharStream &s)> fun, CharStream &s)
+        auto satisfy(std::function<bool(char)> predicate, CharStream& s) -> char;
+        auto oneOf(std::string options, CharStream& s) -> char;
+        auto consumeWhile(std::function<bool(char)> predicate, CharStream& s) -> std::string;
+        auto some(std::function<char(CharStream &s)> fun, CharStream& s)
             -> std::string;
 
-        auto parseAlpha(CharStream &s) -> char;
-        auto parseDigit(CharStream &s) -> char;
-        auto parseSymbol(char c, CharStream &s) -> char;
-        auto parseWhitespace(CharStream &s) -> void;
-        auto parseWord(CharStream &s) -> std::string;
+        auto parseAlpha(CharStream& s) -> char;
+        auto parseDigit(CharStream& s) -> char;
+        auto parseSymbol(char c, CharStream& s) -> char;
+        auto parseWhitespace(CharStream& s) -> void;
+        auto parseWord(CharStream& s) -> std::string;
         auto parseString(std::string expected, CharStream& s) -> std::string;
     }
 }

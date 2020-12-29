@@ -42,6 +42,11 @@ auto CharStream::location() const -> size_t {
     return read_head_;
 }
 
+auto CharStream::debug_stream() const -> void {
+  std::cout << "Debugging stream at " << read_head_ << "." << std::endl;
+  std::cout << "Remaining text: <<" << remaining() << ">>" << std::endl;
+}
+
 auto ft_irc::parser::replicate(std::function<char(CharStream &s)> fun, int n, CharStream &s)
   -> std::string {
   std::string accum("");
@@ -71,6 +76,40 @@ auto ft_irc::parser::some(std::function<char(CharStream &s)> fun, CharStream &s)
         throw e;
     }
   }
+}
+
+auto ft_irc::parser::satisfy(std::function<bool(char)> predicate, CharStream& s) -> char {
+  const auto peeked = s.peek();
+  if (predicate(peeked))
+    return s.consume();
+  else
+    throw MatchFailureException(s.location(), peeked);
+}
+
+auto ft_irc::parser::oneOf(std::string options, CharStream& s) -> char {
+  const auto peeked = s.peek();
+  if (options.find(peeked) == std::string::npos)
+    throw MatchFailureException(s.location(), peeked);
+  return s.consume();
+}
+
+auto ft_irc::parser::consumeWhile(std::function<bool(char)> predicate, CharStream &s)
+    -> std::string {
+  std::string accum;
+  try {
+    for (;;) {
+      const auto peeked = s.peek();
+      if (!predicate(peeked))
+        return accum;
+      accum += s.consume();
+    }
+  } catch(ParseException& e) {
+    if (e.recoverable)
+      return accum;
+    else
+      throw e;
+  }
+
 }
 
 auto ft_irc::parser::parseAlpha(CharStream &s) -> char {

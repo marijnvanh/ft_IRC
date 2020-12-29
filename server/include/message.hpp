@@ -28,7 +28,6 @@
 **      <crlf>     ::= CR LF
 **
 */
-
 namespace ft_irc {
     enum SenderType { IsClient, IsServer };
 
@@ -70,12 +69,8 @@ auto parseCommandId(CharStream& s) -> std::string;
 
 /* <params>   ::= <SPACE>[':' < trailing > | <middle><params>] */
 auto parseParams(CharStream& s) -> std::vector<std::string>;
-
-
-/* <middle>   ::= <Any * non - empty * sequence of octets not including SPACE *
- * * or NUL or CR or LF, the first of which may not be ':' > */
-/* <trailing> ::= < Any, possibly *empty *, sequence of octets not including *
- * *NUL or CR or LF > */
+auto parseMiddle(CharStream& s) -> std::string;
+auto parseTrailing(CharStream& s) -> std::string;
 
 
 } // namespace ft_irc
