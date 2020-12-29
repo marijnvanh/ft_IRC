@@ -15,7 +15,7 @@ namespace TCP
             Message(const Socket &socket, std::string &&data) :
                 socket_(socket), data_(data) {};
 
-            std::string GetData()
+            std::string &GetData()
             {
                 return data_;
             };

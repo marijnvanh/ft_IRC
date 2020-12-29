@@ -14,17 +14,22 @@ int main(int argc, char *argv[])
     std::string server_address(argv[1]);
     try {
         TCP::AddressInfo address_info = TCP::Resolver::Resolve(server_address, PORT);
-        std::queue<TCP::Message> message_queue;
-        TCP::IOController io_controller(address_info, message_queue);
+        std::queue<TCP::Message> send_queue;
+        std::queue<TCP::Message> read_queue;
+        TCP::IOController io_controller(address_info, read_queue, send_queue);
         while (1)
         {
             std::cout << "Poll once" << std::endl;
             io_controller.RunOnce(5);
             
-            while (message_queue.empty() == false)
-            { 
-                std::cout << message_queue.front().GetData() << std::endl; 
-                message_queue.pop(); 
+            while (read_queue.empty() == false)
+            {
+                auto message = read_queue.front();
+                std::cout << "Received: " << message.GetData() << std::endl; 
+                
+                TCP::Message response(message.GetSocket(), "ACK: " + message.GetData());
+                send_queue.push(response);
+                read_queue.pop(); 
             }
             sleep(1);
         }

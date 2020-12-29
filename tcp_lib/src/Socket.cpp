@@ -29,13 +29,13 @@ int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
 {
     socket_fd_ = socket(addr_info->ai_family, addr_info->ai_socktype, addr_info->ai_protocol);
     if (socket_fd_ == -1)
-        return -1; // Error information ?
+        return -1; //TODO Error information ?
 
-    if (block == true && fcntl(socket_fd_, F_SETFL, O_NONBLOCK) == -1)
+    if (block == false && fcntl(socket_fd_, F_SETFL, O_NONBLOCK) == -1)
     {
         close(socket_fd_);
         socket_fd_ = UNINITIALIZED;
-        return -1; // Error information ?
+        return -1; //TODO Error information ?
     }
 
     address_size_ = addr_info->ai_addrlen;
@@ -105,7 +105,7 @@ void TCP::Socket::Connect(AddressInfo &address_info, bool block)
         {
             close(socket_fd_);
             socket_fd_ = UNINITIALIZED;
-            continue ; // Error information ?
+            continue ; //TODO Error information ?
         }
 
         break ;
@@ -129,16 +129,15 @@ void TCP::Socket::Accept(int listener_fd)
     
     if (socket_fd_ == -1)
     {
-        /* It is possible that there is nothing to accept due to race conditions */
         if (errno == EAGAIN || errno == EWOULDBLOCK)
-            throw TCP::Socket::Error(strerror(errno)); // Should we throw a different error to catch specifically
+            throw TCP::Socket::WouldBlock();
         else
             throw TCP::Socket::Error(strerror(errno));
     }
 }
 
 //TODO how do we determine if there's nothing to read anymore?
-std::string TCP::Socket::Read()
+std::string TCP::Socket::Recv()
 {
     char buffer[BUFFER_SIZE];
     
@@ -147,29 +146,41 @@ std::string TCP::Socket::Read()
         throw TCP::Socket::Closed();
 
     if (received_bytes == -1)
-        throw TCP::Socket::Error(strerror(errno)); // What to do with errors?
+    {
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+            throw TCP::Socket::WouldBlock();
+        else
+            throw TCP::Socket::Error(strerror(errno));
+    }
     
     buffer[received_bytes] = '\0';
-    return std::string(buffer);
+    return std::string(buffer, received_bytes);
 }
 
-void TCP::Socket::Send(const std::string &data)
+void TCP::Socket::Send(const std::string &data) const
 {
     size_t bytesleft = data.size();
     size_t total_send = 0;
     const char *raw_data = data.c_str();
     while(total_send < data.size())
     {
-        int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, 0);
+        int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, SO_NOSIGPIPE); //TODO fix NOSIGPIPE vs MSG_NOSIGNAL
         if (send_bytes == -1)
-            throw TCP::Socket::Error(strerror(errno)); // Could return EAGAIN or WOULDBLOCK ?
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                throw TCP::Socket::WouldBlock();
+            else if (errno == EPIPE || errno == EPROTOTYPE) // Normally sets EPIPE but Mac sometimes returns EPROTOTYPE
+                throw TCP::Socket::Closed();
+            else
+                throw TCP::Socket::Error(strerror(errno));
+        }
         
         total_send += send_bytes;
         bytesleft -= send_bytes;
     }
 }
 
-int TCP::Socket::GetFD()
+int TCP::Socket::GetFD() const
 {
     return socket_fd_;
 }

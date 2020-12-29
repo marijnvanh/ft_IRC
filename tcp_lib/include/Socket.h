@@ -21,18 +21,24 @@ namespace TCP
     public:
         Socket();
         ~Socket();
-        void Listen(AddressInfo &address_info, int backlog = DEFAULT_BACKLOG, bool block = BLOCKING);
-        void Connect(AddressInfo &address_info, bool block = NON_BLOCKING);
+        void Listen(AddressInfo &address_info, int backlog = DEFAULT_BACKLOG, bool block = NON_BLOCKING);
+        void Connect(AddressInfo &address_info, bool block = BLOCKING);
         void Accept(int listener_fd);
-        std::string Read();
-        void Send(const std::string &data);
-        int GetFD();
+        std::string Recv();
+        void Send(const std::string &data) const;
+        int GetFD() const;
         std::string ToStr();
 
         class Error : public std::runtime_error
         {
         public:
             Error(const char *msg) : std::runtime_error(msg) {}
+        };
+
+        class WouldBlock : public Error
+        {
+            public:
+            WouldBlock() : Error("Socket would block") {}
         };
 
         class Closed : public Error
