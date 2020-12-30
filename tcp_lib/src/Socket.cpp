@@ -9,6 +9,12 @@
 #define UNINITIALIZED -1
 #define BUFFER_SIZE 512
 
+#ifdef __APPLE__
+    #define NOSIGPIPE_FLAG SO_NOSIGPIPE
+#else
+    #define NOSIGPIPE_FLAG MSG_NOSIGNAL
+#endif
+
 TCP::Socket::Socket() : socket_fd_(UNINITIALIZED), address_size_(UNINITIALIZED)
 {}
 
@@ -164,12 +170,14 @@ void TCP::Socket::Send(const std::string &data) const
     const char *raw_data = data.c_str();
     while(total_send < data.size())
     {
-        int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, SO_NOSIGPIPE); //TODO fix NOSIGPIPE vs MSG_NOSIGNAL
+        /* Set NOSIGPIPE_FLAG to make sure that send doesn't send a signal on lost connection */
+        int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
         if (send_bytes == -1)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
                 throw TCP::Socket::WouldBlock();
-            else if (errno == EPIPE || errno == EPROTOTYPE) // Normally sets EPIPE but Mac sometimes returns EPROTOTYPE
+            /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */
+            else if (errno == EPIPE || errno == EPROTOTYPE) 
                 throw TCP::Socket::Closed();
             else
                 throw TCP::Socket::Error(strerror(errno));
