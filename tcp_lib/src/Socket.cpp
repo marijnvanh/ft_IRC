@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <string.h>
 
-#define UNINITIALIZED -1
 #define BUFFER_SIZE 512
 
 #ifdef __APPLE__
@@ -15,12 +14,14 @@
     #define NOSIGPIPE_FLAG MSG_NOSIGNAL
 #endif
 
-TCP::Socket::Socket() : socket_fd_(UNINITIALIZED), address_size_(UNINITIALIZED)
+TCP::Socket::Socket() : socket_fd_(kUnInitialized),
+                        state_(kUnInitialized),
+                        address_size_(kUnInitialized)
 {}
 
 TCP::Socket::~Socket()
 {
-    if (socket_fd_ != UNINITIALIZED)
+    if (state_ != kUnInitialized)
         close(socket_fd_);
 }
 
@@ -39,14 +40,21 @@ int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
 
     if (block == false && fcntl(socket_fd_, F_SETFL, O_NONBLOCK) == -1)
     {
-        close(socket_fd_);
-        socket_fd_ = UNINITIALIZED;
+        Clear();
         return -1; //TODO Error information ?
     }
 
     address_size_ = addr_info->ai_addrlen;
     memcpy(&address_, addr_info->ai_addr, addr_info->ai_addrlen);
     return socket_fd_;
+}
+
+void TCP::Socket::Clear()
+{
+    close(socket_fd_);
+    socket_fd_ = kUnInitialized;
+    address_size_ = kUnInitialized;
+    state_ = kUnInitialized;
 }
 
 /**
@@ -58,7 +66,7 @@ int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
  */
 void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
 {
-    if (socket_fd_ != UNINITIALIZED)
+    if (state_ != kUnInitialized)
         throw TCP::Socket::Error("Socket already in use");
     
     struct addrinfo *i = address_info.GetAddrInfo();
@@ -71,13 +79,13 @@ void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
         int on = 1;
         if (setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
         {
+            Clear();
             throw TCP::Socket::Error(strerror(errno));
         }
 
         if (bind(socket_fd_, i->ai_addr, i->ai_addrlen) == -1)
         {
-            close(socket_fd_);
-            socket_fd_ = UNINITIALIZED;
+            Clear();
             continue;
         }
         break ;
@@ -85,11 +93,12 @@ void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
     if (i == NULL)
         throw TCP::Socket::Error(strerror(errno));
 
-    if (listen(socket_fd_, backlog) == -1) {
-        close(socket_fd_);
-        socket_fd_ = UNINITIALIZED;
+    if (listen(socket_fd_, backlog) == -1)
+    {
+        Clear();
         throw TCP::Socket::Error(strerror(errno));
     }
+    state_ = kConnected;
 }
 /**
  * @brief Create a basic connection socket
@@ -99,7 +108,7 @@ void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
  */
 void TCP::Socket::Connect(AddressInfo &address_info, bool block)
 {
-    if (socket_fd_ != UNINITIALIZED)
+    if (state_ != kUnInitialized)
         throw TCP::Socket::Error("Socket already in use");
     
     struct addrinfo *i = address_info.GetAddrInfo();
@@ -109,8 +118,7 @@ void TCP::Socket::Connect(AddressInfo &address_info, bool block)
             continue ;
         if (connect(socket_fd_, i->ai_addr, i->ai_addrlen) == -1)
         {
-            close(socket_fd_);
-            socket_fd_ = UNINITIALIZED;
+            Clear();
             continue ; //TODO Error information ?
         }
 
@@ -118,6 +126,7 @@ void TCP::Socket::Connect(AddressInfo &address_info, bool block)
     }
     if (i == NULL)
         throw TCP::Socket::Error(strerror(errno));
+    state_ = kConnected;
 }
 
 /**
@@ -127,7 +136,7 @@ void TCP::Socket::Connect(AddressInfo &address_info, bool block)
  */
 void TCP::Socket::Accept(int listener_fd)
 {
-    if (socket_fd_ != UNINITIALIZED)
+    if (state_ != kUnInitialized)
         throw TCP::Socket::Error("Socket already in use");
     
     address_size_ = sizeof(address_);
@@ -135,11 +144,13 @@ void TCP::Socket::Accept(int listener_fd)
     
     if (socket_fd_ == -1)
     {
+        address_size_ = kUnInitialized;
         if (errno == EAGAIN || errno == EWOULDBLOCK)
             throw TCP::Socket::WouldBlock();
         else
             throw TCP::Socket::Error(strerror(errno));
     }
+    state_ = kConnected;
 }
 
 //TODO how do we determine if there's nothing to read anymore?
@@ -149,26 +160,30 @@ std::string TCP::Socket::Recv()
     
     int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
     if (received_bytes == 0)
+    {
+        state_ = kDisconnected;
         throw TCP::Socket::Closed();
+    }
 
     if (received_bytes == -1)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
             throw TCP::Socket::WouldBlock();
         else
-            throw TCP::Socket::Error(strerror(errno));
+            throw TCP::Socket::Error(strerror(errno)); //TODO what to do with error
     }
     
     buffer[received_bytes] = '\0';
     return std::string(buffer, received_bytes);
 }
 
-void TCP::Socket::Send(const std::string &data) const
+void TCP::Socket::Send(const std::string &data)
 {
-    size_t bytesleft = data.size();
+    size_t data_size = data.size();
+    size_t bytesleft = data_size;
     size_t total_send = 0;
     const char *raw_data = data.c_str();
-    while(total_send < data.size())
+    while(total_send < data_size)
     {
         /* Set NOSIGPIPE_FLAG to make sure that send doesn't send a signal on lost connection */
         int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
@@ -178,7 +193,10 @@ void TCP::Socket::Send(const std::string &data) const
                 throw TCP::Socket::WouldBlock();
             /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */
             else if (errno == EPIPE || errno == EPROTOTYPE) 
+            {
+                state_ = kDisconnected;
                 throw TCP::Socket::Closed();
+            }
             else
                 throw TCP::Socket::Error(strerror(errno));
         }
@@ -188,10 +206,10 @@ void TCP::Socket::Send(const std::string &data) const
     }
 }
 
-int TCP::Socket::GetFD() const
-{
-    return socket_fd_;
-}
+// int TCP::Socket::GetFD() const
+// {
+//     return socket_fd_;
+// }
 
 /**
  * @brief Resolve IPv4 or IPv6 sockaddr_in data structure
@@ -211,7 +229,7 @@ static void *GetSockAddrIn(struct sockaddr *address)
 std::string TCP::Socket::ToStr()
 {
     char buffer[INET6_ADDRSTRLEN];
-    if (socket_fd_ == UNINITIALIZED)
+    if (socket_fd_ == kUnInitialized)
         return ("Socket not in use");
 
     inet_ntop(address_.ss_family, GetSockAddrIn((struct sockaddr *)&address_), buffer, sizeof(buffer));

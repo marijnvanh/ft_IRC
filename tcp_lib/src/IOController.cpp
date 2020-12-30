@@ -4,12 +4,23 @@
 #include <string.h>
 #include <memory>
 
+/**
+ * @brief Construct a new TCP::IOController::IOController object
+ * 
+ * @param address_info address info for the listener socket
+ * @param recv_message_queue incomming msg queue
+ * @param send_message_queue outgoing msg queue
+ * @param backlog amount of pending connections
+ * @param max_retries maximum amount of send retries
+ */
 TCP::IOController::IOController(AddressInfo &address_info,
                                 std::queue<TCP::Message> &recv_message_queue,
                                 std::queue<TCP::Message> &send_message_queue,
-                                int backlog) :
+                                int backlog,
+                                int max_retries) :
                                 recv_message_queue_(recv_message_queue),
-                                send_message_queue_(send_message_queue)
+                                send_message_queue_(send_message_queue),
+                                max_retries_(max_retries)
 {
     listener_.Listen(address_info, backlog);
     FD_ZERO(&master_fd_list_);
@@ -45,44 +56,56 @@ void TCP::IOController::HandleSendQueue(struct timeval *time_val)
     write_fds = master_fd_list_;
 
     int ready_write_fds = select(max_fd_ + 1, NULL, &write_fds, NULL, time_val);
-
     if (ready_write_fds == -1)
         throw TCP::IOController::Error(strerror(errno));
     
-    while (send_message_queue_.empty() == false)
+    for (size_t message_count = send_message_queue_.size(); message_count > 0; message_count--)
     { 
         auto message = send_message_queue_.front();
-        const Socket &socket = message.GetSocket();
-        if (FD_ISSET(socket.GetFD(), &write_fds))
-            SendMessage(socket, message.GetData());
-        else
+        /* Socket can have closed if a previous send has detected a closed socket.*/
+
+        if (FD_ISSET(message.GetFD(), &master_fd_list_))
         {
-            ; //TODO store msg for later? retry count
+            if (FD_ISSET(message.GetFD(), &write_fds))
+            {
+                try {
+                    SendMessage(message.GetFD(), message.GetData());
+                }
+                catch (TCP::IOController::FailedToSend &ex)
+                {
+                    std::cerr << "Failed to send message: " << ex.what() << std::endl;
+                    if (message.GetRetries() < max_retries_)
+                        ; //TODO Add message to the back
+                }
+            }
+            else
+                ; //TODO Add message to the back
         }
         send_message_queue_.pop();
     };
 }
 
-void TCP::IOController::SendMessage(const Socket &socket, std::string &data)
+void TCP::IOController::SendMessage(int socket_fd, std::string &data)
 {
+    auto socket = sockets_.find(socket_fd);
+
     try {
-        socket.Send(data);
+        socket->second->Send(data);
     }
     catch (TCP::Socket::Closed &ex)
     {
-        //TODO remove socket safely (remove references in code) from list
-        FD_CLR(socket.GetFD(), &master_fd_list_); //TODO How to lower max_fd?
-        sockets_.erase(socket.GetFD());
-        //TODO How to notify that there's a closed connection? Put a string into the queue ?
+        FD_CLR(socket_fd, &master_fd_list_); //TODO How to lower max_fd?
+        sockets_.erase(socket_fd);
+    
+        /* Notify user with an empty message */
+        recv_message_queue_.push(TCP::Message(socket->second, ""));
+        throw TCP::IOController::FailedToSend(ex.what());
     }
-    catch (TCP::Socket::WouldBlock &ex)
-    {
-        ; //TODO Keep message in queue to send later ?
+    catch (TCP::Socket::WouldBlock &ex) {
+        throw TCP::IOController::FailedToSend(ex.what());
     }
-    catch (TCP::Socket::Error &ex)
-    {
-        std::cerr << "Could not send message: " << ex.what() << std::endl;
-        ; //TODO how to handle, retry, kill connection ?
+    catch (TCP::Socket::Error &ex) {
+        throw TCP::IOController::FailedToSend(ex.what()); // TODO How to handle error
     }
 }
 
@@ -115,7 +138,7 @@ void TCP::IOController::HandleRecvQueue(struct timeval *time_val)
 
 void TCP::IOController::AcceptNewConnection()
 {
-    auto new_socket = std::make_unique<Socket>();
+    auto new_socket = std::make_shared<Socket>();
 
     try {
         new_socket->Accept(listener_.GetFD());
@@ -130,31 +153,42 @@ void TCP::IOController::AcceptNewConnection()
     if (new_socket->GetFD() > max_fd_)
         max_fd_ = new_socket->GetFD();
 
-    sockets_.insert(std::make_pair(new_socket->GetFD(), std::move(new_socket)));
-    //TODO How to notify that there's a new connection? Put a string into the queue ?
+    sockets_.insert(std::make_pair(new_socket->GetFD(), new_socket));
+
+    /* Notify user with an empty message */
+    recv_message_queue_.push(TCP::Message(new_socket, ""));
 }
 
 void TCP::IOController::ReadSocket(int socket_fd)
 {
+    auto socket = sockets_.find(socket_fd);
+
     try {
-        auto socket = sockets_.find(socket_fd);
         std::string data = socket->second->Recv();
-        recv_message_queue_.push(TCP::Message(*(socket->second), std::move(data)));
+        recv_message_queue_.push(TCP::Message(socket->second, std::move(data)));
     }
     catch (TCP::Socket::Closed &ex)
     {
+        std::cerr << "Read failed: " << ex.what() << std::endl;
         FD_CLR(socket_fd, &master_fd_list_); //TODO How to lower max_fd?
         sockets_.erase(socket_fd);
+
         //TODO How to notify that there's a closed connection? Put a string into the queue ?
+        recv_message_queue_.push(TCP::Message(socket->second, ""));
     }
     catch (TCP::Socket::WouldBlock &ex)
     {
+        std::cerr << "Read failed: " << ex.what() << std::endl;
         ; //TODO Do something when it blocks
     }
     catch (TCP::Socket::Error &ex)
     {
+        std::cerr << "Read failed: " << ex.what() << std::endl;
         ; //TODO What to do if socket errors, close connection?
         FD_CLR(socket_fd, &master_fd_list_); //TODO How to lower max_fd?
         sockets_.erase(socket_fd);
     }
 }
+
+//TODO Fix socket close
+//TODO Fix queue for failed send messages
