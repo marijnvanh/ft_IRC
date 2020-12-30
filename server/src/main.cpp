@@ -9,12 +9,14 @@
 int main() {
   using namespace ft_irc;
 
-  std::string source = "hello world :foo";
+  std::string source = "foo123[pog]";
   auto cs = CharStream::from_string(source);
 
   try {
-    auto res = parseParams(cs);
-    std::cout << "Parsed: " << res.size() << std::endl;
+    auto res = parseNickname(cs);
+    eof(cs);
+    std::cout << "Parsed: " << res << std::endl;
+    std::cout << "Remain: " << cs.remaining() << std::endl;
   } catch (ParseException& e) {
     e.explain(cs);
   }

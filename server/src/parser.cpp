@@ -78,6 +78,12 @@ auto ft_irc::parser::some(std::function<char(CharStream &s)> fun, CharStream &s)
   }
 }
 
+auto ft_irc::parser::eof(CharStream &s) -> void {
+  if (s.remaining().size() > 0)
+    throw EOFException(s.location());
+  return;
+}
+
 auto ft_irc::parser::satisfy(std::function<bool(char)> predicate, CharStream& s) -> char {
   const auto peeked = s.peek();
   if (predicate(peeked))
@@ -109,7 +115,14 @@ auto ft_irc::parser::consumeWhile(std::function<bool(char)> predicate, CharStrea
     else
       throw e;
   }
+}
 
+auto ft_irc::parser::consumeWhile1(std::function<bool(char)> predicate, CharStream &s)
+  -> std::string {
+  std::string accum;
+  accum += satisfy(predicate, s);
+  accum += consumeWhile(predicate, s);
+  return accum;
 }
 
 auto ft_irc::parser::parseAlpha(CharStream &s) -> char {
@@ -155,7 +168,7 @@ auto ft_irc::parser::parseWhitespace(CharStream &s) -> void {
 }
 
 auto ft_irc::parser::parseWord(CharStream &s) -> std::string {
-    std::string accum("");
+    std::string accum;
 
     accum += parseAlpha(s);
     for (;;) {

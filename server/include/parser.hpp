@@ -76,6 +76,14 @@ namespace ft_irc {
             ~MatchFailureException() = default;
         };
 
+        class EOFException : public ParseException {
+        public:
+          EOFException(size_t location)
+              : ParseException(location, true,
+                               "Unexpected character. Expecting end of file.") {}
+
+          ~EOFException() = default;
+        };
 
         template<typename T>
         using Parser = std::function<T(CharStream& s)>;
@@ -132,9 +140,13 @@ namespace ft_irc {
             }
         }
 
+        auto eof(CharStream& s) -> void;
         auto satisfy(std::function<bool(char)> predicate, CharStream& s) -> char;
         auto oneOf(std::string options, CharStream& s) -> char;
         auto consumeWhile(std::function<bool(char)> predicate, CharStream& s) -> std::string;
+        auto consumeWhile1(std::function<bool(char)> predicate, CharStream &s)
+
+            -> std::string;
         auto some(std::function<char(CharStream &s)> fun, CharStream& s)
             -> std::string;
 
