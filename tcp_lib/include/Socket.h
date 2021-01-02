@@ -25,20 +25,24 @@ namespace TCP
         socklen_t address_size_;
         struct sockaddr_storage address_;
 
-        int InitSocket(struct addrinfo *addr_info, bool block);
-        void Clear();
+        auto InitSocket(struct addrinfo *addr_info, bool block) -> int;
+        auto Clear() -> void;
 
     public:
         Socket();
         ~Socket();
-        void Listen(AddressInfo &address_info, int backlog = DEFAULT_BACKLOG, bool block = NON_BLOCKING);
-        void Connect(AddressInfo &address_info, bool block = BLOCKING);
-        void Accept(int listener_fd);
-        std::string Recv();
-        void Send(const std::string &data);
-        int GetFD() const { return socket_fd_; };
-        int GetState() const { return state_; };
-        std::string ToStr();
+
+        auto Listen(AddressInfo &address_info,
+                    int backlog = DEFAULT_BACKLOG,
+                    bool block = NON_BLOCKING) -> void;
+        auto Connect(AddressInfo &address_info, bool block = BLOCKING) -> void;
+        auto Accept(int listener_fd) -> void;
+        auto Recv() -> std::string;
+        auto Send(const std::string &data) -> void;
+
+        auto GetFD() const -> int { return socket_fd_; };
+        auto GetState() const -> int { return state_; };
+        auto ToStr() -> std::string;
 
         class Error : public std::runtime_error
         {

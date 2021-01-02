@@ -22,14 +22,21 @@ int main(int argc, char *argv[])
             std::cout << "Poll once" << std::endl;
             io_controller.RunOnce(5);
             
+
             while (read_queue.empty() == false)
             {
                 auto message = read_queue.front();
-                std::cout << "Received: " << message.GetData() << std::endl; 
-                
-                TCP::Message response(message.GetSocket(), "ACK: " + message.GetData());
-                send_queue.push(response);
+                if (message.GetData() != "")
+                {
+                    std::cout << "Received: " << message.GetData() << std::endl;
+                    TCP::Message response(message.GetSocket(), "ACK: " + message.GetData());
+                    send_queue.push(std::move(response));
+                }
                 read_queue.pop(); 
+            }
+            if (send_queue.empty() == false)
+            {
+                std::cout << send_queue.front();
             }
             sleep(1);
         }

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code")
+set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -g")
 
 
 add_subdirectory(tcp_lib)

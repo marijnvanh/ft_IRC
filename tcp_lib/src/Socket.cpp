@@ -32,7 +32,7 @@ TCP::Socket::~Socket()
  * @param block set to true for non-blocking socket
  * @return int 
  */
-int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
+auto TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block) -> int
 {
     socket_fd_ = socket(addr_info->ai_family, addr_info->ai_socktype, addr_info->ai_protocol);
     if (socket_fd_ == -1)
@@ -49,7 +49,7 @@ int TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block)
     return socket_fd_;
 }
 
-void TCP::Socket::Clear()
+auto TCP::Socket::Clear() -> void
 {
     close(socket_fd_);
     socket_fd_ = kUnInitialized;
@@ -64,7 +64,7 @@ void TCP::Socket::Clear()
  * @param backlog pending connection queue size, default is 20
  * @param block set to true for non-blocking socket
  */
-void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
+auto TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block) -> void
 {
     if (state_ != kUnInitialized)
         throw TCP::Socket::Error("Socket already in use");
@@ -100,13 +100,14 @@ void TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block)
     }
     state_ = kConnected;
 }
+
 /**
  * @brief Create a basic connection socket
  * 
  * @param address_info 
  * @param block set to true for non-blocking socket
  */
-void TCP::Socket::Connect(AddressInfo &address_info, bool block)
+auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
 {
     if (state_ != kUnInitialized)
         throw TCP::Socket::Error("Socket already in use");
@@ -134,7 +135,7 @@ void TCP::Socket::Connect(AddressInfo &address_info, bool block)
  * 
  * @param listener_fd 
  */
-void TCP::Socket::Accept(int listener_fd)
+auto TCP::Socket::Accept(int listener_fd) -> void
 {
     if (state_ != kUnInitialized)
         throw TCP::Socket::Error("Socket already in use");
@@ -154,7 +155,7 @@ void TCP::Socket::Accept(int listener_fd)
 }
 
 //TODO how do we determine if there's nothing to read anymore?
-std::string TCP::Socket::Recv()
+auto TCP::Socket::Recv() -> std::string
 {
     char buffer[BUFFER_SIZE];
     
@@ -177,7 +178,7 @@ std::string TCP::Socket::Recv()
     return std::string(buffer, received_bytes);
 }
 
-void TCP::Socket::Send(const std::string &data)
+auto TCP::Socket::Send(const std::string &data) -> void
 {
     size_t data_size = data.size();
     size_t bytesleft = data_size;
@@ -217,7 +218,7 @@ void TCP::Socket::Send(const std::string &data)
  * @param address 
  * @return void* 
  */
-static void *GetSockAddrIn(struct sockaddr *address)
+static auto GetSockAddrIn(struct sockaddr *address) -> void*
 {
     if (address->sa_family == AF_INET) {
         return &(((struct sockaddr_in*)address)->sin_addr);
@@ -225,8 +226,8 @@ static void *GetSockAddrIn(struct sockaddr *address)
     return &(((struct sockaddr_in6*)address)->sin6_addr);
 }
 
-// We could also overload << with all socket related data to string
-std::string TCP::Socket::ToStr()
+//TODO We could also overload << with all socket related data to string
+auto TCP::Socket::ToStr() -> std::string
 {
     char buffer[INET6_ADDRSTRLEN];
     if (socket_fd_ == kUnInitialized)

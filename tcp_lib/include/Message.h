@@ -3,34 +3,40 @@
 
 #include "Socket.h"
 #include <memory>
+#include <iostream>
 
 namespace TCP
 {
     struct Message
     {
         private:
-            const std::shared_ptr<const Socket> socket_;
-            std::string data_;
+            std::shared_ptr<const Socket> socket_;
+            std::string data_; //TODO make shared
             int retries_;
 
         public:
-            Message(const std::shared_ptr<const Socket>socket, std::string &&data) :
-                socket_(socket), data_(data), retries_(0) {};
+            Message(std::shared_ptr<const Socket>socket, std::string &&data);
+            ~Message();
 
-            std::string &GetData()
-            {
-                return data_;
-            };
-
-            const std::shared_ptr<const Socket> GetSocket() const
-            {
-                return socket_;
-            };
-
-            void Retry() { retries_++; };
-            int GetRetries() { return retries_; };
-            int GetFD() const { return socket_->GetFD(); };
+            auto Retry() -> void;
+            
+            auto GetSocket() const -> std::shared_ptr<const Socket>;
+            auto GetData() const -> const std::string &;
+            auto GetRetries() const -> int;
+            auto GetFD() const -> int;
+    
+            Message (const Message& other);
+            auto operator =(const Message& other) -> Message &;
+            Message (const Message&& other);
+            auto operator =(const Message&& other) -> Message &;
     };
+}
+
+inline std::ostream& operator<<(std::ostream& os, const TCP::Message& message)
+{
+    os << "FD: " << message.GetFD() << " Retries: " << message.GetRetries()
+    << " Data: " << message.GetData() << std::endl;
+    return os;
 }
 
 #endif
