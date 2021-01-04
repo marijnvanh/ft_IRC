@@ -1,7 +1,7 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
-#include "Resolver.h"
+#include "AddressInfo.h"
 
 #define DEFAULT_BACKLOG 20
 #define BLOCKING true
@@ -13,8 +13,7 @@ namespace TCP
     {
         kUnInitialized = -1,
         kConnected,
-        kDisconnected,
-        kError // TODO not sure if we need this
+        kDisconnected
     };
 
     class Socket
@@ -27,6 +26,7 @@ namespace TCP
 
         auto InitSocket(struct addrinfo *addr_info, bool block) -> int;
         auto Clear() -> void;
+        auto GetSockAddrIn(struct sockaddr *address) const -> void *;
 
     public:
         Socket();
@@ -61,12 +61,15 @@ namespace TCP
             public:
             Closed() : Error("Socket closed") {}
         };
+        friend auto operator<<(std::ostream& os, const Socket& socket) -> std::ostream &;
 
         Socket (Socket& other) = delete;
         Socket &operator =(Socket& other) = delete;
         Socket (Socket&& other) = delete;
         Socket &operator= (Socket&& other) = delete;
     };
+
+    auto operator<<(std::ostream& os, const Socket& socket) -> std::ostream &;
 } // namespace TCP
 
 #endif

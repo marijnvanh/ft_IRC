@@ -1,4 +1,4 @@
-#include "Resolver.h"
+#include "AddressInfo.h"
 #include "Socket.h"
 #include "IOController.h"
 #include <string>
@@ -12,10 +12,10 @@ int main(int argc, char *argv[])
     std::string server_address(argv[1]);
     try {
         /* Client */
-        TCP::AddressInfo address_info = TCP::Resolver::Resolve(server_address, PORT);
+        TCP::AddressInfo address_info(server_address, PORT);
         TCP::Socket socket;
         socket.Connect(address_info);
-        std::cout << socket.ToStr() << std::endl;
+        std::cout << socket << std::endl;
         
         for (std::string line; std::getline(std::cin, line);)
         {
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
             std::cout << "Recv: " << message << std::endl;
         }
     }
-    catch (TCP::Resolver::Error &ex)
+    catch (TCP::AddressInfo::ResolveError &ex)
     {
         std::cout << "Resolve error: " << ex.what() << std::endl;
         exit(-1);

@@ -1,4 +1,4 @@
-#include "Resolver.h"
+#include "AddressInfo.h"
 #include "Socket.h"
 #include "IOController.h"
 #include "Message.h"
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
         exit(1);
     std::string server_address(argv[1]);
     try {
-        TCP::AddressInfo address_info = TCP::Resolver::Resolve(server_address, PORT);
+        TCP::AddressInfo address_info(server_address, PORT);
         std::queue<TCP::Message> send_queue;
         std::queue<TCP::Message> read_queue;
         TCP::IOController io_controller(address_info, read_queue, send_queue);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
             sleep(1);
         }
     }
-    catch (TCP::Resolver::Error &ex)
+    catch (TCP::AddressInfo::ResolveError &ex)
     {
         std::cout << "Resolve error: " << ex.what() << std::endl;
         exit(-1);

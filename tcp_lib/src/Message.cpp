@@ -66,3 +66,10 @@ auto TCP::Message::operator =(const Message&& other) -> Message &
     retries_ = other.GetRetries();
     return *this;
 }
+
+auto operator<<(std::ostream& os, const TCP::Message& message) -> std::ostream &
+{
+    os << "FD: " << message.GetFD() << " Retries: " << message.GetRetries()
+    << " Data: " << message.GetData() << std::endl;
+    return os;
+}

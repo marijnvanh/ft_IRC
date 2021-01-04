@@ -11,7 +11,7 @@ namespace TCP
     {
         private:
             std::shared_ptr<const Socket> socket_;
-            std::string data_; //TODO make shared
+            std::string data_; //TODO make this shared_ptr ?
             int retries_;
 
         public:
@@ -32,11 +32,6 @@ namespace TCP
     };
 }
 
-inline std::ostream& operator<<(std::ostream& os, const TCP::Message& message)
-{
-    os << "FD: " << message.GetFD() << " Retries: " << message.GetRetries()
-    << " Data: " << message.GetData() << std::endl;
-    return os;
-}
+auto operator<<(std::ostream& os, const TCP::Message& message) -> std::ostream&;
 
 #endif

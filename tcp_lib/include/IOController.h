@@ -1,7 +1,7 @@
 #ifndef __IOCONTROLLER_H__
 #define __IOCONTROLLER_H__
 
-#include "Resolver.h"
+#include "AddressInfo.h"
 #include "Socket.h"
 #include "Message.h"
 

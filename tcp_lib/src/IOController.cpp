@@ -39,7 +39,7 @@ auto TCP::IOController::RunOnce(int timeout) -> void //TODO do we need to be mor
 {
     struct timeval time_val;
     time_val.tv_sec = timeout;
-    time_val.tv_usec = 0; // TODO Fix usec
+    time_val.tv_usec = 0;
     
     fd_set read_fds;
     fd_set write_fds;
@@ -126,7 +126,7 @@ auto TCP::IOController::SendMessage(TCP::Message &message, fd_set *write_fds) ->
     }
     catch (TCP::Socket::Error &ex)
     {
-        DeleteSocket(message.GetFD()); // TODO How to handle error
+        DeleteSocket(message.GetFD());
         throw TCP::IOController::FailedToSend(ex.what());
     }
 }
@@ -188,7 +188,7 @@ auto TCP::IOController::ReadFromSocket(int socket_fd) -> void
     }
     catch (TCP::Socket::Error &ex)
     {
-        DeleteSocket(socket_fd); //TODO do we close connection on error?
+        DeleteSocket(socket_fd);
         std::cerr << "Read failed: " << ex.what() << std::endl;
     }
 }
@@ -199,8 +199,13 @@ auto TCP::IOController::DeleteSocket(int socket_fd) -> void
     auto socket = sockets_.find(socket_fd);
     recv_message_queue_.push(TCP::Message(socket->second, ""));
 
-    FD_CLR(socket_fd, &master_fd_list_); //TODO How to lower max_fd?
+    FD_CLR(socket_fd, &master_fd_list_);
+
+    /* Lower max_fd when we delete the previous highest fd */
+    if (socket_fd == max_fd_)
+    {
+        while (FD_ISSET(max_fd_, &master_fd_list_) == false && max_fd_ > 0)
+            max_fd_--;
+    }
     sockets_.erase(socket_fd);    
 }
-
-//TODO Fix socket close
