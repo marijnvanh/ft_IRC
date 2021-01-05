@@ -1,8 +1,8 @@
 #include "AddressInfo.h"
-#include "Socket.h"
 #include "IOController.h"
 #include <string>
 #include <queue>
+#include <unistd.h>
 #define PORT "5000"
 
 int main(int argc, char *argv[])
@@ -11,18 +11,27 @@ int main(int argc, char *argv[])
         exit(1);
     std::string server_address(argv[1]);
     try {
-        /* Client */
         TCP::AddressInfo address_info(server_address, PORT);
-        TCP::Socket socket;
-        socket.Connect(address_info);
-        std::cout << socket << std::endl;
+        std::queue<TCP::Message> send_queue;
+        std::queue<TCP::Message> read_queue;
+        auto client_socket = std::make_shared<TCP::Socket>();
+        client_socket->Connect(address_info);
+        TCP::IOController io_controller(client_socket, read_queue, send_queue);
         
         for (std::string line; std::getline(std::cin, line);)
         {
-            socket.Send(line);
-            std::cout << "Send: " << line << std::endl;
-            std::string message = socket.Recv();
-            std::cout << "Recv: " << message << std::endl;
+            std::cout << "Run once and send: " << line << std::endl;
+            TCP::Message message(client_socket, std::move(line));
+            send_queue.push(std::move(message));
+            io_controller.RunOnce(1);
+            sleep(2);
+            io_controller.RunOnce(1);
+            while (read_queue.empty() == false)
+            {
+                auto recv_message = read_queue.front();
+                std::cout << "Received: " << recv_message.GetData() << std::endl;
+                read_queue.pop();
+            }
         }
     }
     catch (TCP::AddressInfo::ResolveError &ex)

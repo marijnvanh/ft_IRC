@@ -1,5 +1,4 @@
 #include "AddressInfo.h"
-#include "Socket.h"
 #include "IOController.h"
 #include "Message.h"
 
@@ -21,7 +20,6 @@ int main(int argc, char *argv[])
         {
             std::cout << "Poll once" << std::endl;
             io_controller.RunOnce(5);
-            
 
             while (read_queue.empty() == false)
             {
@@ -32,6 +30,12 @@ int main(int argc, char *argv[])
                     TCP::Message response(message.GetSocket(), "ACK: " + message.GetData());
                     send_queue.push(std::move(response));
                 }
+                else
+                {
+                    if (message.GetSocket()->GetState() == TCP::SocketState::kConnected)
+                        std::cout << "New connection received" << std::endl;
+                }
+                
                 read_queue.pop(); 
             }
             if (send_queue.empty() == false)

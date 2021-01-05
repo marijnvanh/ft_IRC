@@ -4,13 +4,15 @@
 #include <string.h>
 #include <memory>
 /**
- * @brief Construct a new TCP::IOController::IOController object
+ * @brief Construct a new TCP::IOController server object
  * 
  * @param address_info address info for the listener socket
  * @param recv_message_queue incomming msg queue
  * @param send_message_queue outgoing msg queue
  * @param backlog amount of pending connections
  * @param max_retries maximum amount of send retries
+ * 
+ * @exception Socket::Error
  */
 TCP::IOController::IOController(AddressInfo &address_info,
                                 std::queue<TCP::Message> &recv_message_queue,
@@ -19,15 +21,47 @@ TCP::IOController::IOController(AddressInfo &address_info,
                                 int max_retries) :
                                 recv_message_queue_(recv_message_queue),
                                 send_message_queue_(send_message_queue),
-                                max_retries_(max_retries)
+                                max_retries_(max_retries),
+                                type_(kServer)
 {
-    listener_.Listen(address_info, backlog);
-    FD_ZERO(&master_fd_list_);
-    FD_SET(listener_.GetFD(), &master_fd_list_);
-    max_fd_ = listener_.GetFD();
+    main_socket_ = std::make_shared<Socket>();
+    main_socket_->Listen(address_info, backlog);
+    Init();
+}
+
+/**
+ * @brief Construct a new TCP::IOController client object
+ * 
+ * @param client_socket client socket object
+ * @param recv_message_queue incomming msg queue
+ * @param send_message_queue outgoing msg queue
+ * @param max_retries maximum amount of send retries
+ */
+TCP::IOController::IOController(std::shared_ptr<Socket> client_socket,
+                                std::queue<TCP::Message> &recv_message_queue,
+                                std::queue<TCP::Message> &send_message_queue,
+                                int max_retries) :
+                                recv_message_queue_(recv_message_queue),
+                                send_message_queue_(send_message_queue),
+                                max_retries_(max_retries),
+                                type_(kClient)
+{
+    main_socket_ = client_socket;
+    Init();
 }
 
 TCP::IOController::~IOController() {}
+
+auto TCP::IOController::Init() -> void
+{
+    std::cout << *main_socket_ << std::endl;
+
+    FD_ZERO(&master_fd_list_);
+    FD_SET(main_socket_->GetFD(), &master_fd_list_);
+    max_fd_ = main_socket_->GetFD();
+    sockets_.insert(std::make_pair(main_socket_->GetFD(), main_socket_));
+}
+
 
 /**
  * @brief Accepts new connections and sends/receives messages
@@ -70,7 +104,7 @@ auto TCP::IOController::HandleSendQueue(fd_set *write_fds) -> void
         catch (TCP::IOController::FailedToSend &ex)
         {
             std::cerr << "Failed to send message: " << ex.what();
-            std::cerr << "Retries: " << message.GetRetries() << std::endl;
+            std::cerr << " Retries: " << message.GetRetries() << std::endl;
             if (message.GetRetries() < max_retries_)
             {
                 message.Retry();
@@ -138,7 +172,7 @@ auto TCP::IOController::HandleRecvQueue(fd_set *read_fds) -> void
     {
         if (FD_ISSET(i, read_fds))
         {
-            if (i == listener_.GetFD())
+            if (type_ == kServer && i == main_socket_->GetFD())
                 AcceptNewConnection();
             else
                 ReadFromSocket(i);
@@ -152,7 +186,7 @@ auto TCP::IOController::AcceptNewConnection() -> void
     auto new_socket = std::make_shared<Socket>();
 
     try {
-        new_socket->Accept(listener_.GetFD());
+        new_socket->Accept(main_socket_->GetFD());
     }
     catch (TCP::Socket::Error &ex)
     {
@@ -209,3 +243,7 @@ auto TCP::IOController::DeleteSocket(int socket_fd) -> void
     }
     sockets_.erase(socket_fd);    
 }
+
+
+
+//TODO what if listener closes?

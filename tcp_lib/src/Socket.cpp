@@ -56,6 +56,8 @@ auto TCP::Socket::Clear() -> void
  * @param address_info 
  * @param backlog pending connection queue size, default is 20
  * @param block set to true for non-blocking socket
+ * 
+ * @exception Socket::Error
  */
 auto TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block) -> void
 {
@@ -99,6 +101,8 @@ auto TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block) -> 
  * 
  * @param address_info 
  * @param block set to true for non-blocking socket
+ * 
+ * @exception Socket::Error
  */
 auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
 {
