@@ -35,18 +35,6 @@ namespace TCP
             Error(const char *msg) : std::runtime_error(msg) {}
         };
 
-        class FailedToSend : public Error
-        {
-        public:
-            FailedToSend(const char *msg) : Error(msg) {}
-        };
-
-        class InvalidSocket : public Error
-        {
-        public:
-            InvalidSocket(const char *msg) : Error(msg) {}
-        };
-
     private:
         enum Type { kServer, kClient };
 
@@ -68,6 +56,18 @@ namespace TCP
         auto AcceptNewConnection() -> void;
         auto ValidateSocket(std::shared_ptr<const Socket> socket) -> std::shared_ptr<Socket>;
         auto DeleteSocket(int socket_fd) -> void;
+
+        class FailedToSend : public Error
+        {
+        public:
+            FailedToSend(const char *msg) : Error(msg) {}
+        };
+
+        class InvalidSocket : public Error
+        {
+        public:
+            InvalidSocket(const char *msg) : Error(msg) {}
+        };
     };
 } // namespace TCP
 

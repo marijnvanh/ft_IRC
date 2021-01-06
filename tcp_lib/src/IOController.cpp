@@ -67,6 +67,7 @@ auto TCP::IOController::Init() -> void
  * @brief Accepts new connections and sends/receives messages
  * 
  * @exception TCP::IOController::Error when select fails
+ * @exception TCP::IOController::Error when main socket closes
  * @param timeout in seconds
  */
 auto TCP::IOController::RunOnce() -> void
@@ -107,7 +108,7 @@ auto TCP::IOController::HandleSendQueue(fd_set *write_fds) -> void
             if (message.GetRetries() < max_retries_)
             {
                 message.Retry();
-                send_message_queue_.push(std::move(message));//TODO I dont udnerstand move, do I move here?
+                send_message_queue_.push(std::move(message));
             }
         }
         send_message_queue_.pop();
@@ -224,6 +225,10 @@ auto TCP::IOController::DeleteSocket(int socket_fd) -> void
 {
     /* Notify user with an empty message */
     auto socket = sockets_.find(socket_fd);
+
+    if (socket->second == main_socket_)
+        throw TCP::IOController::Error("Main socket closed unexpectedly");
+
     recv_message_queue_.push(TCP::Message(socket->second, ""));
 
     FD_CLR(socket_fd, &master_fd_list_);
@@ -236,8 +241,3 @@ auto TCP::IOController::DeleteSocket(int socket_fd) -> void
     }
     sockets_.erase(socket_fd);    
 }
-
-
-
-//TODO what if listener closes?
-// refactor to accept multiple listeners

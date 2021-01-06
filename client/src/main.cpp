@@ -44,6 +44,11 @@ int main(int argc, char *argv[])
         std::cout << "Socket error: " << ex.what() << std::endl;
         exit(-1);
     }
+    catch (TCP::IOController::Error &ex)
+    {
+        std::cout << "IOControler error: " << ex.what() << std::endl;
+        exit(-1);
+    }
 
     return (0);
 }
