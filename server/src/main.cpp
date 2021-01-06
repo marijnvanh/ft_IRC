@@ -35,12 +35,7 @@ int main(int argc, char *argv[])
                     if (message.GetSocket()->GetState() == TCP::SocketState::kConnected)
                         std::cout << "New connection received" << std::endl;
                 }
-                
                 read_queue.pop(); 
-            }
-            if (send_queue.empty() == false)
-            {
-                std::cout << send_queue.front();
             }
             sleep(1);
         }
