@@ -27,7 +27,7 @@ namespace TCP
                      int max_retries = DEFAULT_RETRIES);
         ~IOController();
 
-        auto RunOnce(int timeout) -> void;
+        auto RunOnce() -> void;
 
         class Error : public std::runtime_error
         {

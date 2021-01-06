@@ -23,9 +23,9 @@ int main(int argc, char *argv[])
             std::cout << "Run once and send: " << line << std::endl;
             TCP::Message message(client_socket, std::move(line));
             send_queue.push(std::move(message));
-            io_controller.RunOnce(1);
+            io_controller.RunOnce();
             sleep(2);
-            io_controller.RunOnce(1);
+            io_controller.RunOnce();
             while (read_queue.empty() == false)
             {
                 auto recv_message = read_queue.front();

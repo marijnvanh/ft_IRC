@@ -69,11 +69,10 @@ auto TCP::IOController::Init() -> void
  * @exception TCP::IOController::Error when select fails
  * @param timeout in seconds
  */
-auto TCP::IOController::RunOnce(int timeout) -> void //TODO do we need to be more precise aka micro seconds? 
+auto TCP::IOController::RunOnce() -> void
 {
-    struct timeval time_val;
-    time_val.tv_sec = timeout;
-    time_val.tv_usec = 0;
+    /* Set time_val to 0 so select doesn't block */
+    struct timeval time_val = {0, 0};
     
     fd_set read_fds;
     fd_set write_fds;
@@ -141,7 +140,7 @@ auto TCP::IOController::SendMessage(TCP::Message &message, fd_set *write_fds) ->
     try {
         std::shared_ptr<Socket> socket = ValidateSocket(message.GetSocket());
         if (FD_ISSET(message.GetFD(), write_fds))
-            socket->Send(message.GetData());
+            socket->Send(*message.GetData());
         else
             throw TCP::IOController::FailedToSend("Socket not ready for writing");
     }
@@ -210,20 +209,14 @@ auto TCP::IOController::ReadFromSocket(int socket_fd) -> void
         std::string data = socket->second->Recv();
         recv_message_queue_.push(TCP::Message(socket->second, std::move(data)));
     }
-    catch (TCP::Socket::Closed &ex)
-    {
-        std::cerr << "Read failed: " << ex.what() << std::endl;
-        DeleteSocket(socket_fd);
-    }
     catch (TCP::Socket::WouldBlock &ex)
     {
         std::cerr << "Read failed: " << ex.what() << std::endl;
-        ; //TODO Do something when it blocks or just ignore?
     }
     catch (TCP::Socket::Error &ex)
     {
-        DeleteSocket(socket_fd);
         std::cerr << "Read failed: " << ex.what() << std::endl;
+        DeleteSocket(socket_fd);
     }
 }
 
@@ -247,3 +240,4 @@ auto TCP::IOController::DeleteSocket(int socket_fd) -> void
 
 
 //TODO what if listener closes?
+// refactor to accept multiple listeners

@@ -19,15 +19,15 @@ int main(int argc, char *argv[])
         while (1)
         {
             std::cout << "Poll once" << std::endl;
-            io_controller.RunOnce(5);
+            io_controller.RunOnce();
 
             while (read_queue.empty() == false)
             {
                 auto message = read_queue.front();
-                if (message.GetData() != "")
+                if (*message.GetData() != "")
                 {
                     std::cout << "Received: " << message.GetData() << std::endl;
-                    TCP::Message response(message.GetSocket(), "ACK: " + message.GetData());
+                    TCP::Message response(message.GetSocket(), "ACK: " + *message.GetData());
                     send_queue.push(std::move(response));
                 }
                 else
