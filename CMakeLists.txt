@@ -12,3 +12,11 @@ set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -g")
 add_subdirectory(tcp_lib)
 add_subdirectory(server)
 add_subdirectory(client)
+
+
+option(TEST "Building unit tests")
+if(TEST)
+    enable_testing()
+    include(GoogleTest)
+    add_subdirectory(tcp_lib/tests)
+endif()
