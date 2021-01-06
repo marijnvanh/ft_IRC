@@ -33,6 +33,8 @@ namespace TCP
         
             friend auto operator<<(std::ostream& os, const TCP::Message& message) -> std::ostream&;
     };
+
+    auto operator<<(std::ostream& os, const TCP::Message& message) -> std::ostream&;
 }
 
 
