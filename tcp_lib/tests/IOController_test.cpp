@@ -10,6 +10,10 @@
 
 void * LaunchServer(void * ptr);  
 
+/*
+Initializes and launches a server IOController in a seperate thread
+Creates a client IOController and connects to sever
+*/
 class IOControllerIntegrationTest : public ::testing::Test
 {
     public:
@@ -40,14 +44,17 @@ class IOControllerIntegrationTest : public ::testing::Test
     }
 };
 
-
-TEST_F(IOControllerIntegrationTest, SendMessage)
+/* Test for a response after sending a message */
+TEST_F(IOControllerIntegrationTest, SendAndReceiveMessage)
 {
 
     TCP::Message test_message(client_socket, "test");
     send_queue.push(std::move(test_message));
     client_io_controller->RunOnce();
-    sleep(5); //TODO fix time out randomness
+    
+    /* Give server time to respond */
+    sleep(5);
+    
     client_io_controller->RunOnce();
     ASSERT_FALSE(read_queue.empty());
     auto message = read_queue.front();
@@ -65,7 +72,6 @@ void *LaunchServer(void * ptr)
 
     while (1)
     {
-        sleep(1);
         server_io_controller.RunOnce();
         if (read_queue.empty() == false)
         {
@@ -79,6 +85,7 @@ void *LaunchServer(void * ptr)
             }
             read_queue.pop();
         }
+        sleep(1);
     }
     return (0);
 }

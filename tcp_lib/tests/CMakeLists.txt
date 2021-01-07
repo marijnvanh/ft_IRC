@@ -13,4 +13,4 @@ macro(package_add_test TESTNAME)
         FOLDER tests)
 endmacro()
 
-package_add_test(TCP_lib_test test_tcp_lib.cpp)
+package_add_test(IOController_test IOController_test.cpp)
