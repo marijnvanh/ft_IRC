@@ -14,19 +14,19 @@ namespace ft_irc {
             size_t read_head_;
             std::shared_ptr<const std::string> stream_;
         public:
-            auto consume_many(const size_t count) -> std::string;
-            auto consume() -> char;
-            auto peek() const -> char;
-            auto remaining() const -> std::string;
-            auto location() const -> size_t;
+            auto ConsumeMany(const size_t count) -> std::string;
+            auto Consume() -> char;
+            auto Peek() const -> char;
+            auto Remaining() const -> std::string;
+            auto Location() const -> size_t;
 
-            auto debug_stream() const -> void;
+            auto DebugStream() const -> void;
 
-            static auto from_string(const std::string source_string) -> CharStream {
+            static auto FromString(const std::string source_string) -> CharStream {
                 return CharStream(std::make_shared<const std::string>(source_string));
             }
 
-            static auto from_string(const char* source_string) -> CharStream {
+            static auto FromString(const char* source_string) -> CharStream {
                 return CharStream(std::make_shared<const std::string>(source_string));
             }
 
@@ -41,7 +41,7 @@ namespace ft_irc {
             size_t location;
             bool recoverable;
 
-            auto explain(const CharStream& stream) const -> void;
+            auto Explain(const CharStream& stream) const -> void;
 
             ParseException(size_t location, bool recoverable)
                 : std::runtime_error("Generic parse exception"),
@@ -90,7 +90,7 @@ namespace ft_irc {
 
         template<typename T>
         auto run(Parser<T> p, const std::string s) -> T {
-            CharStream cs = CharStream::from_string(s);
+            CharStream cs = CharStream::FromString(s);
             return p(cs);
         }
 

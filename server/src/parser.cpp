@@ -2,49 +2,49 @@
 
 using namespace ft_irc::parser;
 
-auto ParseException::explain(const CharStream& stream) const -> void {
+auto ParseException::Explain(const CharStream& stream) const -> void {
     std::cout << "Parse Exception: "
               << what()
               << ", at "
               << location
               << ". Remaning: '"
-              << stream.remaining()
+              << stream.Remaining()
               << "'."
               << std::endl;
 }
 
-auto CharStream::consume_many(const size_t count) -> std::string {
+auto CharStream::ConsumeMany(const size_t count) -> std::string {
     if (read_head_ + count - 1 >= (*stream_).size())
         throw StreamEndException(read_head_);
     read_head_ += count;
     return (*stream_).substr(read_head_, read_head_ + count);
 }
 
-auto CharStream::consume() -> char {
+auto CharStream::Consume() -> char {
     if (read_head_ >= (*stream_).size())
         throw StreamEndException(read_head_);
     read_head_++;
     return (*stream_)[read_head_ - 1];
 }
 
-auto CharStream::peek() const -> char {
+auto CharStream::Peek() const -> char {
     if (read_head_ >= (*stream_).size())
         throw StreamEndException(read_head_);
     return (*stream_)[read_head_];
 }
 
-auto CharStream::remaining() const -> std::string {
+auto CharStream::Remaining() const -> std::string {
     return (*stream_)
         .substr(read_head_, (*stream_).size() - read_head_);
 }
 
-auto CharStream::location() const -> size_t {
+auto CharStream::Location() const -> size_t {
     return read_head_;
 }
 
-auto CharStream::debug_stream() const -> void {
+auto CharStream::DebugStream() const -> void {
   std::cout << "Debugging stream at " << read_head_ << "." << std::endl;
-  std::cout << "Remaining text: <<" << remaining() << ">>" << std::endl;
+  std::cout << "Remaining text: <<" << Remaining() << ">>" << std::endl;
 }
 
 auto ft_irc::parser::replicate(std::function<char(CharStream &s)> fun, int n, CharStream &s)
@@ -79,24 +79,24 @@ auto ft_irc::parser::some(std::function<char(CharStream &s)> fun, CharStream &s)
 }
 
 auto ft_irc::parser::eof(CharStream &s) -> void {
-  if (s.remaining().size() > 0)
-    throw EOFException(s.location());
+  if (s.Remaining().size() > 0)
+    throw EOFException(s.Location());
   return;
 }
 
 auto ft_irc::parser::satisfy(std::function<bool(char)> predicate, CharStream& s) -> char {
-  const auto peeked = s.peek();
+  const auto peeked = s.Peek();
   if (predicate(peeked))
-    return s.consume();
+    return s.Consume();
   else
-    throw MatchFailureException(s.location(), peeked);
+    throw MatchFailureException(s.Location(), peeked);
 }
 
 auto ft_irc::parser::oneOf(std::string options, CharStream& s) -> char {
-  const auto peeked = s.peek();
+  const auto peeked = s.Peek();
   if (options.find(peeked) == std::string::npos)
-    throw MatchFailureException(s.location(), peeked);
-  return s.consume();
+    throw MatchFailureException(s.Location(), peeked);
+  return s.Consume();
 }
 
 auto ft_irc::parser::consumeWhile(std::function<bool(char)> predicate, CharStream &s)
@@ -104,10 +104,10 @@ auto ft_irc::parser::consumeWhile(std::function<bool(char)> predicate, CharStrea
   std::string accum;
   try {
     for (;;) {
-      const auto peeked = s.peek();
+      const auto peeked = s.Peek();
       if (!predicate(peeked))
         return accum;
-      accum += s.consume();
+      accum += s.Consume();
     }
   } catch(ParseException& e) {
     if (e.recoverable)
@@ -126,36 +126,36 @@ auto ft_irc::parser::consumeWhile1(std::function<bool(char)> predicate, CharStre
 }
 
 auto ft_irc::parser::parseAlpha(CharStream &s) -> char {
-    char peeked = s.peek();
+    char peeked = s.Peek();
     if ((peeked >= 'a' && peeked <= 'z') ||
         (peeked >= 'A' && peeked <= 'Z'))
-        return s.consume();
+        return s.Consume();
     else
-        throw MatchFailureException(s.location(), peeked);
+        throw MatchFailureException(s.Location(), peeked);
 }
 
 auto ft_irc::parser::parseDigit(CharStream &s) -> char {
-  char peeked = s.peek();
+  char peeked = s.Peek();
   if (peeked >= '0' && peeked <= '9')
-    return s.consume();
+    return s.Consume();
   else
-    throw MatchFailureException(s.location(), peeked);
+    throw MatchFailureException(s.Location(), peeked);
 }
 
 auto ft_irc::parser::parseSymbol(char c, CharStream &s) -> char {
-    char peeked = s.peek();
+    char peeked = s.Peek();
     if (peeked == c)
-        return s.consume();
+        return s.Consume();
     else
-        throw MatchFailureException(s.location(), peeked);
+        throw MatchFailureException(s.Location(), peeked);
 }
 
 auto ft_irc::parser::parseWhitespace(CharStream &s) -> void {
     try {
         for (;;) {
-            char peeked = s.peek();
+            char peeked = s.Peek();
             if (peeked == ' ')
-                s.consume();
+                s.Consume();
             else
                 return;
         }

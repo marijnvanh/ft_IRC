@@ -13,7 +13,7 @@ auto ft_irc::parseParams(CharStream& s) -> std::vector<std::string> {
 
   for(;;) {
     parseWhitespace(s);
-    if (s.peek() == ':') {
+    if (s.Peek() == ':') {
       params.push_back(parseTrailing(s));
       return params;
     } else {
@@ -21,7 +21,7 @@ auto ft_irc::parseParams(CharStream& s) -> std::vector<std::string> {
     }
   }
 
-  throw MatchFailureException(s.location(), s.peek());
+  throw MatchFailureException(s.Location(), s.Peek());
 }
 
 auto predicateExclude(std::vector<char> blacklist) -> std::function<bool(char)> {
