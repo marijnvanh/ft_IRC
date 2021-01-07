@@ -6,10 +6,10 @@ stdenv.mkDerivation rec {
 
   src = ./.;
 
-  buildInputs = [ pkgs.cmake ];
+  buildInputs = [ pkgs.cmake pkgs.gtest ];
 
   configurePhase = ''
-    cmake .
+    cmake . -DPACKAGE_TESTS=ON -DNIX=ON
   '';
 
   buildPhase = ''
