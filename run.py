@@ -33,15 +33,15 @@ def Run(target):
 
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description='Build and Run tool for IRC')
-    arg_parser.add_argument('-m', '--method', default='BR', choices=['BR', 'B', 'R'],
-        help='BR: Build and Run; B: Build only; R: Run only')
+    arg_parser.add_argument('-m', '--method', default='BR', choices=['BR', 'build', 'run'],
+        help='Options: B - Build; R - Run. Default is build and run.')
     arg_parser.add_argument('-t', '--target', default='server', choices=['server', 'client', 'tests'],
-        help='Valid options: server, client, tests')
+        help='Options: server, client, tests.')
     arg_parser.add_argument('-n', '--name_test', default=None,
         help='Name of specific test')
     args = arg_parser.parse_args()
 
-    if args.method != 'R':
+    if args.method != 'run':
         Build()
-    if args.method != 'B':
+    if args.method != 'build':
         Run(args.target)
