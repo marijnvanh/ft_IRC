@@ -14,6 +14,19 @@
 
 int main(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+
+    using namespace ft_irc::parser;
+
+    std::string source(":emiflake@nixflake JOIN #ft-irc :");
+    CharStream cs = CharStream::FromString(source);
+
+    auto message = ft_irc::parseRawMessage(cs);
+
+    std::cout << "Command: " << message.command.name << std::endl;
+
+    /*
     if (argc != 2)
         exit(1);
     std::string server_address(argv[1]);
@@ -56,6 +69,7 @@ int main(int argc, char *argv[])
         std::cout << "Socket error: " << ex.what() << std::endl;
         exit(-1);
     }
+    */
 
     return (0);
 }

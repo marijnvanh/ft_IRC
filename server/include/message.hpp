@@ -13,19 +13,19 @@
 **
 ** Pseudo BNF specification
 **
-**      <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
+**      <message>    ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
 **
-**      <prefix>   ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
-**      <command>  ::= <letter> { <letter> } | <number> <number> <number>
-**      <SPACE>    ::= ' ' { ' ' }
-**      <params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
+**      <prefix>     ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
+**      <command>    ::= <letter> { <letter> } | <number> <number> <number>
+**      <SPACE>      ::= ' ' { ' ' }
+**      <params>     ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
 **
-**      <middle>   ::= <Any *non-empty* sequence of octets not including SPACE
+**      <middle>     ::= <Any *non-empty* sequence of octets not including SPACE
 **      or NUL or CR or LF, the first of which may not be ':'>
-**      <trailing> ::= <Any, possibly *empty*, sequence of octets not including
+**      <trailing>   ::= <Any, possibly *empty*, sequence of octets not including
 **                      NUL or CR or LF>
 **
-**      <crlf>     ::= CR LF
+**      <crlf>       ::= CR LF
 **
 **      <target>     ::= <to> [ "," <target> ]
 **      <to>         ::= <channel> | <user> '@' <servername> | <nick> | <mask>
@@ -60,31 +60,25 @@ namespace ft_irc {
         std::vector<std::string> parameters;
     };
 
-    struct RawUserPrefix {
-        std::string nickname;
-        std::string username;
-        Hostname hostname;
-    };
-
     struct RawPrefix {
-        SenderType tag;
-        union {
-            std::string server_name;
-            RawUserPrefix user_prefix;
-        } value;
+        // FIXME: currently this does not distinguish between server / client message prefix
+        // even though the RFC explicitly states the difference (hint: servername has only a *hostname*)
+        // Parser is broken in the same way.
+        std::string name;
+        std::optional<std::string> username;
+        std::optional<Hostname> hostname;
     };
 
     struct RawMessage {
-        RawPrefix prefix;
+        std::optional<RawPrefix> prefix;
         RawCommand command;
     };
-
-
 
     using namespace parser;
 
     /* <message>  ::= [':' < prefix > <SPACE>]<command><params><crlf> */
-    /* <prefix>   ::= <servername> | <nick>['!' < user > ]['@' < host > ] */
+    auto parseRawMessage(CharStream& s) -> RawMessage;
+    auto parsePrefix(CharStream& s) -> RawPrefix;
 
     auto parseCommandId(CharStream& s) -> std::string;
     auto parseParams(CharStream& s) -> std::vector<std::string>;

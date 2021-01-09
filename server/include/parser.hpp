@@ -108,10 +108,10 @@ namespace ft_irc {
 
         template<typename T>
         auto maybe(Parser<T> fun, CharStream& s)
-            ->std::optional<T> {
+            -> std::optional<T> {
             CharStream s2 = s;
             try {
-                auto ret = fun(s);
+                auto ret = fun(s2);
                 s = s2;
                 return std::optional<T>{ret};
             } catch (ParseException& e) {
