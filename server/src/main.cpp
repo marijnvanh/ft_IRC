@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
         std::cout << "Socket error: " << ex.what() << std::endl;
         exit(-1);
     }
-    */
 
     return (0);
 }
