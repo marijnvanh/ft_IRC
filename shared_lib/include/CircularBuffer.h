@@ -3,8 +3,6 @@
 
 #include <mutex>
 
-#define CIRC_BUFFSIZE 8192
-
 namespace Shared
 {
 
