@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -fsanitize=address -g")
 
+add_subdirectory(shared_lib)
 add_subdirectory(tcp_lib)
 add_subdirectory(server)
 add_subdirectory(client)
