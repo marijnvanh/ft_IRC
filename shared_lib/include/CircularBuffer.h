@@ -2,6 +2,7 @@
 #define __CIRCULAR_BUFFER_H__
 
 #include <mutex>
+#include <memory>
 
 namespace Shared
 {
