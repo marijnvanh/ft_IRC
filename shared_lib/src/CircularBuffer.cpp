@@ -11,7 +11,7 @@ auto Shared::CircularBuffer<T>::Get() -> T
 		return T();
 	}
 
-	auto val = this->buffer_[->tail_];
+	auto val = this->buffer_[this->tail_];
 	this->full_ = false;
 	this->tail_ = (this->tail_ + 1) % this->max_size_;
 
@@ -57,7 +57,7 @@ bool Shared::CircularBuffer<T>::IsEmpty() const
 }
 
 template <class T>
-size_t Shared::CircularBuffer<class T>::Size() const
+size_t Shared::CircularBuffer<T>::Size() const
 {
 	size_t size = this->max_size_;
 
