@@ -14,10 +14,9 @@
 
 int main(int argc, char *argv[])
 {
-    (void)argc;
-    (void)argv;
-
     using namespace ft_irc::parser;
+
+    std::cout << "Parsing section" << std::endl;
 
     std::string source(":emiflake@nixflake JOIN #ft-irc :");
     CharStream cs = CharStream::FromString(source);
@@ -25,8 +24,8 @@ int main(int argc, char *argv[])
     auto message = ft_irc::parseRawMessage(cs);
 
     std::cout << "Command: " << message.command.name << std::endl;
+    std::cout << "........." << std::endl
 
-    /*
     if (argc != 2)
         exit(1);
     std::string server_address(argv[1]);
