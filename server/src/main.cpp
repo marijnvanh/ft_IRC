@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     auto message = ft_irc::parseRawMessage(cs);
 
     std::cout << "Command: " << message.command.name << std::endl;
-    std::cout << "........." << std::endl
+    std::cout << "........." << std::endl;
 
     if (argc != 2)
         exit(1);
