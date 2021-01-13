@@ -60,8 +60,6 @@ auto ft_irc::parseCommandId(CharStream& s) -> std::string {
 auto ft_irc::parseParams(CharStream& s) -> std::vector<std::string> {
   std::vector<std::string> params;
 
-  std::cout << "Parsing params..." << std::endl;
-
   for(;;) {
     parseWhitespace(s);
     if (s.Peek() == ':') {
