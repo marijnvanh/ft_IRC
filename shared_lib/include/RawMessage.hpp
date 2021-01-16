@@ -1,5 +1,5 @@
-#ifndef MESSAGE_HPP
-#define MESSAGE_HPP
+#ifndef RAW_MESSAGE_HPP
+#define RAW_MESSAGE_HPP
 
 #include <iostream>
 #include <memory>
@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../include/parser.hpp"
+#include "Parser.hpp"
 
 /*
 **
@@ -88,4 +88,5 @@ namespace ft_irc {
     auto parseHostname(CharStream& s) -> Hostname;
     auto parseNickname(CharStream& s) -> std::string;
 } // namespace ft_irc
-#endif // MESSAGE_HPP
+
+#endif // RATW_MESSAGE_HPP

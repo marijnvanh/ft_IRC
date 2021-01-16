@@ -1,4 +1,4 @@
-#include "../include/message.hpp"
+#include "RawMessage.hpp"
 
 auto isAlpha(char c) -> bool {
   return (c >= 'a' && c <= 'z')
