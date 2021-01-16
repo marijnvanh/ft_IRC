@@ -77,16 +77,16 @@ namespace ft_irc {
     using namespace parser;
 
     /* <message>  ::= [':' < prefix > <SPACE>]<command><params><crlf> */
-    auto parseRawMessage(CharStream& s) -> RawMessage;
-    auto parsePrefix(CharStream& s) -> RawPrefix;
+    auto ParseRawMessage(CharStream& s) -> RawMessage;
+    auto ParsePrefix(CharStream& s) -> RawPrefix;
 
-    auto parseCommandId(CharStream& s) -> std::string;
-    auto parseParams(CharStream& s) -> std::vector<std::string>;
-    auto parseMiddle(CharStream& s) -> std::string;
-    auto parseTrailing(CharStream& s) -> std::string;
+    auto ParseCommandId(CharStream& s) -> std::string;
+    auto ParseParams(CharStream& s) -> std::vector<std::string>;
+    auto ParseMiddle(CharStream& s) -> std::string;
+    auto ParseTrailing(CharStream& s) -> std::string;
 
-    auto parseHostname(CharStream& s) -> Hostname;
-    auto parseNickname(CharStream& s) -> std::string;
+    auto ParseHostname(CharStream& s) -> Hostname;
+    auto ParseNickname(CharStream& s) -> std::string;
 } // namespace ft_irc
 
 #endif // RATW_MESSAGE_HPP

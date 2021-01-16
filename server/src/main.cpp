@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     std::string source(":emiflake@nixflake PRIVMSG #ft-irc :hello, how are you");
     CharStream cs = CharStream::FromString(source);
 
-    auto message = ft_irc::parseRawMessage(cs);
+    auto message = ft_irc::ParseRawMessage(cs);
 
     std::cout << "Command: " << message.command.name << std::endl;
     std::cout << "........." << std::endl;

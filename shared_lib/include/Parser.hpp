@@ -89,13 +89,13 @@ namespace ft_irc {
         using Parser = std::function<T(CharStream& s)>;
 
         template<typename T>
-        auto run(Parser<T> p, const std::string s) -> T {
+        auto RunParser(Parser<T> p, const std::string s) -> T {
             CharStream cs = CharStream::FromString(s);
             return p(cs);
         }
 
         template<typename T>
-        auto attempt(Parser<T> fun, CharStream& s) -> T {
+        auto Attempt(Parser<T> fun, CharStream& s) -> T {
             CharStream ss = s;
             try {
                 auto ret = fun(ss);
@@ -107,7 +107,7 @@ namespace ft_irc {
         }
 
         template<typename T>
-        auto maybe(Parser<T> fun, CharStream& s) -> std::optional<T> {
+        auto Maybe(Parser<T> fun, CharStream& s) -> std::optional<T> {
             CharStream s2 = s;
             try {
                 auto ret = fun(s2);
@@ -118,10 +118,10 @@ namespace ft_irc {
             }
         }
 
-        auto replicate(Parser<char> fun, int n, CharStream& s) -> std::string;
+        auto Replicate(Parser<char> fun, int n, CharStream& s) -> std::string;
 
         template<typename T>
-        auto some(Parser<T> fun, CharStream& s) -> std::vector<T> {
+        auto Some(Parser<T> fun, CharStream& s) -> std::vector<T> {
             std::vector<T> accum;
 
             accum += fun(s);
@@ -138,18 +138,18 @@ namespace ft_irc {
         }
 
         auto eof(CharStream& s) -> void;
-        auto satisfy(std::function<bool(char)> predicate, CharStream& s) -> char;
-        auto oneOf(std::string options, CharStream& s) -> char;
-        auto consumeWhile(std::function<bool(char)> predicate, CharStream& s) -> std::string;
-        auto consumeWhile1(std::function<bool(char)> predicate, CharStream& s) -> std::string;
-        auto some(std::function<char(CharStream& s)> fun, CharStream& s) -> std::string;
+        auto Satisfy(std::function<bool(char)> predicate, CharStream& s) -> char;
+        auto OneOf(std::string options, CharStream& s) -> char;
+        auto ConsumeWhile(std::function<bool(char)> predicate, CharStream& s) -> std::string;
+        auto ConsumeWhile1(std::function<bool(char)> predicate, CharStream& s) -> std::string;
+        auto Some(std::function<char(CharStream& s)> fun, CharStream& s) -> std::string;
 
-        auto parseAlpha(CharStream& s) -> char;
-        auto parseDigit(CharStream& s) -> char;
-        auto parseSymbol(char c, CharStream& s) -> char;
-        auto parseWhitespace(CharStream& s) -> void;
-        auto parseWord(CharStream& s) -> std::string;
-        auto parseString(std::string expected, CharStream& s) -> std::string;
+        auto ParseAlpha(CharStream& s) -> char;
+        auto ParseDigit(CharStream& s) -> char;
+        auto ParseSymbol(char c, CharStream& s) -> char;
+        auto ParseWhitespace(CharStream& s) -> void;
+        auto ParseWord(CharStream& s) -> std::string;
+        auto ParseString(std::string expected, CharStream& s) -> std::string;
     }
 }
 
