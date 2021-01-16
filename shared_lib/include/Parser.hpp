@@ -107,8 +107,7 @@ namespace ft_irc {
         }
 
         template<typename T>
-        auto maybe(Parser<T> fun, CharStream& s)
-            -> std::optional<T> {
+        auto maybe(Parser<T> fun, CharStream& s) -> std::optional<T> {
             CharStream s2 = s;
             try {
                 auto ret = fun(s2);
@@ -117,14 +116,12 @@ namespace ft_irc {
             } catch (ParseException& e) {
                 return std::nullopt;
             }
-          }
+        }
 
-        auto replicate(Parser<char> fun, int n, CharStream &s)
-            -> std::string;
+        auto replicate(Parser<char> fun, int n, CharStream& s) -> std::string;
 
         template<typename T>
-        auto some(Parser<T> fun, CharStream &s)
-            -> std::vector<T> {
+        auto some(Parser<T> fun, CharStream& s) -> std::vector<T> {
             std::vector<T> accum;
 
             accum += fun(s);
@@ -144,11 +141,8 @@ namespace ft_irc {
         auto satisfy(std::function<bool(char)> predicate, CharStream& s) -> char;
         auto oneOf(std::string options, CharStream& s) -> char;
         auto consumeWhile(std::function<bool(char)> predicate, CharStream& s) -> std::string;
-        auto consumeWhile1(std::function<bool(char)> predicate, CharStream &s)
-
-            -> std::string;
-        auto some(std::function<char(CharStream &s)> fun, CharStream& s)
-            -> std::string;
+        auto consumeWhile1(std::function<bool(char)> predicate, CharStream& s) -> std::string;
+        auto some(std::function<char(CharStream& s)> fun, CharStream& s) -> std::string;
 
         auto parseAlpha(CharStream& s) -> char;
         auto parseDigit(CharStream& s) -> char;

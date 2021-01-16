@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Parsing section" << std::endl;
 
-    std::string source(":emiflake@nixflake JOIN #ft-irc :");
+    std::string source(":emiflake@nixflake PRIVMSG #ft-irc :hello, how are you");
     CharStream cs = CharStream::FromString(source);
 
     auto message = ft_irc::parseRawMessage(cs);

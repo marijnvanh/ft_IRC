@@ -1,13 +1,5 @@
 #include "RawMessage.hpp"
-
-auto isAlpha(char c) -> bool {
-  return (c >= 'a' && c <= 'z')
-      || (c >= 'A' && c <= 'Z');
-}
-
-auto isDigit(char c) -> bool {
-  return c >= '0' && c <= '9';
-}
+#include <cctype>
 
 auto isSpecial(char c) -> bool {
   return (c == '-')
@@ -95,20 +87,20 @@ auto ft_irc::parseTrailing(CharStream& s) -> std::string {
 // TODO: implement this in a better (read: more strict, see RFC 952) way
 auto ft_irc::parseHostname(CharStream& s) -> Hostname {
   return Hostname(consumeWhile1([](char c){
-    return isAlpha(c)
+    return std::isalpha(c)
         || c == '-'
         || c == '.'
-        || isDigit(c);
+        || std::isdigit(c);
   }, s));
 }
 
 auto ft_irc::parseNickname(CharStream& s) -> std::string {
   std::string accum;
 
-  accum += satisfy(isAlpha, s);
+  accum += satisfy([](char c) { return std::isalpha(c); }, s);
   accum += consumeWhile([](char c){
-    return isAlpha(c)
-        || isDigit(c)
+    return std::isalpha(c)
+        || std::isdigit(c)
         || isSpecial(c);
   }, s);
 
