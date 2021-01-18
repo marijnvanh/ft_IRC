@@ -1,3 +1,9 @@
+#include "RawMessage.hpp"
+#include "Parser.hpp"
+#include <iostream>
+#include <memory>
+#include <optional>
+#include <vector>
 #include "AddressInfo.h"
 #include "IOController.h"
 #include "Message.h"
@@ -8,6 +14,18 @@
 
 int main(int argc, char *argv[])
 {
+    using namespace ft_irc::parser;
+
+    std::cout << "Parsing section" << std::endl;
+
+    std::string source(":emiflake@nixflake PRIVMSG #ft-irc :hello, how are you");
+    CharStream cs = CharStream::FromString(source);
+
+    auto message = ft_irc::ParseRawMessage(cs);
+
+    std::cout << "Command: " << message.command.name << std::endl;
+    std::cout << "........." << std::endl;
+
     if (argc != 2)
         exit(1);
     std::string server_address(argv[1]);
@@ -35,7 +53,7 @@ int main(int argc, char *argv[])
                     if (message.GetSocket()->GetState() == TCP::SocketState::kConnected)
                         std::cout << "New connection received" << std::endl;
                 }
-                read_queue.pop(); 
+                read_queue.pop();
             }
             sleep(1);
         }
