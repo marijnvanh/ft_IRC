@@ -61,8 +61,6 @@ auto ft_irc::ParseParams(CharStream& s) -> std::vector<std::string> {
       params.push_back(ParseMiddle(s));
     }
   }
-
-  throw MatchFailureException(s.Location(), s.Peek());
 }
 
 auto PredicateExclude(std::vector<char> blacklist) -> std::function<bool(char)> {
