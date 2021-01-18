@@ -61,7 +61,7 @@ auto ft_irc::parser::Replicate(std::function<char(CharStream &s)> fun, int n, Ch
   return accum;
 }
 
-auto ft_irc::parser::eof(CharStream &s) -> void {
+auto ft_irc::parser::Eof(CharStream &s) -> void {
   if (s.Remaining().size() > 0)
     throw EOFException(s.Location());
   return;
@@ -76,10 +76,7 @@ auto ft_irc::parser::Satisfy(std::function<bool(char)> predicate, CharStream& s)
 }
 
 auto ft_irc::parser::OneOf(std::string options, CharStream& s) -> char {
-  const auto peeked = s.Peek();
-  if (options.find(peeked) == std::string::npos)
-    throw MatchFailureException(s.Location(), peeked);
-  return s.Consume();
+  return Satisfy([&options](char c) { return options.find(c) != std::string::npos; }, s);
 }
 
 auto ft_irc::parser::ConsumeWhile(std::function<bool(char)> predicate, CharStream &s)
@@ -100,8 +97,7 @@ auto ft_irc::parser::ConsumeWhile(std::function<bool(char)> predicate, CharStrea
   }
 }
 
-auto ft_irc::parser::ConsumeWhile1(std::function<bool(char)> predicate, CharStream &s)
-  -> std::string {
+auto ft_irc::parser::ConsumeWhile1(std::function<bool(char)> predicate, CharStream &s) -> std::string {
   std::string accum;
   accum += Satisfy(predicate, s);
   accum += ConsumeWhile(predicate, s);
@@ -109,28 +105,15 @@ auto ft_irc::parser::ConsumeWhile1(std::function<bool(char)> predicate, CharStre
 }
 
 auto ft_irc::parser::ParseAlpha(CharStream &s) -> char {
-  char peeked = s.Peek();
-  if ((peeked >= 'a' && peeked <= 'z') ||
-      (peeked >= 'A' && peeked <= 'Z'))
-    return s.Consume();
-  else
-    throw MatchFailureException(s.Location(), peeked);
+  return Satisfy([](char c) { return std::isalpha(c); }, s);
 }
 
 auto ft_irc::parser::ParseDigit(CharStream &s) -> char {
-  char peeked = s.Peek();
-  if (peeked >= '0' && peeked <= '9')
-    return s.Consume();
-  else
-    throw MatchFailureException(s.Location(), peeked);
+  return Satisfy([](char c) { return std::isdigit(c); }, s);
 }
 
-auto ft_irc::parser::ParseSymbol(char c, CharStream &s) -> char {
-  char peeked = s.Peek();
-  if (peeked == c)
-    return s.Consume();
-  else
-    throw MatchFailureException(s.Location(), peeked);
+auto ft_irc::parser::ParseSymbol(char target, CharStream &s) -> char {
+  return Satisfy([&target](char c) { return target == c; }, s);
 }
 
 auto ft_irc::parser::ParseWhitespace(CharStream &s) -> void {

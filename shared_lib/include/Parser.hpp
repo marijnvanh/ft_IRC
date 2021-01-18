@@ -96,10 +96,10 @@ namespace ft_irc {
 
         template<typename T>
         auto Attempt(Parser<T> fun, CharStream& s) -> T {
-            CharStream ss = s;
+            CharStream s_snapshot = s;
             try {
-                auto ret = fun(ss);
-                s = ss;
+                auto ret = fun(s_snapshot);
+                s = s_snapshot;
                 return ret;
             } catch (ParseException& e) {
                 throw e;
@@ -108,10 +108,10 @@ namespace ft_irc {
 
         template<typename T>
         auto Maybe(Parser<T> fun, CharStream& s) -> std::optional<T> {
-            CharStream s2 = s;
+            CharStream s_snapshot = s;
             try {
-                auto ret = fun(s2);
-                s = s2;
+                auto ret = fun(s_snapshot);
+                s = s_snapshot;
                 return std::optional<T>{ret};
             } catch (ParseException& e) {
                 return std::nullopt;
@@ -137,12 +137,11 @@ namespace ft_irc {
             }
         }
 
-        auto eof(CharStream& s) -> void;
+        auto Eof(CharStream& s) -> void;
         auto Satisfy(std::function<bool(char)> predicate, CharStream& s) -> char;
         auto OneOf(std::string options, CharStream& s) -> char;
         auto ConsumeWhile(std::function<bool(char)> predicate, CharStream& s) -> std::string;
         auto ConsumeWhile1(std::function<bool(char)> predicate, CharStream& s) -> std::string;
-        auto Some(std::function<char(CharStream& s)> fun, CharStream& s) -> std::string;
 
         auto ParseAlpha(CharStream& s) -> char;
         auto ParseDigit(CharStream& s) -> char;
