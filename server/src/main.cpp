@@ -1,30 +1,39 @@
 #include "RawMessage.hpp"
 #include "Parser.hpp"
+#include "Mutex.hpp"
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <vector>
+#include <cassert>
+#include <thread>
+#include <chrono>
+#include <queue>
+ 
 #include "AddressInfo.h"
 #include "IOController.h"
 #include "Message.h"
 
-#include <queue>
 #include <unistd.h>
 #define PORT "5000"
 
+struct Client {
+    std::string name;
+    int bonks;
+    Client(std::string name, int bonks) : name(name), bonks(bonks) {}
+};
+
+
 int main(int argc, char *argv[])
 {
-    using namespace ft_irc::parser;
+    auto client_mutex = ft_irc::MakeMutex<Client>("emiflake", 0);
 
-    std::cout << "Parsing section" << std::endl;
+    {
+        auto c = client_mutex.Take();
+        c->bonks++;
+    }
 
-    std::string source(":emiflake@nixflake PRIVMSG #ft-irc :hello, how are you");
-    CharStream cs = CharStream::FromString(source);
-
-    auto message = ft_irc::ParseRawMessage(cs);
-
-    std::cout << "Command: " << message.command.name << std::endl;
-    std::cout << "........." << std::endl;
+    { assert(client_mutex.Take()->bonks == 1); }
 
     if (argc != 2)
         exit(1);
