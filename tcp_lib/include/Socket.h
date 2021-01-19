@@ -9,17 +9,28 @@
 
 namespace TCP
 {
+	// TODO: Rob - Do we want to put the 'ready-to-read' state in this enum?
+	// If so, does the ready-to-read state imply the socket is also still connected?
+	// Or does this mean we'll want to make this a flag state (which would make less sense tbh).
     enum SocketState
     {
         kUnInitialized = -1,
         kConnected,
-        kDisconnected
+        kDisconnected,
+		kReadyToRead
     };
+
+	enum SocketType
+	{
+		kClientSocket = 0,
+		kListenerSocket = 1
+	};
 
     class Socket
     {
     private:
         int socket_fd_;
+		SocketType type_;
         SocketState state_;
         socklen_t address_size_;
         struct sockaddr_storage address_;
@@ -41,8 +52,12 @@ namespace TCP
         auto Send(const std::string &data) -> void;
 
         auto GetFD() const -> int { return socket_fd_; };
+
+		auto GetType() const -> int { return type_; };
+		auto SetType(SocketType type) -> void { type_ = type; };
+
         auto GetState() const -> int { return state_; };
-        auto ToStr() -> std::string;
+		auto SetState(SocketState state) -> void { this->state_ = state; }
 
         class Error : public std::runtime_error
         {

@@ -137,7 +137,7 @@ auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
 auto TCP::Socket::Accept(int listener_fd) -> void
 {
     if (state_ != kUnInitialized)
-        throw TCP::Socket::Error("Socket already in use");
+        throw TCP::Socket::Error("Socket object already in use");
 
     address_size_ = sizeof(address_);
     socket_fd_ = accept(listener_fd, (struct sockaddr *)&address_, &address_size_);
