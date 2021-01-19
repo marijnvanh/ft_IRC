@@ -20,18 +20,6 @@ static void AcceptClient(std::shared_ptr<TCP::Socket> socket)
 
 int main(int argc, char *argv[])
 {
-    using namespace ft_irc::parser;
-
-    std::cout << "Parsing section" << std::endl;
-
-    std::string source(":emiflake@nixflake PRIVMSG #ft-irc :hello, how are you");
-    CharStream cs = CharStream::FromString(source);
-
-    auto message = ft_irc::ParseRawMessage(cs);
-
-    std::cout << "Command: " << message.command.name << std::endl;
-    std::cout << "........." << std::endl;
-
     if (argc != 2)
         exit(1);
 
@@ -58,17 +46,18 @@ int main(int argc, char *argv[])
 			// Loop through connected clients.
 			for (std::vector<std::shared_ptr<TCP::Socket>>::iterator it = ClientSockets.begin(); it != ClientSockets.end();)
 			{
-				if ((*it)->GetState() == TCP::SocketState::kDisconnected)
-				{
-					it = ClientSockets.erase(it);
-				}
-				else
-				{
+				try
+				{					
 					if ((*it)->GetState() == TCP::SocketState::kReadyToRead)
 					{
 						std::cout << (*it)->Recv() << std::endl;
 					}
 					++it;
+				}
+				catch(TCP::Socket::Closed &ex)
+				{
+					std::cout << "Client left with FD: " << (*it)->GetFD() << std::endl;
+					it = ClientSockets.erase(it);						
 				}
 			}
 

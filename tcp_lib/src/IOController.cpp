@@ -107,6 +107,7 @@ auto TCP::IOController::AcceptNewConnections(void (*f)(std::shared_ptr<Socket>))
 {
 	// TODO: Rob - As it stands, this loop accepts one client for each listener socket during every IOController revolution.
 	// Might be better to rework this to keep accepting new connections until there's none left ( while(accept) ).
+	//for (auto const&value:)
 	for (int i = 0; i <= max_fd_; i++)
 	{
    		auto listener_socket = sockets_.find(i);
@@ -117,17 +118,17 @@ auto TCP::IOController::AcceptNewConnections(void (*f)(std::shared_ptr<Socket>))
 			listener_socket->second->GetState() != TCP::SocketState::kReadyToRead)
 			continue ;
 
+		listener_socket->second->SetState(TCP::SocketState::kConnected);
+
 		try
 		{
-			auto new_socket = listener_socket->second->Accept();
+			auto new_socket = std::make_shared<Socket>();
+			new_socket->Accept(i);
 		
 			this->AddSocket(new_socket);
-			new_socket->SetState(TCP::SocketState::kConnected);
-			new_socket->SetType(TCP::SocketType::kClientSocket);
 
 			f(new_socket);
 
-			listener_socket->second->SetState(TCP::SocketState::kConnected);
 		}
    		catch (TCP::Socket::Error &ex)
 		{

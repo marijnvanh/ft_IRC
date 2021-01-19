@@ -133,10 +133,13 @@ auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
  * @exception Socket::Error
  * @exception Socket::WouldBlock
  */
-auto TCP::Socket::Accept() -> std::shared_ptr<Socket>
+auto TCP::Socket::Accept(int listener_fd) -> void
 {
+    if (state_ != kUnInitialized)
+        throw TCP::Socket::Error("Socket already in use");
+
     address_size_ = sizeof(address_);
-    socket_fd_ = accept(this->socket_fd_, (struct sockaddr *)&address_, &address_size_);
+    socket_fd_ = accept(listener_fd, (struct sockaddr *)&address_, &address_size_);
 
     if (socket_fd_ == -1)
     {
@@ -146,12 +149,8 @@ auto TCP::Socket::Accept() -> std::shared_ptr<Socket>
         else
             throw TCP::Socket::Error(strerror(errno));
     }
-
-	auto new_socket = std::make_shared<Socket>();
-	new_socket->state_ = kConnected;
-	new_socket->socket_fd_ = socket_fd_;
-	
-	return (new_socket);
+    state_ = kConnected;
+	type_ = kClientSocket;
 }
 
 /**
@@ -167,8 +166,9 @@ auto TCP::Socket::Accept() -> std::shared_ptr<Socket>
 auto TCP::Socket::Recv() -> std::string
 {
     char buffer[BUFFER_SIZE];
+	state_ = TCP::SocketState::kConnected;
 
-    int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
+	int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
     if (received_bytes == 0)
     {
         state_ = kDisconnected;
@@ -185,7 +185,6 @@ auto TCP::Socket::Recv() -> std::string
         }
     }
     buffer[received_bytes] = '\0';
-	state_ = TCP::SocketState::kConnected;
     return std::string(buffer, received_bytes);
 }
 
