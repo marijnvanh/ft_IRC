@@ -6,7 +6,6 @@
 #include "Message.h"
 
 #include <map>
-#include <queue>
 #include <memory>
 
 #define DEFAULT_RETRIES 3
@@ -21,6 +20,10 @@ namespace TCP
 
         auto RunOnce() -> void;
 
+		auto AddSocket(std::shared_ptr<Socket> socket) -> void;
+
+        auto AcceptNewConnections(void (*f)(std::shared_ptr<Socket>)) -> void;
+
         class Error : public std::runtime_error
         {
         public:
@@ -32,16 +35,14 @@ namespace TCP
 
         std::map<int, std::shared_ptr<Socket>> sockets_;
 
-        fd_set master_fd_list_;
         int max_fd_;
         int max_retries_;
+        fd_set master_fd_list_;
 
         auto SendMessage(TCP::Message &message, fd_set *write_fds) -> void;
         auto ReadFromSocket(int socket_fd) -> void;
-        auto AcceptNewConnections(void (*f)(std::shared_ptr<Socket>)) -> void;
         auto ValidateSocket(std::shared_ptr<const Socket> socket) -> std::shared_ptr<Socket>;
 
-		auto AddSocket(std::shared_ptr<Socket> socket) -> void;
         auto DeleteSocket(int socket_fd) -> void;
 
         class FailedToSend : public Error

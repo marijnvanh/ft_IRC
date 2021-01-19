@@ -3,6 +3,8 @@
 
 #include "AddressInfo.h"
 
+#include <memory>
+
 #define DEFAULT_BACKLOG 20
 #define BLOCKING true
 #define NON_BLOCKING false
@@ -47,7 +49,7 @@ namespace TCP
                     int backlog = DEFAULT_BACKLOG,
                     bool block = NON_BLOCKING) -> void;
         auto Connect(AddressInfo &address_info, bool block = BLOCKING) -> void;
-        auto Accept(int listener_fd) -> void;
+        auto Accept() -> std::shared_ptr<Socket>;
         auto Recv() -> std::string;
         auto Send(const std::string &data) -> void;
 

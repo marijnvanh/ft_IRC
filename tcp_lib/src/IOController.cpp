@@ -12,6 +12,7 @@
 TCP::IOController::IOController(int max_retries) :
                                 max_retries_(max_retries)
 {
+	max_fd_ = 0;
     FD_ZERO(&master_fd_list_);
 }
 
@@ -43,7 +44,7 @@ auto TCP::IOController::RunOnce() -> void
 	if (total_ready_fds == 0)
 		return ;
 
-	for (int i = 0; i <= max_fd_; ++i)
+	for (int i = 0; i <= max_fd_; i++)
 	{
 		if (FD_ISSET(i, &read_fds))
 		{
@@ -104,34 +105,35 @@ auto TCP::IOController::SendMessage(TCP::Message &message, fd_set *write_fds) ->
 
 auto TCP::IOController::AcceptNewConnections(void (*f)(std::shared_ptr<Socket>)) -> void
 {
-	// TODO: Rob - As it stands, this loop accepts one client for each socket during every IOController revolution.
+	// TODO: Rob - As it stands, this loop accepts one client for each listener socket during every IOController revolution.
 	// Might be better to rework this to keep accepting new connections until there's none left ( while(accept) ).
-	for (int i = 0; i < max_fd_; ++i)
+	for (int i = 0; i <= max_fd_; i++)
 	{
-   		auto socket = sockets_.find(i);
+   		auto listener_socket = sockets_.find(i);
 		
-		if (socket == sockets_.end() ||
-			socket->second->GetType() != TCP::SocketType::kListenerSocket)
+		// This if statement is blown up a little bit, might be able to shrink it down by applying different check(s)?
+		if (listener_socket == sockets_.end() ||
+			listener_socket->second->GetType() != TCP::SocketType::kListenerSocket ||
+			listener_socket->second->GetState() != TCP::SocketState::kReadyToRead)
 			continue ;
-
-		auto new_socket = std::make_shared<Socket>();
 
 		try
 		{
-			new_socket->Accept(i);
+			auto new_socket = listener_socket->second->Accept();
+		
+			this->AddSocket(new_socket);
+			new_socket->SetState(TCP::SocketState::kConnected);
+			new_socket->SetType(TCP::SocketType::kClientSocket);
+
+			f(new_socket);
+
+			listener_socket->second->SetState(TCP::SocketState::kConnected);
 		}
    		catch (TCP::Socket::Error &ex)
 		{
 			std::cerr << "Could not accept new connection: " << ex.what() << std::endl;
 			return ; 
 		}
-		
-		new_socket->SetType(TCP::SocketType::kClientSocket);
-		this->AddSocket(new_socket);
-
-		f(new_socket);
-
-		socket->second->SetState(TCP::SocketState::kConnected);
 	}
 }
 
