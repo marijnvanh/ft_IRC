@@ -36,11 +36,16 @@ namespace ft_irc {
         T* _ref;
 
     public:
-        Mutex(T* wrap) : _ref(wrap) {};
+        /*
+         * This forces ownernship to be guaranteed.
+         * _ref will always be owned by Mutex.
+         */
+        Mutex(std::unique_ptr<T> wrap) : _ref(wrap.release()) {}; 
 
         ~Mutex() {
             _lock.lock();
             _lock.unlock();
+            delete _ref;
         }
 
         auto Take() -> MutexHandle<T> {
@@ -72,7 +77,7 @@ namespace ft_irc {
     template<typename T, typename... Args>
     auto MakeMutex(Args&&... args) -> Mutex<T>
     {
-        return Mutex<T>(new T(std::forward<Args>(args)...));
+        return Mutex<T>(std::make_unique<T>(std::forward<Args>(args)...));
     }
 
 
