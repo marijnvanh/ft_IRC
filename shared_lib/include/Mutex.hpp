@@ -23,6 +23,9 @@ namespace ft_irc {
             return _ref;
         }
 
+        // Prevent duplication of a handle, as to disallow 
+        MutexHandle(const MutexHandle& h2) = delete;
+
         ~MutexHandle() {
             _lock->unlock();
         }
@@ -51,26 +54,14 @@ namespace ft_irc {
             return MutexHandle(&_lock, _ref);
         }
 
-        auto TryTake() -> std::optional<MutexHandle<T>> {
+        auto TryTake() -> std::unique_ptr<MutexHandle<T>> {
             if (_lock.try_lock()) {
-                return std::make_optional<MutexHandle>(&_lock, _ref);
+                return std::make_unique<MutexHandle<T>>(&_lock, _ref);
             } else {
-                return std::nullopt;
+                return std::unique_ptr<MutexHandle<T>>(nullptr);
             }
         }
-
-        /*
-         * Checks if the thread is currently locked.
-         * This is relatively expensive because it performs a lock
-         * by itself.
-         */
-        auto IsLocked() -> bool {
-            auto was_locked = !_lock.try_lock();
-            if (!was_locked)
-                _lock.unlock();
-            return was_locked;
-        }
-
+        
     };
 
     template<typename T, typename... Args>
@@ -78,7 +69,6 @@ namespace ft_irc {
     {
         return Mutex<T>(std::make_unique<T>(std::forward<Args>(args)...));
     }
-
 
 }
 
