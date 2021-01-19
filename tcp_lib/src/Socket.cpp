@@ -94,6 +94,7 @@ auto TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block) -> 
         throw TCP::Socket::Error(strerror(errno));
     }
     state_ = kConnected;
+	type_ = kListenerSocket;
 }
 
 /**
@@ -129,18 +130,13 @@ auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
 /**
  * @brief Accept a new connection
  * 
- * @param listener_fd file descriptor of an active listener socket
- * 
- * @exception Socket::WouldBlock
  * @exception Socket::Error
+ * @exception Socket::WouldBlock
  */
-auto TCP::Socket::Accept(int listener_fd) -> void
+auto TCP::Socket::Accept() -> std::shared_ptr<Socket>
 {
-    if (state_ != kUnInitialized)
-        throw TCP::Socket::Error("Socket object already in use");
-
     address_size_ = sizeof(address_);
-    socket_fd_ = accept(listener_fd, (struct sockaddr *)&address_, &address_size_);
+    socket_fd_ = accept(this->socket_fd_, (struct sockaddr *)&address_, &address_size_);
 
     if (socket_fd_ == -1)
     {
@@ -150,7 +146,12 @@ auto TCP::Socket::Accept(int listener_fd) -> void
         else
             throw TCP::Socket::Error(strerror(errno));
     }
-    state_ = kConnected;
+
+	auto new_socket = std::make_shared<Socket>();
+	new_socket->state_ = kConnected;
+	new_socket->socket_fd_ = socket_fd_;
+	
+	return (new_socket);
 }
 
 /**
@@ -184,6 +185,7 @@ auto TCP::Socket::Recv() -> std::string
         }
     }
     buffer[received_bytes] = '\0';
+	state_ = TCP::SocketState::kConnected;
     return std::string(buffer, received_bytes);
 }
 
