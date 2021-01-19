@@ -49,3 +49,18 @@ TEST(MutexTest, TryLockFailure)
         (**first_handle) = 123;
     }
 }
+
+TEST(MutexTest, Printing)
+{
+    ft_irc::Mutex<int> mtx = ft_irc::MakeMutex<int>(42);
+    std::ostringstream stream;
+
+    stream << mtx;
+    ASSERT_EQ(stream.str(), "Mutex(42)");
+
+    auto h = mtx.Take();
+    std::ostringstream stream2;
+
+    stream2 << mtx;
+    ASSERT_EQ(stream2.str(), "Mutex(<<locked>>)");
+}
