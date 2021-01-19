@@ -8,14 +8,11 @@ namespace ft_irc {
 
     template<typename T>
     class MutexHandle {
-        std::function<void()> _release;
+        std::mutex* _lock;
         T* _ref;
 
     public:
-        MutexHandle(std::function<void()> release, T* ref) {
-            _release = release;
-            _ref = ref;
-        }
+        MutexHandle(std::mutex* lock, T* ref) : _lock(lock), _ref(ref) {}
 
         T& operator*() {
             return *_ref;
@@ -26,7 +23,7 @@ namespace ft_irc {
         }
 
         ~MutexHandle() {
-            _release();
+            _lock->unlock();
         }
     };
 
@@ -50,21 +47,22 @@ namespace ft_irc {
 
         auto Take() -> MutexHandle<T> {
             _lock.lock();
-            return MutexHandle([&]() {
-                _lock.unlock();
-            }, _ref);
+            return MutexHandle(&_lock, _ref);
         }
 
         auto TryTake() -> std::optional<MutexHandle<T>> {
             if (_lock.try_lock()) {
-                return std::optional{MutexHandle([&]() {
-                    _lock.unlock();
-                }, _ref)};
+                return std::make_optional<MutexHandle>(&_lock, _ref);
             } else {
                 return std::nullopt;
             }
         }
 
+        /*
+         * Checks if the thread is currently locked.
+         * This is relatively expensive because it performs a lock
+         * by itself.
+         */
         auto IsLocked() -> bool {
             auto was_locked = !_lock.try_lock();
             if (!was_locked)

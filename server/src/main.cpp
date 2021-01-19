@@ -17,23 +17,33 @@
 #include <unistd.h>
 #define PORT "5000"
 
-struct Client {
-    std::string name;
-    int bonks;
-    Client(std::string name, int bonks) : name(name), bonks(bonks) {}
-};
-
-
 int main(int argc, char *argv[])
 {
-    auto client_mutex = ft_irc::MakeMutex<Client>("emiflake", 0);
-
-    {
-        auto c = client_mutex.Take();
-        c->bonks++;
-    }
-
-    { assert(client_mutex.Take()->bonks == 1); }
+    ft_irc::Mutex<int> mtx = ft_irc::MakeMutex<int>(42);
+    std::thread t1([&mtx]() {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        {
+            auto h = mtx.Take();
+            std::cout << "Thread 1 took lock..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            (*h)++;
+        }
+        std::cout << "Thread 1 released lock..." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    });
+    std::thread t2([&mtx]() {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        {
+            auto h = mtx.Take();
+            std::cout << "Thread 2 took lock..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            (*h)++;
+        }
+        std::cout << "Thread 2 released lock..." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    });
+    t1.join();
+    t2.join();
 
     if (argc != 2)
         exit(1);
