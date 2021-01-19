@@ -1,6 +1,7 @@
 #ifndef MUTEX_HPP
 #define MUTEX_HPP
 
+#include <optional>
 #include <memory>
 #include <mutex>
 

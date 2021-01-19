@@ -19,32 +19,6 @@
 
 int main(int argc, char *argv[])
 {
-    ft_irc::Mutex<int> mtx = ft_irc::MakeMutex<int>(42);
-    std::thread t1([&mtx]() {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        {
-            auto h = mtx.Take();
-            std::cout << "Thread 1 took lock..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            (*h)++;
-        }
-        std::cout << "Thread 1 released lock..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    });
-    std::thread t2([&mtx]() {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        {
-            auto h = mtx.Take();
-            std::cout << "Thread 2 took lock..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            (*h)++;
-        }
-        std::cout << "Thread 2 released lock..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    });
-    t1.join();
-    t2.join();
-
     if (argc != 2)
         exit(1);
     std::string server_address(argv[1]);
