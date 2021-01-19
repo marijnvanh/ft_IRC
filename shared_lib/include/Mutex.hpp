@@ -9,10 +9,10 @@ namespace ft_irc {
     template<typename T>
     class MutexHandle {
         std::function<void()> _release;
-        std::shared_ptr<T> _ref;
+        T* _ref;
 
     public:
-        MutexHandle(std::function<void()> release, std::shared_ptr<T> ref) {
+        MutexHandle(std::function<void()> release, T* ref) {
             _release = release;
             _ref = ref;
         }
@@ -22,7 +22,7 @@ namespace ft_irc {
         }
 
         T* operator->() {
-            return _ref.get();
+            return _ref;
         }
 
         ~MutexHandle() {
@@ -33,10 +33,15 @@ namespace ft_irc {
     template<typename T>
     class Mutex {
         std::mutex _lock;
-        std::shared_ptr<T> _ref;
+        T* _ref;
 
     public:
-        Mutex(T wrap) : _ref(std::make_unique<T>(wrap)) {};
+        Mutex(T* wrap) : _ref(wrap) {};
+
+        ~Mutex() {
+            _lock.lock();
+            _lock.unlock();
+        }
 
         auto Take() -> MutexHandle<T> {
             _lock.lock();
@@ -67,7 +72,7 @@ namespace ft_irc {
     template<typename T, typename... Args>
     auto MakeMutex(Args&&... args) -> Mutex<T>
     {
-        return Mutex<T>(T(std::forward<Args>(args)...));
+        return Mutex<T>(new T(std::forward<Args>(args)...));
     }
 
 
