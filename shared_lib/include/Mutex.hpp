@@ -61,8 +61,24 @@ namespace ft_irc {
                 return std::unique_ptr<MutexHandle<T>>(nullptr);
             }
         }
-        
+
+        auto Access(std::function<void(T&)> modify) -> void {
+            auto h = Take();
+            modify(*h);
+        }
     };
+
+    template<typename T>
+    std::ostream& operator<<(std::ostream& os, Mutex<T>& mutex)
+    {
+        auto h = mutex.TryTake();
+        if (h) {
+            os << "Mutex(" << **h << ")";
+        } else {
+            os << "Mutex(<<locked>>)";
+        }
+        return os;
+    }
 
     template<typename T, typename... Args>
     auto MakeMutex(Args&&... args) -> Mutex<T>

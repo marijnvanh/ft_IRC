@@ -17,8 +17,45 @@
 #include <unistd.h>
 #define PORT "5000"
 
+struct Point {
+    int x, y;
+    Point(int x, int y) : x(x), y(y) {}
+};
+
+std::ostream& operator<<(std::ostream& os, const Point& p)
+{
+    os << "Point(" << p.x << ", " << p.y << ")";
+    return os;
+}
+
 int main(int argc, char *argv[])
 {
+    auto mux = ft_irc::MakeMutex<Point>(0, 0);
+
+    std::thread t1([&]() {
+        for (;;) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            mux.Access([](Point& p) { 
+                std::cout << "Locked mux" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                p.x++;
+                std::cout << "Incremented x" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            });
+            std::cout << "Released mux" << std::endl;
+        }
+    });
+
+    std::thread t2([&]() {
+        for (;;) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::cout << "Current value: " << mux << std::endl;
+        }
+    });
+
+    t1.join();
+    t2.join();
+
     if (argc != 2)
         exit(1);
     std::string server_address(argv[1]);
