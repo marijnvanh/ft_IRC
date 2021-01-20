@@ -1,30 +1,60 @@
 #include "RawMessage.hpp"
 #include "Parser.hpp"
+#include "Mutex.hpp"
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <vector>
+#include <cassert>
+#include <thread>
+#include <chrono>
+#include <queue>
+ 
 #include "AddressInfo.h"
 #include "IOController.h"
 #include "Message.h"
 
-#include <queue>
 #include <unistd.h>
 #define PORT "5000"
 
+struct Point {
+    int x, y;
+    Point(int x, int y) : x(x), y(y) {}
+};
+
+std::ostream& operator<<(std::ostream& os, const Point& p)
+{
+    os << "Point(" << p.x << ", " << p.y << ")";
+    return os;
+}
+
 int main(int argc, char *argv[])
 {
-    using namespace ft_irc::parser;
+    auto mux = ft_irc::MakeMutex<Point>(0, 0);
 
-    std::cout << "Parsing section" << std::endl;
+    std::thread t1([&]() {
+        for (;;) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            mux.Access([](Point& p) { 
+                std::cout << "Locked mux" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                p.x++;
+                std::cout << "Incremented x" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            });
+            std::cout << "Released mux" << std::endl;
+        }
+    });
 
-    std::string source(":emiflake@nixflake PRIVMSG #ft-irc :hello, how are you");
-    CharStream cs = CharStream::FromString(source);
+    std::thread t2([&]() {
+        for (;;) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::cout << "Current value: " << mux << std::endl;
+        }
+    });
 
-    auto message = ft_irc::ParseRawMessage(cs);
-
-    std::cout << "Command: " << message.command.name << std::endl;
-    std::cout << "........." << std::endl;
+    t1.join();
+    t2.join();
 
     if (argc != 2)
         exit(1);
