@@ -3,6 +3,10 @@
 
 #include <random>
 #include <sstream>
+#include <unordered_map>
+#include <memory>
+#include <vector>
+#include <functional>
 
 namespace ft_irc {
 
@@ -13,8 +17,22 @@ namespace ft_irc {
         std::uint64_t _high;
     public:
         UUID(std::uint64_t low, std::uint64_t high) : _low(low), _high(high) {};
+        UUID(const UUID& other) = default;
+        ~UUID() = default;
 
-        auto ToString() -> std::string {
+        constexpr auto Low() const -> std::uint64_t {
+            return _low;
+        }
+
+        constexpr auto High() const -> std::uint64_t {
+            return _high;
+        }
+
+        auto operator==(const UUID other) const -> bool {
+            return (other.Low() == Low() && other.High() == High());
+        }
+
+        auto ToString() const -> std::string {
             size_t i;
             std::ostringstream ss;
             
@@ -32,7 +50,13 @@ namespace ft_irc {
 
             return ss.str();
         }
+
     };
+
+    std::ostream& operator<<(std::ostream& os, const UUID& uuid) {
+        os << "UUID(" << uuid.ToString() << ")";
+        return os;
+    }
 
     class UUIDGenerator {
         std::uniform_int_distribution<std::uint64_t> _dis;
@@ -47,10 +71,23 @@ namespace ft_irc {
             _engine = std::mt19937(_device());
         }
 
+        UUIDGenerator(const UUIDGenerator& other) = delete;
+
         auto Generate() -> UUID {
             uint64_t low = _dis(_engine);
             uint64_t high = _dis(_engine);
             return UUID(low, high);
+        }
+    };
+}
+
+namespace std {
+    template<>
+    struct hash<ft_irc::UUID> {
+        // TODO: is this okay? It discards upper 64 bits for hashing
+        // But operator== ensures equality *won't* be preserved.
+        std::size_t operator()(const ft_irc::UUID& uuid) const {
+            return uuid.Low();
         }
     };
 }
