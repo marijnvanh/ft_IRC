@@ -25,6 +25,7 @@ namespace ft_irc {
 
         // Prevent duplication of a handle, as to disallow 
         MutexHandle(const MutexHandle& h2) = delete;
+        MutexHandle& operator=(const MutexHandle& h2) = delete;
 
         ~MutexHandle() {
             _lock->unlock();
