@@ -1,7 +1,7 @@
 #include "TCPIOHandler.h"
 #include <iostream>
 
-using namespace ft_irc;
+using namespace IRC::TCP;
 
 TCPIOHandler::TCPIOHandler(std::shared_ptr<TCP::Socket> socket) : socket_(socket)
 {

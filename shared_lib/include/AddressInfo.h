@@ -3,7 +3,7 @@
 
 #include <netdb.h>
 #include <iostream>
-namespace TCP
+namespace IRC::TCP
 {
     struct AddressInfo
     {
@@ -38,6 +38,6 @@ namespace TCP
         };
 
     };
-} // namespace TCP
+} // namespace IRC::TCP
 
 #endif

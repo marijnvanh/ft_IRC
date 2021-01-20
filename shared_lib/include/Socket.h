@@ -9,7 +9,7 @@
 #define BLOCKING true
 #define NON_BLOCKING false
 
-namespace TCP
+namespace IRC::TCP
 {
 	// TODO: Rob - Do we want to put the 'ready-to-read' state in this enum?
 	// If so, does the ready-to-read state imply the socket is also still connected?
@@ -48,7 +48,10 @@ namespace TCP
         auto Listen(AddressInfo &address_info,
                     int backlog = DEFAULT_BACKLOG,
                     bool block = NON_BLOCKING) -> void;
+
         auto Connect(AddressInfo &address_info, bool block = BLOCKING) -> void;
+		auto Close() -> void;
+
         auto Recv() -> std::string;
         auto Accept(int listener_fd) -> void;
         auto Send(const std::string &data) -> void;
@@ -87,6 +90,6 @@ namespace TCP
     };
 
     auto operator<<(std::ostream& os, const Socket& socket) -> std::ostream &;
-} // namespace TCP
+} // namespace IRC::TCP
 
 #endif

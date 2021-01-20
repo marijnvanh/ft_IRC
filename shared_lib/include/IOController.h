@@ -10,7 +10,7 @@
 
 #define DEFAULT_RETRIES 3
 
-namespace TCP
+namespace IRC::TCP
 {
     class IOController
     {
@@ -57,6 +57,6 @@ namespace TCP
             InvalidSocket(const char *msg) : Error(msg) {}
         };
     };
-} // namespace TCP
+} // namespace IRC::TCP
 
 #endif

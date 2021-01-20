@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <string.h>
 
+using namespace IRC;
+
 #define BUFFER_SIZE 512
 
 #ifdef __APPLE__
@@ -22,8 +24,7 @@ TCP::Socket::Socket() : socket_fd_(kUnInitialized),
 
 TCP::Socket::~Socket()
 {
-    if (state_ != kUnInitialized)
-        close(socket_fd_);
+	this->Close();
 }
 
 auto TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block) -> int
@@ -127,6 +128,19 @@ auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
     state_ = kConnected;
 }
 
+auto TCP::Socket::Close() -> void
+{
+	if (this->state_ == SocketState::kUnInitialized || this->state_ == SocketState::kDisconnected)
+	{
+		return ;
+	}
+
+	// Do we want to catch a -1 return value/error?
+	close(this->socket_fd_);
+
+	this->SetState(SocketState::kDisconnected);
+}
+
 /**
  * @brief Accept a new connection
  * 
@@ -166,6 +180,7 @@ auto TCP::Socket::Accept(int listener_fd) -> void
 auto TCP::Socket::Recv() -> std::string
 {
     char buffer[BUFFER_SIZE];
+
 	state_ = TCP::SocketState::kConnected;
 
 	int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
@@ -176,6 +191,9 @@ auto TCP::Socket::Recv() -> std::string
     }
     if (received_bytes == -1)
     {
+		/* Close the socket on receive error */
+		this->Close();
+
         if (errno == EAGAIN || errno == EWOULDBLOCK)
             throw TCP::Socket::WouldBlock();
         else
@@ -210,7 +228,10 @@ auto TCP::Socket::Send(const std::string &data) -> void
         int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
         if (send_bytes == -1)
         {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+			/* Close the socket on send error */
+			this->Close();
+            
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
                 throw TCP::Socket::WouldBlock();
 
             /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */

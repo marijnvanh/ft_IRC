@@ -1,6 +1,8 @@
 #include "Message.h"
 #include <memory>
 
+using namespace IRC;
+
 TCP::Message::Message(std::shared_ptr<const Socket>socket, std::shared_ptr<std::string> data) :
                 socket_(socket), data_(data), retries_(0)
 {};

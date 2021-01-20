@@ -4,7 +4,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace ft_irc
+namespace IRC::TCP
 {
     class IIOHandler
     {
@@ -46,6 +46,6 @@ namespace ft_irc
             Closed(const char *msg) : std::runtime_error(msg) {}
         };
     };
-}
+} // namespace IRC::TCP
 
 #endif

@@ -8,6 +8,8 @@
 
 #define PORT "5000"
 
+using namespace IRC;
+
 int main(int argc, char *argv[])
 {
     if (argc != 2)

@@ -2,7 +2,7 @@ include_directories(include)
 
 macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
-    target_link_libraries(${TESTNAME} gtest gmock gtest_main tcp_lib shared_lib)
+    target_link_libraries(${TESTNAME} gtest gmock gtest_main tcp_lib)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${PROJECT_DIR}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
@@ -13,4 +13,5 @@ macro(package_add_test TESTNAME)
         FOLDER tests)
 endmacro()
 
+package_add_test(IOController_test IOController_test.cpp)
 package_add_test(TCPIOHandler_test TCPIOHandler_test.cpp)

@@ -5,7 +5,7 @@
 #include <memory>
 #include <iostream>
 
-namespace TCP
+namespace IRC::TCP
 {
     struct Message
     {
@@ -35,7 +35,7 @@ namespace TCP
     };
 
     auto operator<<(std::ostream& os, const TCP::Message& message) -> std::ostream&;
-}
 
+} // namespace IRC::TCP
 
 #endif

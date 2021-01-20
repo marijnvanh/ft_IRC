@@ -8,6 +8,8 @@
 #include <unistd.h>
 #define PORT "5000"
 
+using namespace IRC;
+
 std::vector<std::shared_ptr<TCP::Socket>> ClientSockets;
 
 static void AcceptClient(std::shared_ptr<TCP::Socket> socket)

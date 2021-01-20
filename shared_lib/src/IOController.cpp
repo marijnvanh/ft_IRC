@@ -4,6 +4,8 @@
 #include <string.h>
 #include <memory>
 
+using namespace IRC;
+
 /**
  * @brief Construct a new TCP::IOController object
  * 
