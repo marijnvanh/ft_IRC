@@ -13,16 +13,29 @@
 
       packages = forAllSystems (system:
         let
+          pkgs = import nixpkgs { system = system; };
           drv = import ./default.nix {
-            nixpkgs = import nixpkgs { system = system; };
+            nixpkgs = pkgs;
           };
-        in { ft-irc = drv; });
+        in rec { 
+          ft-irc = drv; 
+          tests = pkgs.writeScriptBin "tests" ''
+            find ${self.defaultPackage.${system}}/bin/tests -type f -exec {} \;
+          '';
+        });
 
       defaultPackage = forAllSystems (system: self.packages."${system}".ft-irc);
 
       defaultApp = forAllSystems (system: {
         type = "app";
         program = "${self.defaultPackage."${system}"}/bin/irc_server";
+      });
+
+      apps = forAllSystems (system: {
+        tests = {
+          type = "app";
+          program = "${self.packages.${system}.tests}/bin/tests";
+        };
       });
     };
 }
