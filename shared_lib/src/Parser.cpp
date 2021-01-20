@@ -1,4 +1,4 @@
-#include "Parser.hpp"
+#include "Parser.h"
 #include <cctype>
 
 using namespace ft_irc::parser;

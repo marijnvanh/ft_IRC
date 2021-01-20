@@ -1,5 +1,5 @@
-#include "RawMessage.hpp"
-#include "Parser.hpp"
+#include "RawMessage.h"
+#include "Parser.h"
 #include <iostream>
 #include <memory>
 #include <optional>
