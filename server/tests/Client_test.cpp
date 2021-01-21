@@ -44,6 +44,11 @@ TEST_F(ClientTests, SendAllWithMultipleMessagesInQueue)
     EXPECT_CALL(*io_handler, Send("test3"))
         .Times(1);
     client->SendAll();
+
+    /* Test if queue is empty */
+    EXPECT_CALL(*io_handler, Send(_))
+        .Times(0);
+    client->SendAll();
 }
 
 TEST_F(ClientTests, SendAllFailedToSendException)
