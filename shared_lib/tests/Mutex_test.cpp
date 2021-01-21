@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "Mutex.hpp"
+#include "Mutex.h"
 #include <thread>
 #include <chrono>
 
