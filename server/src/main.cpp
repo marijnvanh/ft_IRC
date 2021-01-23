@@ -1,6 +1,6 @@
-#include "RawMessage.hpp"
-#include "Parser.hpp"
-#include "Mutex.hpp"
+#include "RawMessage.h"
+#include "Parser.h"
+#include "Mutex.h"
 #include "UUID.hpp"
 #include <iostream>
 #include <memory>
