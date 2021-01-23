@@ -3,7 +3,6 @@
 
 #include <string>
 #include <stdexcept>
-#include <queue>
 #include <optional>
 
 #include "IClient.h"

@@ -4,6 +4,7 @@
 #include <optional>
 #include <memory>
 #include <mutex>
+#include <iostream>
 
 namespace ft_irc {
 

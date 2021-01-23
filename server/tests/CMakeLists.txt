@@ -13,3 +13,4 @@ macro(package_add_test TESTNAME)
 endmacro()
 
 package_add_test(Client_test Client_test.cpp ../src/Client.cpp)
+package_add_test(ClientDatabase_test ClientDatabase_test.cpp ../src/ClientDatabase.cpp)
