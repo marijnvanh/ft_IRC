@@ -1,8 +1,7 @@
-include_directories(include)
-
 macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
-    target_link_libraries(${TESTNAME} gtest gmock gtest_main tcp_lib)
+    target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+    target_link_libraries(${TESTNAME} gtest gmock gtest_main tcp_lib shared_lib)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${PROJECT_DIR}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
@@ -13,4 +12,4 @@ macro(package_add_test TESTNAME)
         FOLDER tests)
 endmacro()
 
-package_add_test(test_init test_init.cpp)
+package_add_test(Client_test Client_test.cpp ../src/Client.cpp)
