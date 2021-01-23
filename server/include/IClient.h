@@ -35,7 +35,7 @@ class IClient
     virtual auto Push(std::shared_ptr<std::string> irc_message) -> void = 0;
     
     /**
-     * @brief 
+     * @brief Receive message from Client, will return nullopt when nothing to receive
      * 
      * @exception IClient::Closed
      * 
