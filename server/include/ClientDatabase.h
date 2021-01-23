@@ -2,6 +2,7 @@
 #define _CLIENT_DATABASE_H__
 
 #include <unordered_map>
+#include <functional>
 
 #include "IClient.h"
 
