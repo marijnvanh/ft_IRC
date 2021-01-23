@@ -1,5 +1,3 @@
-include_directories(include)
-
 macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     target_link_libraries(${TESTNAME} gtest gmock gtest_main tcp_lib shared_lib)
