@@ -9,9 +9,12 @@ ClientDatabase::~ClientDatabase()
 
 auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
 {
-    std::pair<std::unordered_map<int, std::unique_ptr<IClient>>::iterator,bool> ret;
+    std::pair<std::unordered_map<int, ft_irc::Mutex<IClient>>::iterator,bool> ret;
 
-    ret = clients_.insert(std::make_pair(new_client->GetUUID(), std::move(new_client)));
+    ret = clients_.insert(std::make_pair(
+        new_client->GetUUID(),
+        ft_irc::Mutex<IClient>(std::move(new_client)))
+    );
 
     /* Check if duplicate was found */
     if (ret.second == false)
@@ -25,12 +28,13 @@ auto ClientDatabase::RemoveClient(int UUID) -> void
 
 auto ClientDatabase::PollClients(std::function<void(std::string)> message_handler) -> void
 {
-    std::unordered_map<int, std::unique_ptr<IClient>>::iterator it = clients_.begin();
+    std::unordered_map<int, ft_irc::Mutex<IClient>>::iterator it = clients_.begin();
 
     while (it != clients_.end())
     {
         try {
-            std::optional<std::string> irc_message = it->second->Receive();
+            auto client_handle = it->second.Take();
+            std::optional<std::string> irc_message = client_handle->Receive();
             if (irc_message)
                 message_handler(*irc_message);
         }

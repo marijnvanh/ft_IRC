@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "IClient.h"
+#include "Mutex.h"
 
 class ClientDatabase
 {
@@ -38,7 +39,7 @@ class ClientDatabase
     };
 
     private:
-    std::unordered_map<int, std::unique_ptr<IClient>> clients_;
+    std::unordered_map<int, ft_irc::Mutex<IClient>> clients_;
 };
 
 #endif
