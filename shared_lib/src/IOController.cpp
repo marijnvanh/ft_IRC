@@ -84,7 +84,7 @@ auto TCP::IOController::AcceptNewConnections(const std::function<void(std::share
 			
 				this->AddSocket(new_socket);
 
-				f(new_socket);
+				newSocketCallback(new_socket);
 			}
 			catch (TCP::Socket::Error &ex)
 			{
