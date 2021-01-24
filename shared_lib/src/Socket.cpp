@@ -17,6 +17,7 @@ using namespace IRC;
 #endif
 
 TCP::Socket::Socket() : socket_fd_(kUnInitialized),
+						type_(kUnknown),
                         state_(kUnInitialized),
                         address_size_(kUnInitialized)
 {
@@ -126,6 +127,7 @@ auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
     if (i == NULL)
         throw TCP::Socket::Error(strerror(errno));
     state_ = kConnected;
+	type_ = kClientSocket;
 }
 
 auto TCP::Socket::Close() -> void
@@ -135,7 +137,6 @@ auto TCP::Socket::Close() -> void
 		return ;
 	}
 
-	// Do we want to catch a -1 return value/error?
 	close(this->socket_fd_);
 
 	this->SetState(SocketState::kDisconnected);

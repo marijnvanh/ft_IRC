@@ -24,6 +24,7 @@ namespace IRC::TCP
 
 	enum SocketType
 	{
+		kUnknown = -1,
 		kClientSocket = 0,
 		kListenerSocket = 1
 	};

@@ -67,7 +67,7 @@ auto TCP::IOController::ValidateSocket(std::shared_ptr<const Socket> socket) -> 
         throw TCP::IOController::InvalidSocket("fd unknown");
 }
 
-auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& f) -> void
+auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void
 {
 	// TODO: Rob - As it stands, this loop accepts one client for each listener socket during every IOController revolution.
 	// Might be better to rework this to keep accepting new connections until there's none left ( while(accept) ).

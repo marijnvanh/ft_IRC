@@ -23,7 +23,7 @@ namespace IRC::TCP
 
 		auto AddSocket(std::shared_ptr<Socket> socket) -> void;
 
-        auto AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& f) -> void;
+        auto AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void;
 
         class Error : public std::runtime_error
         {
