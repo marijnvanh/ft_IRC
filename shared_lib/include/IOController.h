@@ -7,6 +7,7 @@
 
 #include <map>
 #include <memory>
+#include <functional>
 
 #define DEFAULT_RETRIES 3
 
@@ -22,7 +23,7 @@ namespace IRC::TCP
 
 		auto AddSocket(std::shared_ptr<Socket> socket) -> void;
 
-        auto AcceptNewConnections(void (*f)(std::shared_ptr<Socket>)) -> void;
+        auto AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& f) -> void;
 
         class Error : public std::runtime_error
         {
@@ -39,11 +40,15 @@ namespace IRC::TCP
         int max_retries_;
         fd_set master_fd_list_;
 
-        auto SendMessage(TCP::Message &message, fd_set *write_fds) -> void;
         auto ReadFromSocket(int socket_fd) -> void;
         auto ValidateSocket(std::shared_ptr<const Socket> socket) -> std::shared_ptr<Socket>;
 
-        auto DeleteSocket(int socket_fd) -> void;
+		/**
+		 * @brief Updates known socket states. Removes socket from known sockets if its state is kDisconnected.
+		 * 
+		 * @param ready_fds A set of fds that contain current states of socket fds.
+		 */
+		auto UpdateSocketStates(fd_set *ready_fds) -> void;
 
         class FailedToSend : public Error
         {

@@ -4,7 +4,7 @@
 #include <mutex>
 #include <memory>
 
-namespace IRC::TCP
+namespace IRC
 {
 	template <typename T>
 	class CircularBuffer

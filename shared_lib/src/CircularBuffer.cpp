@@ -1,10 +1,8 @@
 #include <cstring>
 #include "CircularBuffer.h"
 
-using namespace IRC;
-
 template <typename T>
-auto TCP::CircularBuffer<T>::Get() -> T
+auto IRC::CircularBuffer<T>::Get() -> T
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -21,7 +19,7 @@ auto TCP::CircularBuffer<T>::Get() -> T
 }
 
 template <typename T>
-auto TCP::CircularBuffer<T>::Put(T item) -> void
+auto IRC::CircularBuffer<T>::Put(T item) -> void
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -38,7 +36,7 @@ auto TCP::CircularBuffer<T>::Put(T item) -> void
 }
 
 template <typename T>
-auto TCP::CircularBuffer<T>::Flush() -> void
+auto IRC::CircularBuffer<T>::Flush() -> void
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -47,19 +45,19 @@ auto TCP::CircularBuffer<T>::Flush() -> void
 }
 
 template <typename T>
-bool TCP::CircularBuffer<T>::IsFull() const
+bool IRC::CircularBuffer<T>::IsFull() const
 {
 	return (this->full_);
 }
 
 template <typename T>
-bool TCP::CircularBuffer<T>::IsEmpty() const
+bool IRC::CircularBuffer<T>::IsEmpty() const
 {
 	return (this->full_ && this->head_ == this->tail_);
 }
 
 template <typename T>
-size_t TCP::CircularBuffer<T>::Size() const
+size_t IRC::CircularBuffer<T>::Size() const
 {
 	size_t size = this->max_size_;
 
@@ -79,7 +77,7 @@ size_t TCP::CircularBuffer<T>::Size() const
 }
 
 template <typename T>
-size_t TCP::CircularBuffer<T>::Capacity() const
+size_t IRC::CircularBuffer<T>::Capacity() const
 {
 	return (this->max_size_);
 }

@@ -10,15 +10,59 @@
 
 using namespace IRC;
 
-std::vector<std::shared_ptr<TCP::Socket>> ClientSockets;
-
-static void AcceptClient(std::shared_ptr<TCP::Socket> socket)
+class Server
 {
-	// Do something?
-	std::cout << "New client on FD: " << socket->GetFD() << std::endl;
+public:
+	Server(){};
+	~Server(){};
 
-	ClientSockets.push_back(socket);
-}
+	void Start(std::string address) {
+		std::cout << "Attempting to start server..." << std::endl;
+
+        TCP::AddressInfo address_info(address, PORT);
+
+		auto server_socket = std::make_shared<TCP::Socket>();
+		server_socket->Listen(address_info, 20, false);
+
+		io_controller_.AddSocket(server_socket);
+
+		std::cout << "Server started!" << std::endl;
+	};
+
+	void Run() {
+		io_controller_.RunOnce();
+
+		// Lambda/std::function expression for anonymous newly accepted socket handling.
+		io_controller_.AcceptNewConnections(
+			[=](std::shared_ptr<TCP::Socket> socket) {
+				std::cout << "New client on FD: " << socket->GetFD() << std::endl;
+
+				client_sockets_.push_back(socket);
+		});
+
+		for (std::vector<std::shared_ptr<TCP::Socket>>::iterator it = client_sockets_.begin(); it != client_sockets_.end();)
+		{
+			try
+			{
+				if ((*it)->GetState() == TCP::SocketState::kReadyToRead)
+				{
+					std::cout << (*it)->Recv() << std::endl;
+				}
+				++it;
+			}
+			catch(TCP::Socket::Closed &ex)
+			{
+				std::cout << "Client left with FD: " << (*it)->GetFD() << std::endl;
+				it = client_sockets_.erase(it);
+			}
+		}
+	}
+
+private:
+	std::vector<std::shared_ptr<TCP::Socket>> client_sockets_;
+
+	TCP::IOController io_controller_;
+};
 
 int main(int argc, char *argv[])
 {
@@ -27,41 +71,15 @@ int main(int argc, char *argv[])
 
     std::string server_address(argv[1]);
 
-	std::cout << "Attempting to start server..." << std::endl;
-
     try
 	{
-        TCP::AddressInfo address_info(server_address, PORT);
-        TCP::IOController io_controller;
-		
-		auto server_socket = std::make_shared<TCP::Socket>();
-		server_socket->Listen(address_info, 20, false);
+        Server server;
 
-		io_controller.AddSocket(server_socket);
-        
+		server.Start(std::move(server_address));
+
 		while (1)
         {
-            io_controller.RunOnce();
-
-			io_controller.AcceptNewConnections(AcceptClient);
-
-			// Loop through connected clients.
-			for (std::vector<std::shared_ptr<TCP::Socket>>::iterator it = ClientSockets.begin(); it != ClientSockets.end();)
-			{
-				try
-				{					
-					if ((*it)->GetState() == TCP::SocketState::kReadyToRead)
-					{
-						std::cout << (*it)->Recv() << std::endl;
-					}
-					++it;
-				}
-				catch(TCP::Socket::Closed &ex)
-				{
-					std::cout << "Client left with FD: " << (*it)->GetFD() << std::endl;
-					it = ClientSockets.erase(it);						
-				}
-			}
+			server.Run();
 
             sleep(1);
         }

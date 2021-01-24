@@ -186,7 +186,7 @@ auto TCP::Socket::Recv() -> std::string
 	int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
     if (received_bytes == 0)
     {
-        state_ = kDisconnected;
+		this->Close();
         throw TCP::Socket::Closed();
     }
     if (received_bytes == -1)
@@ -227,24 +227,18 @@ auto TCP::Socket::Send(const std::string &data) -> void
         /* Set NOSIGPIPE_FLAG to make sure that send doesn't send a signal on lost connection */
         int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
         if (send_bytes == -1)
-        {
-			/* Close the socket on send error */
-			this->Close();
-            
+        {            
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
                 throw TCP::Socket::WouldBlock();
 
+			/* Close the socket on send error */
+			this->Close();
+
             /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */
-            else if (errno == EPIPE || errno == EPROTOTYPE)
-            {
-                state_ = kDisconnected;
+            if (errno == EPIPE || errno == EPROTOTYPE)
                 throw TCP::Socket::Closed();
-            }
-            else
-            {
-                state_ = kDisconnected;
-                throw TCP::Socket::Error(strerror(errno));
-            }
+
+            throw TCP::Socket::Error(strerror(errno));
         }
 
         total_send += send_bytes;

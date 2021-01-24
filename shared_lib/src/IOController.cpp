@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <string.h>
 #include <memory>
+#include <vector>
 
 using namespace IRC;
 
@@ -43,17 +44,7 @@ auto TCP::IOController::RunOnce() -> void
 	if (total_ready_fds == -1)
 		throw TCP::IOController::Error(strerror(errno));
 
-	if (total_ready_fds == 0)
-		return ;
-
-	for (int i = 0; i <= max_fd_; i++)
-	{
-		if (FD_ISSET(i, &read_fds))
-		{
-			auto socket = sockets_.find(i);
-			socket->second->SetState(TCP::SocketState::kReadyToRead);
-		}
-	}
+	this->UpdateSocketStates(&read_fds);
 }
 
 /**
@@ -76,66 +67,30 @@ auto TCP::IOController::ValidateSocket(std::shared_ptr<const Socket> socket) -> 
         throw TCP::IOController::InvalidSocket("fd unknown");
 }
 
-auto TCP::IOController::SendMessage(TCP::Message &message, fd_set *write_fds) -> void
-{
-    try {
-        std::shared_ptr<Socket> socket = ValidateSocket(message.GetSocket());
-        if (FD_ISSET(message.GetFD(), write_fds))
-            socket->Send(*message.GetData());
-        else
-            throw TCP::IOController::FailedToSend("Socket not ready for writing");
-    }
-    catch (TCP::IOController::InvalidSocket &ex)
-    {
-        throw TCP::IOController::FailedToSend(ex.what());
-    }
-    catch (TCP::Socket::Closed &ex)
-    {
-        DeleteSocket(message.GetFD());
-        throw TCP::IOController::FailedToSend(ex.what());
-    }
-    catch (TCP::Socket::WouldBlock &ex)
-    {
-        throw TCP::IOController::FailedToSend(ex.what());
-    }
-    catch (TCP::Socket::Error &ex)
-    {
-        DeleteSocket(message.GetFD());
-        throw TCP::IOController::FailedToSend(ex.what());
-    }
-}
-
-auto TCP::IOController::AcceptNewConnections(void (*f)(std::shared_ptr<Socket>)) -> void
+auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& f) -> void
 {
 	// TODO: Rob - As it stands, this loop accepts one client for each listener socket during every IOController revolution.
 	// Might be better to rework this to keep accepting new connections until there's none left ( while(accept) ).
-	//for (auto const&value:)
-	for (int i = 0; i <= max_fd_; i++)
+	for (auto const &listener_socket:sockets_)
 	{
-   		auto listener_socket = sockets_.find(i);
-		
-		// This if statement is blown up a little bit, might be able to shrink it down by applying different check(s)?
-		if (listener_socket == sockets_.end() ||
-			listener_socket->second->GetType() != TCP::SocketType::kListenerSocket ||
-			listener_socket->second->GetState() != TCP::SocketState::kReadyToRead)
-			continue ;
-
-		listener_socket->second->SetState(TCP::SocketState::kConnected);
-
-		try
+		if (listener_socket.second->GetType() == TCP::SocketType::kListenerSocket &&
+			listener_socket.second->GetState() == TCP::SocketState::kReadyToRead)
 		{
-			auto new_socket = std::make_shared<Socket>();
-			new_socket->Accept(i);
-		
-			this->AddSocket(new_socket);
+			listener_socket.second->SetState(SocketState::kConnected);
+			try
+			{
+				auto new_socket = std::make_shared<Socket>();
+				new_socket->Accept(listener_socket.second->GetFD());
+			
+				this->AddSocket(new_socket);
 
-			f(new_socket);
-
-		}
-   		catch (TCP::Socket::Error &ex)
-		{
-			std::cerr << "Could not accept new connection: " << ex.what() << std::endl;
-			return ; 
+				f(new_socket);
+			}
+			catch (TCP::Socket::Error &ex)
+			{
+				std::cerr << "Could not accept new connection: " << ex.what() << std::endl;
+				return ; 
+			}
 		}
 	}
 }
@@ -151,25 +106,32 @@ auto TCP::IOController::AddSocket(std::shared_ptr<Socket> socket) -> void
 	sockets_.insert(std::make_pair(socket->GetFD(), socket));
 }
 
-auto TCP::IOController::DeleteSocket(int socket_fd) -> void
+auto TCP::IOController::UpdateSocketStates(fd_set *ready_fds) -> void
 {
-    auto socket = sockets_.find(socket_fd);
-
-	if (socket == sockets_.end())
+	for (auto it = sockets_.cbegin(); it != sockets_.cend();)
 	{
-		return ;
-	}
-
-    FD_CLR(socket_fd, &master_fd_list_);
-	socket->second->SetState(TCP::SocketState::kDisconnected);
-
-    /* Lower max_fd when we delete the previous highest fd */
-    if (socket_fd == max_fd_)
-    {
-        while (FD_ISSET(max_fd_, &master_fd_list_) == false && max_fd_ > 0)
+		if (it->second->GetState() == TCP::SocketState::kDisconnected)
 		{
-            max_fd_--;
+   			FD_CLR(it->second->GetFD(), &master_fd_list_);
+			
+			if (it->second->GetFD() == max_fd_)
+			{
+				while (FD_ISSET(max_fd_, &master_fd_list_) == false && max_fd_ > 0)
+				{
+					max_fd_--;
+				}
+			}
+
+			it = sockets_.erase(it);
 		}
-    }
-    sockets_.erase(socket_fd);    
+		else
+		{
+			if (FD_ISSET(it->second->GetFD(), ready_fds))
+			{
+				it->second->SetState(TCP::SocketState::kReadyToRead);
+			}			
+
+			++it;
+		}		
+	}
 }

@@ -9,7 +9,7 @@
 
 namespace IRC::TCP
 {
-    class TCPIOHandler : public IIOHandler
+    class TCPIOHandler : public IRC::IIOHandler
     {
     private:
         std::shared_ptr<TCP::Socket> socket_;

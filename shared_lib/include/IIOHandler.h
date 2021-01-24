@@ -4,7 +4,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace IRC::TCP
+namespace IRC
 {
     class IIOHandler
     {
