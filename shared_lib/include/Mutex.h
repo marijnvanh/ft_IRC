@@ -23,7 +23,7 @@ namespace ft_irc {
             return _ref;
         }
 
-        // Prevent duplication of a handle, as to disallow 
+        // Prevent duplication of a handle, as to disallow mutex copying
         MutexHandle(const MutexHandle& h2) = delete;
         MutexHandle& operator=(const MutexHandle& h2) = delete;
 
@@ -34,7 +34,7 @@ namespace ft_irc {
 
     template<typename T>
     class Mutex {
-        std::mutex _lock;
+        std::unique_ptr<std::mutex> _lock;
         T* _ref;
 
     public:
@@ -42,22 +42,56 @@ namespace ft_irc {
          * This forces ownernship to be guaranteed.
          * _ref will always be owned by Mutex.
          */
-        Mutex(std::unique_ptr<T> wrap) : _ref(wrap.release()) {}; 
+        Mutex(std::unique_ptr<T> wrap) : 
+            _lock(std::make_unique<std::mutex>()),
+            _ref(wrap.release()) {}; 
 
         ~Mutex() {
-            _lock.lock();
-            _lock.unlock();
+            if (_lock) {
+                // If we own a lock, we should try to lock it before we get destroyed
+                // A handle might be currently owning a Handle into it, deleting would not be a good idea :)
+                _lock->lock();
+                _lock->unlock();
+            }
             delete _ref;
         }
 
+        Mutex(Mutex&& other) {
+            other._lock->lock();
+            _ref = other._ref;
+            _lock = std::move(other._lock);
+            other._ref = nullptr;
+            _lock->unlock();
+        }
+
+        auto operator=(Mutex&& other) -> Mutex& {
+            // Now for the tricky bit.
+            if (this != &other) {
+                auto old_lock = std::move(_lock);
+                old_lock->lock();
+                other._lock->lock();
+                delete _ref;
+                _ref = other._ref;
+                _lock = std::move(other._lock);
+                other._ref = nullptr;
+                _lock->unlock();
+                old_lock->unlock();
+            }
+            return *this;
+        }
+
         auto Take() -> MutexHandle<T> {
-            _lock.lock();
-            return MutexHandle(&_lock, _ref);
+            _lock->lock();
+            // JUSTIFICATION: .get is valid here because we never delete locks without locking them first
+            // which would block until a MutexHandle doesn't hold it.
+            // Locks also are atomic in their access, so two threads accessing at same time is safe.
+            return MutexHandle(_lock.get(), _ref); 
         }
 
         auto TryTake() -> std::unique_ptr<MutexHandle<T>> {
-            if (_lock.try_lock()) {
-                return std::make_unique<MutexHandle<T>>(&_lock, _ref);
+            if (_lock->try_lock()) {
+                // SEE ABOVE
+                return std::make_unique<MutexHandle<T>>(_lock.get(), _ref);
             } else {
                 return std::unique_ptr<MutexHandle<T>>(nullptr);
             }

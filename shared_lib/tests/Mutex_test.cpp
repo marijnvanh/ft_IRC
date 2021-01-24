@@ -64,3 +64,18 @@ TEST(MutexTest, Printing)
     stream2 << mtx;
     ASSERT_EQ(stream2.str(), "Mutex(<<locked>>)");
 }
+
+TEST(MutexTaste, Moving)
+{
+    ft_irc::Mutex<int> mtx1 = ft_irc::MakeMutex<int>(42);
+
+    ft_irc::Mutex<int> mtx2 = std::move(mtx1); // move operator
+
+    ft_irc::Mutex<int> mtx3 = ft_irc::MakeMutex<int>(1337);
+
+    mtx3 = std::move(mtx2); // move assignment operator
+
+    auto h = mtx3.Take();
+    ASSERT_EQ(*h, 42);
+}
+
