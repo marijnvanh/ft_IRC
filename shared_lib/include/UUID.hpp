@@ -81,11 +81,19 @@ namespace ft_irc {
     };
 }
 
+/*
+ * What this actually does:
+ * 
+ * This allows us to use std::unordered_map<UUID, ...> because
+ * it will under the hood hash the UUIDs using the function below.
+ *
+ * There is one caveat: it currently discards upper 64 bits for hashing.
+ * However, operator== ensures equality *won't* be preserved, so collisions 
+ * *might* still get detected
+ */
 namespace std {
     template<>
     struct hash<ft_irc::UUID> {
-        // TODO: is this okay? It discards upper 64 bits for hashing
-        // But operator== ensures equality *won't* be preserved.
         std::size_t operator()(const ft_irc::UUID& uuid) const {
             return uuid.Low();
         }
