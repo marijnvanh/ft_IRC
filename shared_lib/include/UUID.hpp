@@ -72,6 +72,7 @@ namespace ft_irc {
         }
 
         UUIDGenerator(const UUIDGenerator& other) = delete;
+        UUIDGenerator& operator=(const UUIDGenerator& other) = delete;
 
         auto Generate() -> UUID {
             uint64_t low = _dis(_engine);
