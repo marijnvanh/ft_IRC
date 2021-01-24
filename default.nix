@@ -6,7 +6,7 @@ stdenv.mkDerivation rec {
 
   src = ./.;
 
-  buildInputs = [ pkgs.cmake pkgs.gtest ];
+  buildInputs = with pkgs; [ cmake gtest ];
 
   configurePhase = ''
     cmake . -DPACKAGE_TESTS=ON -DNIX=ON
