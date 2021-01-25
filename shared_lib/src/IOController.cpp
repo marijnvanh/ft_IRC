@@ -7,9 +7,6 @@
 
 using namespace IRC;
 
-/**
- * @brief Construct a new TCP::IOController object
- */
 TCP::IOController::IOController()
 {
 	max_fd_ = 0;
@@ -18,12 +15,6 @@ TCP::IOController::IOController()
 
 TCP::IOController::~IOController() {}
 
-/**
- * @brief Accepts new connections and sends/receives messages
- * 
- * @exception TCP::IOController::Error when select fails
- * @exception TCP::IOController::Error when main socket closes
- */
 auto TCP::IOController::RunOnce() -> void
 {
     /* Set time_val to 0 so select doesn't block */

@@ -57,7 +57,6 @@ namespace IRC::TCP
         auto GetFD() const -> int { return socket_fd_; };
 
 		auto GetType() const -> int { return type_; };
-		auto SetType(SocketType type) -> void { type_ = type; };
 
         auto GetState() const -> int { return state_; };
 		auto SetState(SocketState state) -> void { this->state_ = state; }

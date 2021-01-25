@@ -13,14 +13,37 @@ namespace IRC::TCP
     class IOController
     {
     public:
+		/**
+		 * @brief Construct a new TCP::IOController object
+		 */
         IOController();
         ~IOController();
 
+		/**
+		 * @brief Checks all FDs in master_fd_list_ and sets corresponding sockets to kReadyToRead state.
+		 * 
+		 * @exception TCP::IOController::Error when select fails.
+		 */
         auto RunOnce() -> void;
 
+		/**
+		 * @brief Adds the socket to the list of known sockets, allowing for processing of IO states.
+		 * 
+		 * @param socket A shared_ptr object of the socket to add.
+		 */
 		auto AddSocket(std::shared_ptr<Socket> socket) -> void;
+		/**
+		 * @brief Removes the socket to the list of known sockets, this does not call the Close method on the Socket object.
+		 * 
+		 * @param socket A shared_ptr object of the socket to remove.
+		 */
 		auto RemoveSocket(std::shared_ptr<Socket> socket) -> void;
 
+		/**
+		 * @brief Attempts to accept new connections from all known listener sockets.
+		 * 
+		 * @param newSocketCallback A callback which is populated with the newly added socket for non-generic processing.
+		 */
         auto AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void;
 
         class Error : public std::runtime_error
