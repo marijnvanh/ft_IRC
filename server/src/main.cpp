@@ -53,7 +53,7 @@ public:
 			catch(TCP::Socket::Closed &ex)
 			{
 				std::cout << "Client left with FD: " << (*it)->GetFD() << std::endl;
-				it = client_sockets_.erase(it);
+				io_controller_.RemoveSocket(*it);
 			}
 		}
 	}

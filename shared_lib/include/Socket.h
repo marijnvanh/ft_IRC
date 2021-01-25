@@ -11,9 +11,6 @@
 
 namespace IRC::TCP
 {
-	// TODO: Rob - Do we want to put the 'ready-to-read' state in this enum?
-	// If so, does the ready-to-read state imply the socket is also still connected?
-	// Or does this mean we'll want to make this a flag state (which would make less sense tbh).
     enum SocketState
     {
         kUnInitialized = -1,

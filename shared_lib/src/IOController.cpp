@@ -9,11 +9,8 @@ using namespace IRC;
 
 /**
  * @brief Construct a new TCP::IOController object
- * 
- * @param max_retries maximum amount of send retries
  */
-TCP::IOController::IOController(int max_retries) :
-                                max_retries_(max_retries)
+TCP::IOController::IOController()
 {
 	max_fd_ = 0;
     FD_ZERO(&master_fd_list_);
@@ -45,26 +42,6 @@ auto TCP::IOController::RunOnce() -> void
 		throw TCP::IOController::Error(strerror(errno));
 
 	this->UpdateSocketStates(&read_fds);
-}
-
-/**
- * @brief Validate that a socket is still ok to use and return a mutable reference
- * 
- * @param socket 
- * @return Socket& 
- */
-auto TCP::IOController::ValidateSocket(std::shared_ptr<const Socket> socket) -> std::shared_ptr<Socket>
-{
-    int socket_fd = socket->GetFD();
-
-    if (FD_ISSET(socket_fd, &master_fd_list_) == false)
-        throw TCP::IOController::InvalidSocket("fd unknown");    
-
-    auto mutable_socket = sockets_.find(socket_fd);
-    if (mutable_socket->second == socket)
-        return mutable_socket->second;
-    else
-        throw TCP::IOController::InvalidSocket("fd unknown");
 }
 
 auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void
@@ -106,23 +83,29 @@ auto TCP::IOController::AddSocket(std::shared_ptr<Socket> socket) -> void
 	sockets_.insert(std::make_pair(socket->GetFD(), socket));
 }
 
+auto TCP::IOController::RemoveSocket(std::shared_ptr<Socket> socket) -> void
+{
+	FD_CLR(socket->GetFD(), &master_fd_list_);
+
+	if (socket->GetFD() == max_fd_)
+	{
+		while (FD_ISSET(max_fd_, &master_fd_list_) == false && max_fd_ > 0)
+		{
+			max_fd_--;
+		}
+	}
+
+	sockets_.erase(socket->GetFD());
+}
+
 auto TCP::IOController::UpdateSocketStates(fd_set *ready_fds) -> void
 {
 	for (auto it = sockets_.cbegin(); it != sockets_.cend();)
 	{
 		if (it->second->GetState() == TCP::SocketState::kDisconnected)
 		{
-   			FD_CLR(it->second->GetFD(), &master_fd_list_);
-			
-			if (it->second->GetFD() == max_fd_)
-			{
-				while (FD_ISSET(max_fd_, &master_fd_list_) == false && max_fd_ > 0)
-				{
-					max_fd_--;
-				}
-			}
-
-			it = sockets_.erase(it);
+			RemoveSocket(it->second);
+			it--;
 		}
 		else
 		{

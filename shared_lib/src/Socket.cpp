@@ -192,14 +192,11 @@ auto TCP::Socket::Recv() -> std::string
     }
     if (received_bytes == -1)
     {
-		/* Close the socket on receive error */
-		this->Close();
-
         if (errno == EAGAIN || errno == EWOULDBLOCK)
             throw TCP::Socket::WouldBlock();
         else
         {
-            state_ = kDisconnected;
+			this->Close();
             throw TCP::Socket::Error(strerror(errno));
         }
     }
