@@ -13,7 +13,7 @@ class Client : public IClient
 {
     public:
 
-    Client(std::unique_ptr<ft_irc::IIOHandler> io_handler);
+    Client(std::unique_ptr<IRC::IIOHandler> io_handler);
     ~Client();
 
     auto Push(std::shared_ptr<std::string> irc_message) -> void override;
@@ -21,7 +21,7 @@ class Client : public IClient
     auto SendAll() -> void override;
 
     private:
-    std::unique_ptr<ft_irc::IIOHandler> io_handler_;
+    std::unique_ptr<IRC::IIOHandler> io_handler_;
 };
 
 #endif

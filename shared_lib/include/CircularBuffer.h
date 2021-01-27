@@ -4,10 +4,9 @@
 #include <mutex>
 #include <memory>
 
-namespace Shared
+namespace IRC
 {
-
-	template <class T>
+	template <typename T>
 	class CircularBuffer
 	{
 	public:
@@ -29,7 +28,7 @@ namespace Shared
 		size_t Capacity() const;
 
 	private:
-		std::mutex mutex_; // Thread safety, in case we want that.
+		std::mutex mutex_;
 
 		std::unique_ptr<T[]> buffer_;
 
@@ -43,6 +42,6 @@ namespace Shared
 
 	};
 
-} // namespace Shared
+} // namespace IRC::TCP
 
 #endif // __CIRCULAR_BUFFER_H__

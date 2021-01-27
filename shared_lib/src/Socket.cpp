@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <string.h>
 
+using namespace IRC;
+
 #define BUFFER_SIZE 512
 
 #ifdef __APPLE__
@@ -15,6 +17,7 @@
 #endif
 
 TCP::Socket::Socket() : socket_fd_(kUnInitialized),
+						type_(kUnknown),
                         state_(kUnInitialized),
                         address_size_(kUnInitialized)
 {
@@ -22,8 +25,7 @@ TCP::Socket::Socket() : socket_fd_(kUnInitialized),
 
 TCP::Socket::~Socket()
 {
-    if (state_ != kUnInitialized)
-        close(socket_fd_);
+	this->Close();
 }
 
 auto TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block) -> int
@@ -94,6 +96,7 @@ auto TCP::Socket::Listen(AddressInfo &address_info, int backlog, bool block) -> 
         throw TCP::Socket::Error(strerror(errno));
     }
     state_ = kConnected;
+	type_ = kListenerSocket;
 }
 
 /**
@@ -124,15 +127,26 @@ auto TCP::Socket::Connect(AddressInfo &address_info, bool block) -> void
     if (i == NULL)
         throw TCP::Socket::Error(strerror(errno));
     state_ = kConnected;
+	type_ = kClientSocket;
+}
+
+auto TCP::Socket::Close() -> void
+{
+	if (this->state_ == SocketState::kUnInitialized || this->state_ == SocketState::kDisconnected)
+	{
+		return ;
+	}
+
+	close(this->socket_fd_);
+
+	this->SetState(SocketState::kDisconnected);
 }
 
 /**
  * @brief Accept a new connection
  * 
- * @param listener_fd file descriptor of an active listener socket
- * 
- * @exception Socket::WouldBlock
  * @exception Socket::Error
+ * @exception Socket::WouldBlock
  */
 auto TCP::Socket::Accept(int listener_fd) -> void
 {
@@ -151,6 +165,7 @@ auto TCP::Socket::Accept(int listener_fd) -> void
             throw TCP::Socket::Error(strerror(errno));
     }
     state_ = kConnected;
+	type_ = kClientSocket;
 }
 
 /**
@@ -167,10 +182,12 @@ auto TCP::Socket::Recv() -> std::string
 {
     char buffer[BUFFER_SIZE];
 
-    int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
+	state_ = TCP::SocketState::kConnected;
+
+	int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
     if (received_bytes == 0)
     {
-        state_ = kDisconnected;
+		this->Close();
         throw TCP::Socket::Closed();
     }
     if (received_bytes == -1)
@@ -179,7 +196,7 @@ auto TCP::Socket::Recv() -> std::string
             throw TCP::Socket::WouldBlock();
         else
         {
-            state_ = kDisconnected;
+			this->Close();
             throw TCP::Socket::Error(strerror(errno));
         }
     }
@@ -208,21 +225,18 @@ auto TCP::Socket::Send(const std::string &data) -> void
         /* Set NOSIGPIPE_FLAG to make sure that send doesn't send a signal on lost connection */
         int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
         if (send_bytes == -1)
-        {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {            
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
                 throw TCP::Socket::WouldBlock();
 
+			/* Close the socket on send error */
+			this->Close();
+
             /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */
-            else if (errno == EPIPE || errno == EPROTOTYPE)
-            {
-                state_ = kDisconnected;
+            if (errno == EPIPE || errno == EPROTOTYPE)
                 throw TCP::Socket::Closed();
-            }
-            else
-            {
-                state_ = kDisconnected;
-                throw TCP::Socket::Error(strerror(errno));
-            }
+
+            throw TCP::Socket::Error(strerror(errno));
         }
 
         total_send += send_bytes;

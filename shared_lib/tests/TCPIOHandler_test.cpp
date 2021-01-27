@@ -3,6 +3,8 @@
 #include "TCPIOHandler.h"
 #include "Socket.h"
 
+using namespace IRC;
+
 class TCPIOHandlerTests : public ::testing::Test
 {
     public:
@@ -19,14 +21,14 @@ class TCPIOHandlerTests : public ::testing::Test
 
 TEST_F(TCPIOHandlerTests, FailToReadFromClosedSocket)
 {
-    ft_irc::TCPIOHandler io_handler(socket);
+    TCP::TCPIOHandler io_handler(socket);
 
-    ASSERT_THROW(io_handler.Receive(), ft_irc::IIOHandler::Closed);
+    ASSERT_THROW(io_handler.Receive(), IRC::IIOHandler::Closed);
 }
 
 TEST_F(TCPIOHandlerTests, FailToSendToClosedSocket)
 {
-    ft_irc::TCPIOHandler io_handler(socket);
+    TCP::TCPIOHandler io_handler(socket);
 
-    ASSERT_THROW(io_handler.Send("Test"), ft_irc::IIOHandler::Closed);
+    ASSERT_THROW(io_handler.Send("Test"), IRC::IIOHandler::Closed);
 }

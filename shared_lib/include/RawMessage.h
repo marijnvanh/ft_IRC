@@ -44,7 +44,7 @@
 **      <special>    ::= '-' | '[' | ']' | '\' | '`' | '^' | '{' | '}'
 **
 */
-namespace ft_irc {
+namespace IRC {
 
     // Domain newtypes
     struct Hostname {
@@ -74,7 +74,7 @@ namespace ft_irc {
         RawCommand command;
     };
 
-    using namespace parser;
+    using namespace IRC::Parser;
 
     /* <message>  ::= [':' < prefix > <SPACE>]<command><params><crlf> */
     auto ParseRawMessage(CharStream& s) -> RawMessage;

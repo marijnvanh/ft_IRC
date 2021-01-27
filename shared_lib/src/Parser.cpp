@@ -1,7 +1,7 @@
 #include "Parser.h"
 #include <cctype>
 
-using namespace ft_irc::parser;
+using namespace IRC::Parser;
 
 auto ParseException::Explain(const CharStream& stream) const -> void {
   std::cout << "Parse Exception: "
@@ -48,7 +48,7 @@ auto CharStream::DebugStream() const -> void {
   std::cout << "Remaining text: <<" << Remaining() << ">>" << std::endl;
 }
 
-auto ft_irc::parser::Replicate(std::function<char(CharStream &s)> fun, int n, CharStream &s) -> std::string {
+auto IRC::Parser::Replicate(std::function<char(CharStream &s)> fun, int n, CharStream &s) -> std::string {
   std::string accum;
 
   for (auto i = 0; i < n; i++) {
@@ -61,13 +61,13 @@ auto ft_irc::parser::Replicate(std::function<char(CharStream &s)> fun, int n, Ch
   return accum;
 }
 
-auto ft_irc::parser::Eof(CharStream &s) -> void {
+auto IRC::Parser::Eof(CharStream &s) -> void {
   if (s.Remaining().size() > 0)
     throw EOFException(s.Location());
   return;
 }
 
-auto ft_irc::parser::Satisfy(std::function<bool(char)> predicate, CharStream& s) -> char {
+auto IRC::Parser::Satisfy(std::function<bool(char)> predicate, CharStream& s) -> char {
   const auto peeked = s.Peek();
   if (predicate(peeked))
     return s.Consume();
@@ -75,11 +75,11 @@ auto ft_irc::parser::Satisfy(std::function<bool(char)> predicate, CharStream& s)
     throw MatchFailureException(s.Location(), peeked);
 }
 
-auto ft_irc::parser::OneOf(std::string options, CharStream& s) -> char {
+auto IRC::Parser::OneOf(std::string options, CharStream& s) -> char {
   return Satisfy([&options](char c) { return options.find(c) != std::string::npos; }, s);
 }
 
-auto ft_irc::parser::ConsumeWhile(std::function<bool(char)> predicate, CharStream &s)
+auto IRC::Parser::ConsumeWhile(std::function<bool(char)> predicate, CharStream &s)
   -> std::string {
   std::string accum;
   try {
@@ -97,34 +97,34 @@ auto ft_irc::parser::ConsumeWhile(std::function<bool(char)> predicate, CharStrea
   }
 }
 
-auto ft_irc::parser::ConsumeWhile1(std::function<bool(char)> predicate, CharStream &s) -> std::string {
+auto IRC::Parser::ConsumeWhile1(std::function<bool(char)> predicate, CharStream &s) -> std::string {
   std::string accum;
   accum += Satisfy(predicate, s);
   accum += ConsumeWhile(predicate, s);
   return accum;
 }
 
-auto ft_irc::parser::ParseAlpha(CharStream &s) -> char {
+auto IRC::Parser::ParseAlpha(CharStream &s) -> char {
   return Satisfy([](char c) { return std::isalpha(c); }, s);
 }
 
-auto ft_irc::parser::ParseDigit(CharStream &s) -> char {
+auto IRC::Parser::ParseDigit(CharStream &s) -> char {
   return Satisfy([](char c) { return std::isdigit(c); }, s);
 }
 
-auto ft_irc::parser::ParseSymbol(char target, CharStream &s) -> char {
+auto IRC::Parser::ParseSymbol(char target, CharStream &s) -> char {
   return Satisfy([&target](char c) { return target == c; }, s);
 }
 
-auto ft_irc::parser::ParseWhitespace(CharStream &s) -> void {
+auto IRC::Parser::ParseWhitespace(CharStream &s) -> void {
   ConsumeWhile([](char c) { return c == ' '; }, s);
 }
 
-auto ft_irc::parser::ParseWord(CharStream &s) -> std::string {
+auto IRC::Parser::ParseWord(CharStream &s) -> std::string {
   return ConsumeWhile1([](char c){ return std::isalpha(c); }, s);
 }
 
-auto ft_irc::parser::ParseString(std::string expected, CharStream& s) -> std::string {
+auto IRC::Parser::ParseString(std::string expected, CharStream& s) -> std::string {
   for (size_t i = 0; i < expected.size(); i++) {
     ParseSymbol(expected[i], s);
   }

@@ -1,71 +1,85 @@
-#include "RawMessage.h"
-#include "Parser.h"
-#include "Mutex.h"
-#include "UUID.hpp"
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <vector>
-#include <cassert>
-#include <thread>
-#include <chrono>
-#include <queue>
- 
+#include "Socket.h"
 #include "AddressInfo.h"
 #include "IOController.h"
-#include "Message.h"
 
+#include <queue>
+#include <memory>
 #include <unistd.h>
 #define PORT "5000"
 
-struct Point {
-    int x, y;
-    Point(int x, int y) : x(x), y(y) {}
-};
+using namespace IRC;
 
-std::ostream& operator<<(std::ostream& os, const Point& p)
+class Server
 {
-    os << "Point(" << p.x << ", " << p.y << ")";
-    return os;
-}
+public:
+	Server(){};
+	~Server(){};
+
+	void Start(std::string address) {
+		std::cout << "Attempting to start server..." << std::endl;
+
+        TCP::AddressInfo address_info(address, PORT);
+
+		auto server_socket = std::make_shared<TCP::Socket>();
+		server_socket->Listen(address_info, 20, false);
+
+		io_controller_.AddSocket(server_socket);
+
+		std::cout << "Server started!" << std::endl;
+	};
+
+	void Run() {
+		io_controller_.RunOnce();
+
+		// Lambda/std::function expression for anonymous newly accepted socket handling.
+		io_controller_.AcceptNewConnections(
+			[=](std::shared_ptr<TCP::Socket> socket) {
+				std::cout << "New client on FD: " << socket->GetFD() << std::endl;
+
+				client_sockets_.push_back(socket);
+		});
+
+		for (std::vector<std::shared_ptr<TCP::Socket>>::iterator it = client_sockets_.begin(); it != client_sockets_.end();)
+		{
+			try
+			{
+				if ((*it)->GetState() == TCP::SocketState::kReadyToRead)
+				{
+					std::cout << (*it)->Recv() << std::endl;
+				}
+				++it;
+			}
+			catch(TCP::Socket::Closed &ex)
+			{
+				std::cout << "Client left with FD: " << (*it)->GetFD() << std::endl;
+				io_controller_.RemoveSocket(*it);
+			}
+		}
+	}
+
+private:
+	std::vector<std::shared_ptr<TCP::Socket>> client_sockets_;
+
+	TCP::IOController io_controller_;
+};
 
 int main(int argc, char *argv[])
 {
-    auto gen = ft_irc::UUIDGenerator();
-
-    auto uuid = gen.Generate();
-
-    std::cout << uuid.ToString() << std::endl;
-
     if (argc != 2)
         exit(1);
-    std::string server_address(argv[1]);
-    try {
-        TCP::AddressInfo address_info(server_address, PORT);
-        std::queue<TCP::Message> send_queue;
-        std::queue<TCP::Message> read_queue;
-        TCP::IOController io_controller(address_info, read_queue, send_queue);
-        while (1)
-        {
-            std::cout << "Poll once" << std::endl;
-            io_controller.RunOnce();
 
-            while (read_queue.empty() == false)
-            {
-                auto message = read_queue.front();
-                if (*message.GetData() != "")
-                {
-                    std::cout << "Received: " << message.GetData() << std::endl;
-                    TCP::Message response(message.GetSocket(), "ACK: " + *message.GetData());
-                    send_queue.push(std::move(response));
-                }
-                else
-                {
-                    if (message.GetSocket()->GetState() == TCP::SocketState::kConnected)
-                        std::cout << "New connection received" << std::endl;
-                }
-                read_queue.pop();
-            }
+    std::string server_address(argv[1]);
+
+    try
+	{
+        Server server;
+
+		server.Start(std::move(server_address));
+
+		while (1)
+        {
+			server.Run();
+
             sleep(1);
         }
     }
