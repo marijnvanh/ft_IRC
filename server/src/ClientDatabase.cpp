@@ -9,9 +9,7 @@ ClientDatabase::~ClientDatabase()
 
 auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
 {
-    std::pair<std::unordered_map<int, ft_irc::Mutex<IClient>>::iterator,bool> ret;
-
-    ret = clients_.insert(std::make_pair(
+    auto ret = clients_.insert(std::make_pair(
         new_client->GetUUID(),
         ft_irc::Mutex<IClient>(std::move(new_client)))
     );
