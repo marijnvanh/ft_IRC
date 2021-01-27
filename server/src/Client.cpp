@@ -1,7 +1,7 @@
 #include "Client.h"
 #include <iostream>
 
-Client::Client(std::unique_ptr<ft_irc::IIOHandler> io_handler)
+Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler)
     : io_handler_(std::move(io_handler))
 {}
 
@@ -21,13 +21,13 @@ auto Client::SendAll() -> void
         try {
             io_handler_->Send(*irc_message);
         }
-        catch (ft_irc::IIOHandler::FailedToSend &ex)
+        catch (IRC::IIOHandler::FailedToSend &ex)
         {
             std::cerr << "Client with UUID: " << UUID_;
             std::cerr << ", failed to send: " << ex.what() << std::endl;
             break ;
         }
-        catch (ft_irc::IIOHandler::Closed &ex)
+        catch (IRC::IIOHandler::Closed &ex)
         {
             throw IClient::Disconnected(ex.what());
         }
@@ -40,13 +40,13 @@ auto Client::Receive() -> std::optional<std::string>
     try {
         return std::optional<std::string>{io_handler_->Receive()};
     }
-    catch (ft_irc::IIOHandler::FailedToReceive &ex)
+    catch (IRC::IIOHandler::FailedToReceive &ex)
     {
         std::cerr << "Client with UUID: " << UUID_;
         std::cerr << ", failed to receive: " << ex.what() << std::endl;
         return std::nullopt;
     }
-    catch (ft_irc::IIOHandler::Closed &ex)
+    catch (IRC::IIOHandler::Closed &ex)
     {
         throw IClient::Disconnected(ex.what());
     }
