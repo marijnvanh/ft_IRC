@@ -1,5 +1,3 @@
-include_directories(include)
-
 macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib)
@@ -13,4 +11,5 @@ macro(package_add_test TESTNAME)
         FOLDER tests)
 endmacro()
 
+package_add_test(Mutex_test Mutex_test.cpp)
 package_add_test(TCPIOHandler_test TCPIOHandler_test.cpp)

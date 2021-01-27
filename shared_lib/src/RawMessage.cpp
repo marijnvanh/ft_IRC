@@ -1,4 +1,4 @@
-#include "RawMessage.hpp"
+#include "RawMessage.h"
 #include <cctype>
 
 auto IsSpecial(char c) -> bool {

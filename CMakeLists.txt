@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -fsanitize=address -g")
+set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -fsanitize=address -g -pthread")
 
 add_subdirectory(shared_lib)
 add_subdirectory(server)

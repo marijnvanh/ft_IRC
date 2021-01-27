@@ -12,7 +12,7 @@ namespace IRC::TCP
     class TCPIOHandler : public IRC::IIOHandler
     {
     private:
-        std::shared_ptr<TCP::Socket> socket_;
+        std::shared_ptr<TCP::Socket> socket_; //TODO Make mutex
 
     public:
         TCPIOHandler(std::shared_ptr<TCP::Socket> socket);

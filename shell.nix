@@ -5,6 +5,7 @@ pkgs.mkShell {
 
     pkgs.cmake
     pkgs.clang
+    pkgs.gtest
 
   ];
 }
