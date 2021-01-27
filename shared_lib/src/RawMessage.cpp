@@ -12,7 +12,7 @@ auto IsSpecial(char c) -> bool {
       || (c == '}');
 }
 
-auto ft_irc::ParseRawMessage(CharStream& s) -> RawMessage {
+auto IRC::ParseRawMessage(CharStream& s) -> RawMessage {
   RawMessage rawMessage;
 
   rawMessage.prefix = Maybe<RawPrefix>([](CharStream& s) {
@@ -26,7 +26,7 @@ auto ft_irc::ParseRawMessage(CharStream& s) -> RawMessage {
   return rawMessage;
 }
 
-auto ft_irc::ParsePrefix(CharStream &s) -> RawPrefix {
+auto IRC::ParsePrefix(CharStream &s) -> RawPrefix {
   RawPrefix rawPrefix;
 
   rawPrefix.name = ParseNickname(s);
@@ -41,7 +41,7 @@ auto ft_irc::ParsePrefix(CharStream &s) -> RawPrefix {
   return rawPrefix;
 }
 
-auto ft_irc::ParseCommandId(CharStream& s) -> std::string {
+auto IRC::ParseCommandId(CharStream& s) -> std::string {
   try {
     return Attempt<std::string>(ParseWord, s);
   } catch (ParseException& e) {
@@ -49,7 +49,7 @@ auto ft_irc::ParseCommandId(CharStream& s) -> std::string {
   }
 }
 
-auto ft_irc::ParseParams(CharStream& s) -> std::vector<std::string> {
+auto IRC::ParseParams(CharStream& s) -> std::vector<std::string> {
   std::vector<std::string> params;
 
   for(;;) {
@@ -69,7 +69,7 @@ auto PredicateExclude(std::vector<char> blacklist) -> std::function<bool(char)> 
   };
 }
 
-auto ft_irc::ParseMiddle(CharStream& s) -> std::string {
+auto IRC::ParseMiddle(CharStream& s) -> std::string {
   std::string accum;
 
   accum += Satisfy(PredicateExclude({'\n','\r','\0',' ',':'}), s);
@@ -78,12 +78,12 @@ auto ft_irc::ParseMiddle(CharStream& s) -> std::string {
   return accum;
 }
 
-auto ft_irc::ParseTrailing(CharStream& s) -> std::string {
+auto IRC::ParseTrailing(CharStream& s) -> std::string {
   return ConsumeWhile(PredicateExclude({'\n','\r','\0'}), s);
 }
 
 // TODO: implement this in a better (read: more strict, see RFC 952) way
-auto ft_irc::ParseHostname(CharStream& s) -> Hostname {
+auto IRC::ParseHostname(CharStream& s) -> Hostname {
   return Hostname(ConsumeWhile1([](char c){
     return std::isalpha(c)
         || c == '-'
@@ -92,7 +92,7 @@ auto ft_irc::ParseHostname(CharStream& s) -> Hostname {
   }, s));
 }
 
-auto ft_irc::ParseNickname(CharStream& s) -> std::string {
+auto IRC::ParseNickname(CharStream& s) -> std::string {
   std::string accum;
 
   accum += Satisfy([](char c) { return std::isalpha(c); }, s);

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string.h>
 
+using namespace IRC;
+
 /**
  * @brief Resolve a host name or IP string
  * To resolve a local IP for server sockets provide an empty string for the node parameter

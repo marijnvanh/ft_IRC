@@ -7,9 +7,9 @@
 #include "IIOHandler.h"
 #include "Socket.h"
 
-namespace ft_irc
+namespace IRC::TCP
 {
-    class TCPIOHandler : public IIOHandler
+    class TCPIOHandler : public IRC::IIOHandler
     {
     private:
         std::shared_ptr<TCP::Socket> socket_; //TODO Make mutex
@@ -21,6 +21,7 @@ namespace ft_irc
         auto Send(const std::string data) -> void;
         auto Receive() -> std::string;
     };
-} // namespace ft_irc
+
+} // namespace IRC::TCP
 
 #endif

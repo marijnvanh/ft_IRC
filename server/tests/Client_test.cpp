@@ -9,7 +9,7 @@ using ::testing::Throw;
 using ::testing::Return;
 using ::testing::_;
 
-class MockIOHandler : public ft_irc::IIOHandler {
+class MockIOHandler : public IRC::IIOHandler {
     public:
 
     MOCK_METHOD1(Send, void(std::string msg));
@@ -57,7 +57,7 @@ TEST_F(ClientTests, SendAllFailedToSendException)
 
     EXPECT_CALL(*io_handler, Send("test"))
         .Times(1)
-        .WillOnce(Throw(ft_irc::IIOHandler::FailedToSend("test")));
+        .WillOnce(Throw(IRC::IIOHandler::FailedToSend("test")));
 
     client->SendAll();
 
@@ -73,7 +73,7 @@ TEST_F(ClientTests, SendAllClosedIOHandlerException)
 
     EXPECT_CALL(*io_handler, Send("test"))
         .Times(1)
-        .WillOnce(Throw(ft_irc::IIOHandler::Closed("test")));
+        .WillOnce(Throw(IRC::IIOHandler::Closed("test")));
 
     ASSERT_THROW(client->SendAll(), IClient::Disconnected);
 }
@@ -91,7 +91,7 @@ TEST_F(ClientTests, ReceiveFailedToReceiveException)
 {
     EXPECT_CALL(*io_handler, Receive())
         .Times(1)
-        .WillOnce(Throw(ft_irc::IIOHandler::FailedToReceive("test")));
+        .WillOnce(Throw(IRC::IIOHandler::FailedToReceive("test")));
     
     ASSERT_EQ(client->Receive(), std::nullopt);
 }
@@ -100,7 +100,7 @@ TEST_F(ClientTests, ReceiveClosedIOHandlerException)
 {
     EXPECT_CALL(*io_handler, Receive())
         .Times(1)
-        .WillOnce(Throw(ft_irc::IIOHandler::Closed("test")));
+        .WillOnce(Throw(IRC::IIOHandler::Closed("test")));
 
     ASSERT_THROW(client->Receive(), IClient::Disconnected);
 }

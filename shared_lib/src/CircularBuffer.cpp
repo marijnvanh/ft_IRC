@@ -1,8 +1,8 @@
 #include <cstring>
 #include "CircularBuffer.h"
 
-template <class T>
-auto Shared::CircularBuffer<T>::Get() -> T
+template <typename T>
+auto IRC::CircularBuffer<T>::Get() -> T
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -18,8 +18,8 @@ auto Shared::CircularBuffer<T>::Get() -> T
 	return (val);
 }
 
-template <class T>
-auto Shared::CircularBuffer<T>::Put(T item) -> void
+template <typename T>
+auto IRC::CircularBuffer<T>::Put(T item) -> void
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -35,8 +35,8 @@ auto Shared::CircularBuffer<T>::Put(T item) -> void
 	this->full_ = (this->head_ == this->tail_);
 }
 
-template <class T>
-auto Shared::CircularBuffer<T>::Flush() -> void
+template <typename T>
+auto IRC::CircularBuffer<T>::Flush() -> void
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -44,20 +44,20 @@ auto Shared::CircularBuffer<T>::Flush() -> void
 	full_ = false;
 }
 
-template <class T>
-bool Shared::CircularBuffer<T>::IsFull() const
+template <typename T>
+bool IRC::CircularBuffer<T>::IsFull() const
 {
 	return (this->full_);
 }
 
-template <class T>
-bool Shared::CircularBuffer<T>::IsEmpty() const
+template <typename T>
+bool IRC::CircularBuffer<T>::IsEmpty() const
 {
 	return (this->full_ && this->head_ == this->tail_);
 }
 
-template <class T>
-size_t Shared::CircularBuffer<T>::Size() const
+template <typename T>
+size_t IRC::CircularBuffer<T>::Size() const
 {
 	size_t size = this->max_size_;
 
@@ -76,8 +76,8 @@ size_t Shared::CircularBuffer<T>::Size() const
 	return (size);
 }
 
-template <class T>
-size_t Shared::CircularBuffer<T>::Capacity() const
+template <typename T>
+size_t IRC::CircularBuffer<T>::Capacity() const
 {
 	return (this->max_size_);
 }

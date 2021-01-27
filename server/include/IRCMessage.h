@@ -7,9 +7,9 @@
 struct IRCMessage
 {
     int UUID_;
-    ft_irc::RawMessage message_;
+    IRC::RawMessage message_;
 
-    IRCMessage(int UUID, ft_irc::RawMessage message) : UUID_(UUID), message_(message) {}
+    IRCMessage(int UUID, IRC::RawMessage message) : UUID_(UUID), message_(message) {}
 };
 
 #endif
