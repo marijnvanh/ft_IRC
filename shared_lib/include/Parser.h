@@ -8,8 +8,8 @@
 #include <optional>
 #include <functional>
 
-namespace ft_irc {
-    namespace parser {
+namespace IRC {
+    namespace Parser {
         class CharStream {
             size_t read_head_;
             std::shared_ptr<const std::string> stream_;
