@@ -53,7 +53,7 @@ namespace IRC {
 
     };
 
-    std::ostream& operator<<(std::ostream& os, const UUID& uuid) {
+    inline std::ostream& operator<<(std::ostream& os, const UUID& uuid) {
         os << "UUID(" << uuid.ToString() << ")";
         return os;
     }

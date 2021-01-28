@@ -21,6 +21,7 @@ class MockClient : public IClient {
     MOCK_CONST_METHOD0(GetUUID, int());
 };
 
+/* Clientdatabase and three mock clients */
 class ClientDatabaseTests : public ::testing::Test
 {
     public:
@@ -45,21 +46,13 @@ class ClientDatabaseTests : public ::testing::Test
 };
 
 //TODO assert properly
-TEST_F(ClientDatabaseTests, AddAndDeleteClient)
+TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 {
     EXPECT_CALL(*client1, GetUUID())
           .WillOnce(Return(1));
-    EXPECT_CALL(*client2, GetUUID())
-          .WillOnce(Return(2));
-    EXPECT_CALL(*client3, GetUUID())
-          .WillOnce(Return(3));
     client_database->AddClient(std::move(unique_client1));
-    client_database->AddClient(std::move(unique_client2));
-    client_database->AddClient(std::move(unique_client3));
 
     client_database->RemoveClient(1);
-    client_database->RemoveClient(2);
-    client_database->RemoveClient(3);
 }
 
 TEST_F(ClientDatabaseTests, GetClientByUUID)
@@ -80,6 +73,8 @@ TEST_F(ClientDatabaseTests, GetInvalidClientByFakeUUID)
     ASSERT_THROW((*client_database)[2], ClientDatabase::ClientNotFound);
 }
 
+/* This test adds three clients and expects to receive from all of them.
+This means that the callback should have been called on all three clients */
 TEST_F(ClientDatabaseTests, PollClients)
 {
     EXPECT_CALL(*client1, GetUUID())

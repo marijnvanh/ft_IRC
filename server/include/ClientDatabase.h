@@ -6,6 +6,7 @@
 
 #include "IClient.h"
 #include "Mutex.h"
+#include "UUID.h"
 
 class ClientDatabase
 {
