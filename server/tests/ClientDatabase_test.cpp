@@ -86,13 +86,18 @@ TEST_F(ClientDatabaseTests, PollClients)
           .WillOnce(Return(1));
     EXPECT_CALL(*client2, GetUUID())
           .WillOnce(Return(2));
+    EXPECT_CALL(*client3, GetUUID())
+          .WillOnce(Return(3));
     client_database->AddClient(std::move(unique_client1));
     client_database->AddClient(std::move(unique_client2));
+    client_database->AddClient(std::move(unique_client3));
 
     EXPECT_CALL(*client1, Receive())
           .WillOnce(Return("test"));
     EXPECT_CALL(*client2, Receive())
           .WillOnce(Return("test1"));
+    EXPECT_CALL(*client3, Receive())
+          .WillOnce(Return("test2"));
 
     int callback_count = 0;
     client_database->PollClients([&](std::string message) {
@@ -100,5 +105,5 @@ TEST_F(ClientDatabaseTests, PollClients)
         callback_count += 1;
     });
 
-    EXPECT_EQ(callback_count, 2);
+    EXPECT_EQ(callback_count, 3);
 }

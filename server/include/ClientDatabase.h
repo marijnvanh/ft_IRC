@@ -39,7 +39,7 @@ class ClientDatabase
     };
 
     private:
-    std::unordered_map<int, ft_irc::Mutex<IClient>> clients_;
+    std::unordered_map<int, IRC::Mutex<IClient>> clients_;
 };
 
 #endif

@@ -8,7 +8,7 @@
 #include <vector>
 #include <functional>
 
-namespace ft_irc {
+namespace IRC {
 
     const auto hex_digits = "0123456789abcdef";
 
@@ -94,8 +94,8 @@ namespace ft_irc {
  */
 namespace std {
     template<>
-    struct hash<ft_irc::UUID> {
-        std::size_t operator()(const ft_irc::UUID& uuid) const {
+    struct hash<IRC::UUID> {
+        std::size_t operator()(const IRC::UUID& uuid) const {
             return uuid.Low();
         }
     };

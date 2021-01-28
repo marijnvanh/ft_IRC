@@ -11,7 +11,7 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
 {
     auto ret = clients_.insert(std::make_pair(
         new_client->GetUUID(),
-        ft_irc::Mutex<IClient>(std::move(new_client)))
+        IRC::Mutex<IClient>(std::move(new_client)))
     );
 
     /* Check if duplicate was found */
@@ -26,7 +26,7 @@ auto ClientDatabase::RemoveClient(int UUID) -> void
 
 auto ClientDatabase::PollClients(std::function<void(std::string)> message_handler) -> void
 {
-    std::unordered_map<int, ft_irc::Mutex<IClient>>::iterator it = clients_.begin();
+    std::unordered_map<int, IRC::Mutex<IClient>>::iterator it = clients_.begin();
 
     while (it != clients_.end())
     {
