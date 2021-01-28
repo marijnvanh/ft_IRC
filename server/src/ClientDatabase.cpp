@@ -9,8 +9,9 @@ ClientDatabase::~ClientDatabase()
 
 auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
 {
+    auto uuid = new_client->GetUUID();
     auto ret = clients_.insert(std::make_pair(
-        new_client->GetUUID(),
+        uuid,
         IRC::Mutex<IClient>(std::move(new_client)))
     );
 
