@@ -15,7 +15,21 @@ class ClientDatabase
     ClientDatabase();
     ~ClientDatabase();
 
+    /**
+     * @brief Add client to ClientDatabase
+     * 
+     * @exception DuplicateClient if client already exists
+     * 
+     * @param new_client 
+     */
     auto AddClient(std::unique_ptr<IClient> new_client) -> void;
+
+    /**
+     * @brief Remove client from database
+     * If no client with UUID exists it does nothing
+     * 
+     * @param UUID 
+     */
     auto RemoveClient(int UUID) -> void;
 
     /**

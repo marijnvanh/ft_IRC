@@ -28,10 +28,9 @@ auto ClientDatabase::RemoveClient(int UUID) -> void
 
 auto ClientDatabase::PollClients(std::function<void(std::string)> message_handler) -> void
 {
-    std::unordered_map<int, IRC::Mutex<IClient>>::iterator it = clients_.begin();
-
-    while (it != clients_.end())
+    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
     {
+        ++next_it;
         try {
             auto client_handle = it->second.Take();
             std::optional<std::string> irc_message = client_handle->Receive();
@@ -43,7 +42,6 @@ auto ClientDatabase::PollClients(std::function<void(std::string)> message_handle
             //TODO Handle disconnection
             RemoveClient(it->first);
         }
-        it++;
     }
 }
 

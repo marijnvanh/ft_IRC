@@ -45,7 +45,6 @@ class ClientDatabaseTests : public ::testing::Test
     }
 };
 
-//TODO assert properly
 TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 {
     EXPECT_CALL(*client1, GetUUID())
