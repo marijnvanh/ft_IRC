@@ -64,6 +64,12 @@ namespace IRC::TCP
 		 * @param ready_fds A set of fds that contain current states of socket fds.
 		 */
 		auto UpdateSocketStates(fd_set *ready_fds) -> void;
+
+		/**
+		 * @brief Remove any disconnected sockets from map
+		 * 
+		 */
+		auto ValidateSockets() -> void;
     };
 } // namespace IRC::TCP
 
