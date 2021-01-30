@@ -2,6 +2,7 @@
 #define __I_CLIENT_H__
 
 #include <string>
+#include <queue>
 #include <memory>
 #include <stdexcept>
 #include <optional>
@@ -49,6 +50,7 @@ class IClient
     virtual auto SendAll() -> void = 0;
 
     auto GetState() const -> IClient::State { return state_; }
+    auto virtual GetUUID() const -> int { return UUID_; }
 
     virtual ~IClient() {};
 

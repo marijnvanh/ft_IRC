@@ -4,8 +4,9 @@
 #include <optional>
 #include <memory>
 #include <mutex>
+#include <iostream>
 
-namespace ft_irc {
+namespace IRC {
 
     template<typename T>
     class MutexHandle {

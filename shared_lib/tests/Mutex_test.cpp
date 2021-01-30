@@ -5,7 +5,7 @@
 
 TEST(MutexTest, MultiThreadLock)
 {
-    ft_irc::Mutex<int> mtx = ft_irc::MakeMutex<int>(42);
+    IRC::Mutex<int> mtx = IRC::MakeMutex<int>(42);
 
     { ASSERT_EQ(*mtx.Take(), 42); }
 
@@ -41,7 +41,7 @@ TEST(MutexTest, MultiThreadLock)
 
 TEST(MutexTest, TryLockFailure)
 {
-    ft_irc::Mutex<int> mtx = ft_irc::MakeMutex<int>(0);
+    IRC::Mutex<int> mtx = IRC::MakeMutex<int>(0);
     { 
         auto first_handle = mtx.TryTake();
         auto second_handle = mtx.TryTake();
@@ -52,7 +52,7 @@ TEST(MutexTest, TryLockFailure)
 
 TEST(MutexTest, Printing)
 {
-    ft_irc::Mutex<int> mtx = ft_irc::MakeMutex<int>(42);
+    IRC::Mutex<int> mtx = IRC::MakeMutex<int>(42);
     std::ostringstream stream;
 
     stream << mtx;
@@ -67,11 +67,11 @@ TEST(MutexTest, Printing)
 
 TEST(MutexTaste, Moving)
 {
-    ft_irc::Mutex<int> mtx1 = ft_irc::MakeMutex<int>(42);
+    IRC::Mutex<int> mtx1 = IRC::MakeMutex<int>(42);
 
-    ft_irc::Mutex<int> mtx2 = std::move(mtx1); // move operator
+    IRC::Mutex<int> mtx2 = std::move(mtx1); // move operator
 
-    ft_irc::Mutex<int> mtx3 = ft_irc::MakeMutex<int>(1337);
+    IRC::Mutex<int> mtx3 = IRC::MakeMutex<int>(1337);
 
     mtx3 = std::move(mtx2); // move assignment operator
 

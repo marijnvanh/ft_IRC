@@ -87,6 +87,6 @@ namespace IRC {
 
     auto ParseHostname(CharStream& s) -> Hostname;
     auto ParseNickname(CharStream& s) -> std::string;
-} // namespace ft_irc
+} // namespace IRC
 
 #endif // RATW_MESSAGE_HPP
