@@ -20,13 +20,22 @@ class Server
     Server();
     ~Server();
 
+    /**
+     * @brief Init listener socket and io controller
+     * 
+     * @param address 
+     */
     auto Start(std::string address) -> void;
 
+    /**
+     * @brief Run server loop once
+     * 
+     */
     auto RunOnce() -> void;
 
     private:
     ClientDatabase client_database_;
-    TCP::IOController io_controller_;
+    TCP::IOController tcp_io_controller_;
     
 };
 

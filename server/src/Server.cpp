@@ -8,7 +8,6 @@ Server::Server()
 Server::~Server()
 {}
 
-
 auto Server::Start(std::string address) -> void
 {
     std::cout << "Attempting to start server..." << std::endl;
@@ -18,16 +17,16 @@ auto Server::Start(std::string address) -> void
     auto server_socket = std::make_shared<TCP::Socket>();
     server_socket->Listen(address_info);
 
-    io_controller_.AddSocket(server_socket);
+    tcp_io_controller_.AddSocket(server_socket);
 
     std::cout << "Server started!" << std::endl;
 };
 
 auto Server::RunOnce() -> void
 {
-    io_controller_.RunOnce();
+    tcp_io_controller_.RunOnce();
 
-    io_controller_.AcceptNewConnections(
+    tcp_io_controller_.AcceptNewConnections(
         [=](std::shared_ptr<TCP::Socket> socket)
         {
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
@@ -41,4 +40,5 @@ auto Server::RunOnce() -> void
         {
             std::cout << "Received message: " << message << std::endl;
         });
+    //TODO call SendAll
 }
