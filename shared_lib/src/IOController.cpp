@@ -96,7 +96,7 @@ auto TCP::IOController::ValidateSockets() -> void
 {
 	for (auto it = sockets_.cbegin(), next_it = it; it != sockets_.cend(); it = next_it)
 	{
-		next_it++;
+		++next_it;
 		if (it->second->GetState() == TCP::SocketState::kDisconnected)
 		{
 			RemoveSocket(it->second);
