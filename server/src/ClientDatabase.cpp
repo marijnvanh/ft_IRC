@@ -26,16 +26,20 @@ auto ClientDatabase::RemoveClient(int UUID) -> void
     clients_.erase(UUID);
 }
 
-auto ClientDatabase::PollClients(std::function<void(std::string)> message_handler) -> void
+auto ClientDatabase::PollClients(std::function<void(int, std::string)> message_handler) -> void
 {
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
     {
         ++next_it;
         try {
-            auto client_handle = it->second.Take();
-            std::optional<std::string> irc_message = client_handle->Receive();
+            std::optional<std::string> irc_message;
+            it->second.Access([&irc_message](IClient &client)
+            {
+                irc_message = client.Receive();
+            });
+            
             if (irc_message)
-                message_handler(*irc_message);
+                message_handler(it->first, *irc_message);
         }
         catch (IClient::Disconnected &ex)
         {
@@ -45,7 +49,7 @@ auto ClientDatabase::PollClients(std::function<void(std::string)> message_handle
     }
 }
 
-const int &ClientDatabase::operator [](int UUID)
+auto ClientDatabase::operator [](int UUID) const -> int
 {
     auto client = clients_.find(UUID);
     if (client == clients_.end())

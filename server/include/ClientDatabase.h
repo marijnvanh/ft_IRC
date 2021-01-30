@@ -37,9 +37,9 @@ class ClientDatabase
      * 
      * @param message_handler 
      */
-    auto PollClients(std::function<void(std::string)> message_handler) -> void;
+    auto PollClients(std::function<void(int, std::string)> message_handler) -> void;
 
-    const int &operator [](int UUID);
+    auto operator [](int UUID) const -> int;
 
     class ClientNotFound : public std::runtime_error
     {
