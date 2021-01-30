@@ -47,6 +47,5 @@ auto Server::RunOnce() -> void
             //else
             //return invalid message
         });
-
-    //TODO call SendAll
+    client_database_.SendAll();
 }
