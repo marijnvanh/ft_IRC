@@ -7,7 +7,7 @@
 #include "IIOHandler.h"
 #include "Socket.h"
 
-namespace IRC::TCP
+namespace IRC
 {
     class TCPIOHandler : public IRC::IIOHandler
     {

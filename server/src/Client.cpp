@@ -3,7 +3,12 @@
 
 Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler)
     : io_handler_(std::move(io_handler))
-{}
+{
+    static int uuid = 0;
+
+    UUID_ = uuid;
+    uuid++;
+}
 
 Client::~Client()
 {}
