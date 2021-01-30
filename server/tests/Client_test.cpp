@@ -13,7 +13,7 @@ class MockIOHandler : public IRC::IIOHandler {
     public:
 
     MOCK_METHOD1(Send, void(std::string msg));
-    MOCK_METHOD0(Receive, std::string());
+    MOCK_METHOD0(Receive, std::optional<std::string>());
 };
 
 class ClientTests : public ::testing::Test
@@ -82,16 +82,16 @@ TEST_F(ClientTests, ReceiveMessage)
 {
     EXPECT_CALL(*io_handler, Receive())
         .Times(1)
-        .WillOnce(Return("test"));
+        .WillOnce(Return(std::optional<std::string>("test")));
 
     ASSERT_EQ(client->Receive(), "test");
 }
 
-TEST_F(ClientTests, ReceiveFailedToReceiveException)
+TEST_F(ClientTests, NothingToReceive)
 {
     EXPECT_CALL(*io_handler, Receive())
         .Times(1)
-        .WillOnce(Throw(IRC::IIOHandler::FailedToReceive("test")));
+        .WillOnce(Return(std::nullopt));
     
     ASSERT_EQ(client->Receive(), std::nullopt);
 }

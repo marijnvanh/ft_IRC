@@ -56,3 +56,22 @@ auto ClientDatabase::operator [](int UUID) const -> int
         throw ClientNotFound();
     return client->first;
 }
+
+auto ClientDatabase::SendAll() -> void
+{
+    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
+    {
+        ++next_it;
+        try {
+            it->second.Access([](IClient &client)
+            {
+                client.SendAll();
+            });
+        }
+        catch (IClient::Disconnected &ex)
+        {
+            //TODO Handle disconnection
+            RemoveClient(it->first);
+        }
+    }
+}

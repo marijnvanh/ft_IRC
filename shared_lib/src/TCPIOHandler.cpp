@@ -31,15 +31,18 @@ auto TCPIOHandler::Send(const std::string data) -> void
     }
 }
 
-auto TCPIOHandler::Receive() -> std::string //TODO change to optional
+auto TCPIOHandler::Receive() -> std::optional<std::string>
 {
     try
     {
-        return socket_->Recv();
+        if (socket_->GetState() == TCP::SocketState::kReadyToRead)
+            return std::optional<std::string>(socket_->Recv());
+        else
+            return std::nullopt;
     }
     catch (TCP::Socket::WouldBlock &ex)
     {
-        throw IIOHandler::FailedToReceive(ex.what()); //TODO remove FailedToReceive and return nullopt
+        return std::nullopt;
     }
     catch (TCP::Socket::Closed &ex)
     {

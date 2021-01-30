@@ -103,3 +103,60 @@ TEST_F(ClientDatabaseTests, PollClients)
 
     EXPECT_EQ(callback_count, 3);
 }
+
+/* Test if a disconnected client gets removed from the list after polling */
+TEST_F(ClientDatabaseTests, PollDisconnectedClient)
+{
+    EXPECT_CALL(*client1, GetUUID())
+          .WillOnce(Return(1));
+    client_database->AddClient(std::move(unique_client1));
+
+    EXPECT_CALL(*client1, Receive())
+          .WillOnce(Throw(IClient::Disconnected("test")));
+
+    ASSERT_EQ((*client_database)[1], 1);
+
+    client_database->PollClients([](int uuid, std::string message) {
+        (void)message;
+        (void)uuid;
+    });
+
+    ASSERT_THROW((*client_database)[1], ClientDatabase::ClientNotFound);
+}
+
+/* This test adds three clients and expects to call SendAll from all of them. */
+TEST_F(ClientDatabaseTests, SendAllWithThreeClients)
+{
+    EXPECT_CALL(*client1, GetUUID())
+          .WillOnce(Return(1));
+    EXPECT_CALL(*client2, GetUUID())
+          .WillOnce(Return(2));
+    EXPECT_CALL(*client3, GetUUID())
+          .WillOnce(Return(3));
+    client_database->AddClient(std::move(unique_client1));
+    client_database->AddClient(std::move(unique_client2));
+    client_database->AddClient(std::move(unique_client3));
+
+    EXPECT_CALL(*client1, SendAll());
+    EXPECT_CALL(*client2, SendAll());
+    EXPECT_CALL(*client3, SendAll());
+
+    client_database->SendAll();
+}
+
+/* Test if a disconnected client gets removed from the list after polling */
+TEST_F(ClientDatabaseTests, SendAllWithDisconnectedClient)
+{
+    EXPECT_CALL(*client1, GetUUID())
+          .WillOnce(Return(1));
+    client_database->AddClient(std::move(unique_client1));
+
+    EXPECT_CALL(*client1, SendAll())
+          .WillOnce(Throw(IClient::Disconnected("test")));
+
+    ASSERT_EQ((*client_database)[1], 1);
+
+    client_database->SendAll();
+
+    ASSERT_THROW((*client_database)[1], ClientDatabase::ClientNotFound);
+}

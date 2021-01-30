@@ -39,6 +39,12 @@ class ClientDatabase
      */
     auto PollClients(std::function<void(int, std::string)> message_handler) -> void;
 
+    /**
+     * @brief Empty all client send queus
+     * 
+     */
+    auto SendAll() -> void;
+
     auto operator [](int UUID) const -> int;
 
     class ClientNotFound : public std::runtime_error

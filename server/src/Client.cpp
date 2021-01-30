@@ -45,12 +45,6 @@ auto Client::Receive() -> std::optional<std::string>
     try {
         return std::optional<std::string>{io_handler_->Receive()};
     }
-    catch (IRC::IIOHandler::FailedToReceive &ex)
-    {
-        std::cerr << "Client with UUID: " << UUID_;
-        std::cerr << ", failed to receive: " << ex.what() << std::endl;
-        return std::nullopt;
-    }
     catch (IRC::IIOHandler::Closed &ex)
     {
         throw IClient::Disconnected(ex.what());
