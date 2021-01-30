@@ -35,8 +35,11 @@ auto TCPIOHandler::Receive() -> std::optional<std::string>
 {
     try
     {
-        if (socket_->GetState() == TCP::SocketState::kReadyToRead)
+        auto socket_state = socket_->GetState();
+        if (socket_state == TCP::SocketState::kReadyToRead)
             return std::optional<std::string>(socket_->Recv());
+        else if (socket_state != TCP::SocketState::kConnected)
+            throw IIOHandler::Closed("Found socket in non connected state");
         else
             return std::nullopt;
     }
