@@ -28,7 +28,7 @@ auto Client::SendAll() -> void
         }
         catch (IRC::IIOHandler::FailedToSend &ex)
         {
-            std::cerr << "Client with UUID: " << UUID_;
+            std::cerr << "Client with uuid: " << UUID_;
             std::cerr << ", failed to send: " << ex.what() << std::endl;
             break ;
         }
