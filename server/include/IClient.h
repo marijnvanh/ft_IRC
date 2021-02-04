@@ -50,7 +50,7 @@ class IClient
     virtual auto SendAll() -> void = 0;
 
     auto GetState() const -> IClient::State { return state_; }
-    auto virtual GetUUID() const -> int { return UUID_; }
+    virtual auto GetUUID() const -> int = 0;
 
     virtual ~IClient() {};
 

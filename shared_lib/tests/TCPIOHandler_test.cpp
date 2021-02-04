@@ -21,14 +21,14 @@ class TCPIOHandlerTests : public ::testing::Test
 
 TEST_F(TCPIOHandlerTests, FailToReadFromClosedSocket)
 {
-    TCP::TCPIOHandler io_handler(socket);
+    TCPIOHandler io_handler(socket);
 
-    ASSERT_THROW(io_handler.Receive(), IRC::IIOHandler::Closed);
+    ASSERT_THROW(io_handler.Receive(), IIOHandler::Closed);
 }
 
 TEST_F(TCPIOHandlerTests, FailToSendToClosedSocket)
 {
-    TCP::TCPIOHandler io_handler(socket);
+    TCPIOHandler io_handler(socket);
 
-    ASSERT_THROW(io_handler.Send("Test"), IRC::IIOHandler::Closed);
+    ASSERT_THROW(io_handler.Send("Test"), IIOHandler::Closed);
 }

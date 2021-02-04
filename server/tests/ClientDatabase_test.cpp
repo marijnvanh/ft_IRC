@@ -54,6 +54,7 @@ TEST_F(ClientDatabaseTests, AddAndRemoveClient)
     client_database->RemoveClient(1);
 }
 
+//TODO Fix when we add UUID
 TEST_F(ClientDatabaseTests, GetClientByUUID)
 {
     EXPECT_CALL(*client1, GetUUID())
@@ -94,8 +95,9 @@ TEST_F(ClientDatabaseTests, PollClients)
           .WillOnce(Return("test2"));
 
     int callback_count = 0;
-    client_database->PollClients([&](std::string message) {
+    client_database->PollClients([&callback_count](int uuid, std::string message) {
         (void)message;
+        (void)uuid;
         callback_count += 1;
     });
 

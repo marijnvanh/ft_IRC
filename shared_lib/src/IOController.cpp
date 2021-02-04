@@ -27,10 +27,13 @@ auto TCP::IOController::RunOnce() -> void
     read_fds = master_fd_list_;
     write_fds = master_fd_list_;
 
+	ValidateSockets();
     int total_ready_fds = select(max_fd_ + 1, &read_fds, &write_fds, NULL, &time_val);
 
 	if (total_ready_fds == -1)
+	{
 		throw TCP::IOController::Error(strerror(errno));
+	}
 
 	this->UpdateSocketStates(&read_fds);
 }
@@ -87,6 +90,18 @@ auto TCP::IOController::RemoveSocket(std::shared_ptr<Socket> socket) -> void
 	}
 
 	sockets_.erase(socket->GetFD());
+}
+
+auto TCP::IOController::ValidateSockets() -> void
+{
+	for (auto it = sockets_.cbegin(), next_it = it; it != sockets_.cend(); it = next_it)
+	{
+		++next_it;
+		if (it->second->GetState() == TCP::SocketState::kDisconnected)
+		{
+			RemoveSocket(it->second);
+		}
+	}
 }
 
 auto TCP::IOController::UpdateSocketStates(fd_set *ready_fds) -> void

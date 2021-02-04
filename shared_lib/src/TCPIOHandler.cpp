@@ -1,7 +1,7 @@
 #include "TCPIOHandler.h"
 #include <iostream>
 
-using namespace IRC::TCP;
+using namespace IRC;
 
 TCPIOHandler::TCPIOHandler(std::shared_ptr<TCP::Socket> socket) : socket_(socket)
 {
@@ -31,7 +31,7 @@ auto TCPIOHandler::Send(const std::string data) -> void
     }
 }
 
-auto TCPIOHandler::Receive() -> std::string
+auto TCPIOHandler::Receive() -> std::string //TODO change to optional
 {
     try
     {
@@ -39,7 +39,7 @@ auto TCPIOHandler::Receive() -> std::string
     }
     catch (TCP::Socket::WouldBlock &ex)
     {
-        throw IIOHandler::FailedToReceive(ex.what());
+        throw IIOHandler::FailedToReceive(ex.what()); //TODO remove FailedToReceive and return nullopt
     }
     catch (TCP::Socket::Closed &ex)
     {
