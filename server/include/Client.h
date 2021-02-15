@@ -24,6 +24,7 @@ class Client : public IClient
 
     private:
     std::unique_ptr<IRC::IIOHandler> io_handler_;
+    IRC::UUID UUID_;
 };
 
 #endif

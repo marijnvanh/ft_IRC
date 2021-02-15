@@ -12,39 +12,39 @@ using ::testing::Return;
 using ::testing::_;
 
 
-// class MockClient : public IClient {
-//     public:
-// 
-//     MOCK_METHOD1(Push, void(std::shared_ptr<std::string> irc_message));
-//     MOCK_METHOD0(Receive, std::optional<std::string>());
-//     MOCK_METHOD0(SendAll, void());
-//     MOCK_CONST_METHOD0(GetUUID, int());
-// };
-// 
-// /* Clientdatabase and three mock clients */
-// class ClientDatabaseTests : public ::testing::Test
-// {
-//     public:
-//     std::unique_ptr<MockClient> unique_client1;
-//     MockClient *client1;
-//     std::unique_ptr<MockClient> unique_client2;
-//     MockClient *client2;
-//     std::unique_ptr<MockClient> unique_client3;
-//     MockClient *client3;
-//     std::shared_ptr<ClientDatabase> client_database;
-// 
-//     void SetUp() override
-//     {
-//         unique_client1 = std::make_unique<MockClient>();
-//         client1 = unique_client1.get();
-//         unique_client2 = std::make_unique<MockClient>();
-//         client2 = unique_client2.get();
-//         unique_client3 = std::make_unique<MockClient>();
-//         client3 = unique_client3.get();
-//         client_database = std::make_shared<ClientDatabase>();
-//     }
-// };
-// 
+class MockClient : public IClient {
+    public:
+
+    MOCK_METHOD1(Push, void(std::shared_ptr<std::string> irc_message));
+    MOCK_METHOD0(Receive, std::optional<std::string>());
+    MOCK_METHOD0(SendAll, void());
+    MOCK_CONST_METHOD0(GetUUID, IRC::UUID());
+};
+
+/* Clientdatabase and three mock clients */
+class ClientDatabaseTests : public ::testing::Test
+{
+    public:
+    std::unique_ptr<MockClient> unique_client1;
+    MockClient *client1;
+    std::unique_ptr<MockClient> unique_client2;
+    MockClient *client2;
+    std::unique_ptr<MockClient> unique_client3;
+    MockClient *client3;
+    std::shared_ptr<ClientDatabase> client_database;
+
+    void SetUp() override
+    {
+        unique_client1 = std::make_unique<MockClient>();
+        client1 = unique_client1.get();
+        unique_client2 = std::make_unique<MockClient>();
+        client2 = unique_client2.get();
+        unique_client3 = std::make_unique<MockClient>();
+        client3 = unique_client3.get();
+        client_database = std::make_shared<ClientDatabase>();
+    }
+};
+
 // TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 // {
 //     EXPECT_CALL(*client1, GetUUID())

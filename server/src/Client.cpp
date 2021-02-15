@@ -2,8 +2,9 @@
 #include <iostream>
 
 Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler)
-    : IClient(IRC::UUIDGenerator::GetInstance().Generate()),
-      io_handler_(std::move(io_handler))
+    : io_handler_(std::move(io_handler)),
+      UUID_(IRC::UUIDGenerator::GetInstance().Generate())
+
 {
 
 }

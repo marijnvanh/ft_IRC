@@ -54,7 +54,7 @@ class IClient
     auto GetState() const -> IClient::State { return state_; }
     virtual auto GetUUID() const -> IRC::UUID = 0;
 
-    IClient(IRC::UUID uuid) : UUID_(uuid) {}
+    IClient() {}
     virtual ~IClient() {};
 
     class Disconnected : public std::runtime_error
@@ -68,7 +68,6 @@ class IClient
     // Type type_;
     std::queue<std::shared_ptr<std::string>> outgoing_msg_queue_;
     State state_;
-    IRC::UUID UUID_;
 };
 
 #endif
