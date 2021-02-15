@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <optional>
 
 namespace IRC
 {
@@ -21,10 +22,10 @@ namespace IRC
         /**
          * @brief Receive data
          * 
-         * @exception IOFailedToSend (recoverable) IOClosed (non-recoverable)
+         * @exception IOClosed
          * @param data 
          */
-        virtual auto Receive() -> std::string = 0;
+        virtual auto Receive() -> std::optional<std::string> = 0;
 
         virtual ~IIOHandler() {};
         
@@ -32,12 +33,6 @@ namespace IRC
         {
         public:
             FailedToSend(const char *msg) : std::runtime_error(msg) {}
-        };
-
-        class FailedToReceive : public std::runtime_error
-        {
-        public:
-            FailedToReceive(const char *msg) : std::runtime_error(msg) {}
         };
 
         class Closed : public std::runtime_error

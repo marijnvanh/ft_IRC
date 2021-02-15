@@ -37,7 +37,7 @@ class IClient
     /**
      * @brief Receive message from Client, will return nullopt when nothing to receive
      * 
-     * @exception IClient::Closed
+     * @exception IClient::Disconnected
      * 
      * @return std::optional<std::string> containing either a message or nullopt
      */
@@ -46,6 +46,7 @@ class IClient
     /**
      * @brief Send all messages in outgoing message queue
      * 
+     * @exception IClient::Disconnected
      */
     virtual auto SendAll() -> void = 0;
 

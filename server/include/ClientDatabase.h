@@ -26,11 +26,11 @@ class ClientDatabase
 
     /**
      * @brief Remove client from database
-     * If no client with UUID exists it does nothing
+     * If no client with uuid exists it does nothing
      * 
-     * @param UUID 
+     * @param uuid 
      */
-    auto RemoveClient(int UUID) -> void;
+    auto RemoveClient(int uuid) -> void;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message
@@ -39,7 +39,13 @@ class ClientDatabase
      */
     auto PollClients(std::function<void(int, std::string)> message_handler) -> void;
 
-    auto operator [](int UUID) const -> int;
+    /**
+     * @brief Empty all client send queus
+     * 
+     */
+    auto SendAll() -> void;
+
+    auto GetClient(int uuid) -> std::shared_ptr<IRC::Mutex<IClient>>;
 
     class ClientNotFound : public std::runtime_error
     {
@@ -54,7 +60,7 @@ class ClientDatabase
     };
 
     private:
-    std::unordered_map<int, IRC::Mutex<IClient>> clients_;
+    std::unordered_map<int, std::shared_ptr<IRC::Mutex<IClient>>> clients_;
 };
 
 #endif
