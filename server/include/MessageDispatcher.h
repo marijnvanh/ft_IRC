@@ -13,7 +13,7 @@ class MessageDispatcher : public IMessageDispatcher
     MessageDispatcher(std::shared_ptr<ServerData> server_data);
     ~MessageDispatcher();
 
-    auto Dispatch(std::string message) -> void;
+    auto Dispatch(std::string message) -> void override;
 
     private:
     std::shared_ptr<ServerData> server_data_;
