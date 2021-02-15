@@ -20,10 +20,11 @@ class Client : public IClient
     auto Receive() -> std::optional<std::string> override;
     auto SendAll() -> void override;
 
-    auto GetUUID() const -> int override { return UUID_; };
+    auto GetUUID() const -> IRC::UUID override { return UUID_; };
 
     private:
     std::unique_ptr<IRC::IIOHandler> io_handler_;
+    IRC::UUID UUID_;
 };
 
 #endif
