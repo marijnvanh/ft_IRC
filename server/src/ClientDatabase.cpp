@@ -10,20 +10,18 @@ ClientDatabase::~ClientDatabase()
 auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
 {
     auto uuid = new_client->GetUUID();
+    auto client = std::make_shared<IRC::Mutex<IClient>>(std::move(new_client));
 
-    auto ret = clients_.insert(std::make_pair(
-        uuid,
-        IRC::Mutex<IClient>(std::move(new_client)))
-    );
+    auto ret = clients_.insert(std::make_pair(uuid, client));
 
     /* Check if duplicate was found */
     if (ret.second == false)
         throw DuplicateClient();
 }
 
-auto ClientDatabase::RemoveClient(int UUID) -> void
+auto ClientDatabase::RemoveClient(int uuid) -> void
 {
-    clients_.erase(UUID);
+    clients_.erase(uuid);
 }
 
 auto ClientDatabase::PollClients(std::function<void(int, std::string)> message_handler) -> void
@@ -33,7 +31,7 @@ auto ClientDatabase::PollClients(std::function<void(int, std::string)> message_h
         ++next_it;
         try {
             std::optional<std::string> irc_message;
-            it->second.Access([&irc_message](IClient &client)
+            it->second->Access([&irc_message](IClient &client)
             {
                 irc_message = client.Receive();
             });
@@ -49,10 +47,29 @@ auto ClientDatabase::PollClients(std::function<void(int, std::string)> message_h
     }
 }
 
-auto ClientDatabase::operator [](int UUID) const -> int
+auto ClientDatabase::GetClient(int uuid) -> std::shared_ptr<IRC::Mutex<IClient>>
 {
-    auto client = clients_.find(UUID);
+    auto client = clients_.find(uuid);
     if (client == clients_.end())
         throw ClientNotFound();
-    return client->first;
+    return client->second;
+}
+
+auto ClientDatabase::SendAll() -> void
+{
+    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
+    {
+        ++next_it;
+        try {
+            it->second->Access([](IClient &client)
+            {
+                client.SendAll();
+            });
+        }
+        catch (IClient::Disconnected &ex)
+        {
+            //TODO Handle disconnection
+            RemoveClient(it->first);
+        }
+    }
 }

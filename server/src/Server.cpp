@@ -36,7 +36,7 @@ auto Server::RunOnce() -> void
         });
 
     client_database_.PollClients(
-        [](int uuid, std::string message)
+        [this](int uuid, std::string message)
         {
             std::cout << "Received message from user wiht uuid: " << uuid << std::endl;
             std::cout << "Message: " << message << std::endl;
@@ -46,7 +46,11 @@ auto Server::RunOnce() -> void
             //call handler
             //else
             //return invalid message
+            auto client = client_database_.GetClient(uuid);
+            client->Access([&message](IClient &client)
+            {
+                client.Push(std::make_shared<std::string>("ACK: " + message));
+            });
         });
-
-    //TODO call SendAll
+    client_database_.SendAll();
 }

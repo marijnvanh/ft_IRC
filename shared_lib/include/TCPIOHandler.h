@@ -19,7 +19,7 @@ namespace IRC
         ~TCPIOHandler();
 
         auto Send(const std::string data) -> void;
-        auto Receive() -> std::string;
+        auto Receive() -> std::optional<std::string>;
     };
 
 } // namespace IRC::TCP
