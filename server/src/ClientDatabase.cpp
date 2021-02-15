@@ -19,12 +19,12 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
         throw DuplicateClient();
 }
 
-auto ClientDatabase::RemoveClient(int uuid) -> void
+auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
 {
     clients_.erase(uuid);
 }
 
-auto ClientDatabase::PollClients(std::function<void(int, std::string)> message_handler) -> void
+auto ClientDatabase::PollClients(std::function<void(IRC::UUID uuid, std::string)> message_handler) -> void
 {
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
     {
@@ -47,7 +47,7 @@ auto ClientDatabase::PollClients(std::function<void(int, std::string)> message_h
     }
 }
 
-auto ClientDatabase::GetClient(int uuid) -> std::shared_ptr<IRC::Mutex<IClient>>
+auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>>
 {
     auto client = clients_.find(uuid);
     if (client == clients_.end())
