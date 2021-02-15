@@ -71,6 +71,12 @@ namespace IRC {
             _engine = std::mt19937(_device());
         }
 
+        static auto GetInstance() -> UUIDGenerator& {
+            static UUIDGenerator instance;
+
+            return instance;
+        }
+
         UUIDGenerator(const UUIDGenerator& other) = delete;
         UUIDGenerator& operator=(const UUIDGenerator& other) = delete;
 

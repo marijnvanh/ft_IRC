@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <optional>
+#include "UUID.h"
 
 class IClient
 {
@@ -51,8 +52,9 @@ class IClient
     virtual auto SendAll() -> void = 0;
 
     auto GetState() const -> IClient::State { return state_; }
-    virtual auto GetUUID() const -> int = 0;
+    virtual auto GetUUID() const -> IRC::UUID = 0;
 
+    IClient() {}
     virtual ~IClient() {};
 
     class Disconnected : public std::runtime_error
@@ -66,7 +68,6 @@ class IClient
     // Type type_;
     std::queue<std::shared_ptr<std::string>> outgoing_msg_queue_;
     State state_;
-    int UUID_;
 };
 
 #endif

@@ -36,7 +36,7 @@ auto Server::RunOnce() -> void
         });
 
     client_database_.PollClients(
-        [this](int uuid, std::string message)
+        [this](IRC::UUID uuid, std::string message)
         {
             std::cout << "Received message from user wiht uuid: " << uuid << std::endl;
             std::cout << "Message: " << message << std::endl;

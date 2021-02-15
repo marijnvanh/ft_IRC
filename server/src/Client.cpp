@@ -2,12 +2,11 @@
 #include <iostream>
 
 Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler)
-    : io_handler_(std::move(io_handler))
-{
-    static int uuid = 0;
+    : io_handler_(std::move(io_handler)),
+      UUID_(IRC::UUIDGenerator::GetInstance().Generate())
 
-    UUID_ = uuid;
-    uuid++;
+{
+
 }
 
 Client::~Client()
@@ -28,7 +27,7 @@ auto Client::SendAll() -> void
         }
         catch (IRC::IIOHandler::FailedToSend &ex)
         {
-            std::cerr << "Client with uuid: " << UUID_;
+            // std::cerr << "Client with UUID: " << UUID_;
             std::cerr << ", failed to send: " << ex.what() << std::endl;
             break ;
         }
