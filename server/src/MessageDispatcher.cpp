@@ -12,9 +12,9 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
 MessageDispatcher::~MessageDispatcher()
 {}
 
-auto MessageDispatcher::Dispatch(std::string message) -> void
+auto MessageDispatcher::Dispatch(Message message) -> void
 {
-    auto handler = handlers_.find(message);
+    auto handler = handlers_.find(message.GetCommand());
 
     if (handler != handlers_.end())
         handler->second(server_data_, message);

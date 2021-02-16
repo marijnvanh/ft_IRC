@@ -3,11 +3,13 @@
 
 #include <string>
 
+#include "Message.h"
+
 class IMessageDispatcher
 {
     public:
     virtual ~IMessageDispatcher() {};
-    virtual auto Dispatch(std::string message) -> void = 0;
+    virtual auto Dispatch(Message message) -> void = 0;
 };
 
 #endif
