@@ -22,7 +22,7 @@ private:
 
 inline std::ostream &operator<<(std::ostream &os, const Message &message)
 {
-    os << "Message(uuid: " << message.GetUUID() << ", "
+    os << "Message(" << message.GetUUID() << ", "
        << "command: \"" << message.GetCommand() << "\")";
     return os;
 }

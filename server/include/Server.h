@@ -7,7 +7,8 @@
 #include "Socket.h"
 #include "AddressInfo.h"
 #include "IOController.h"
-#include "ClientDatabase.h"
+#include "ServerData.h"
+#include "IMessageDispatcher.h"
 
 #define PORT "5000" //TODO remove this
 
@@ -34,7 +35,8 @@ class Server
     auto RunOnce() -> void;
 
     private:
-    ClientDatabase client_database_;
+    std::shared_ptr<ServerData> server_data_;
+    std::unique_ptr<IMessageDispatcher> message_dispatcher_;
     TCP::IOController tcp_io_controller_;
     
 };

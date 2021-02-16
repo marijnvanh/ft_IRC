@@ -4,8 +4,11 @@
 #include "RawMessage.h"
 #include "Message.h"
 #include "TCPIOHandler.h"
+#include "MessageDispatcher.h"
 
-Server::Server()
+Server::Server() :
+    server_data_(std::make_shared<ServerData>()),
+    message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_))
 {}
 
 Server::~Server()
@@ -34,34 +37,24 @@ auto Server::RunOnce() -> void
         {
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));
-            client_database_.AddClient(std::move(client));
+            server_data_->client_database_->AddClient(std::move(client));
             std::cout << "New client on FD: " << socket->GetFD() << std::endl;
         });
 
-    client_database_.PollClients(
+    server_data_->client_database_->PollClients(
         [this](IRC::UUID uuid, std::string raw_message)
         {
-            std::cout << "Received message from user with uuid: " << uuid << std::endl;
-            std::cout << "Message: " << raw_message << std::endl;
-
             try {
-                auto parsed = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
-                auto message = Message(uuid, parsed);
+                auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
+                auto message = Message(uuid, parsed_message);
 
                 std::cout << message << std::endl;
+                message_dispatcher_->Dispatch(message);
 
             } catch (ParseException &e) {
                 std::cout << "Failed to parse message" << std::endl;
+                //TODO Handle invalid message
             }
-            //if parse succesful
-            //call handler
-            //else
-            //return invalid message
-            auto client = client_database_.GetClient(uuid);
-            client->Access([&raw_message](IClient &client)
-            {
-                client.Push(std::make_shared<std::string>("ACK: " + raw_message));
-            });
         });
-    client_database_.SendAll();
+    server_data_->client_database_->SendAll();
 }
