@@ -8,22 +8,22 @@
 class Message
 {
 public:
-    Message(IRC::UUID uuid, IRC::RawMessage message) 
-        : uuid_(uuid),
-          message_(message) 
-    {}
+    Message(IRC::UUID uuid, IRC::RawMessage message);
+    ~Message();
 
-    const auto GetUUID() const noexcept -> IRC::UUID;
-    const auto GetCommand() const noexcept -> std::string;
-    const auto GetParams() const noexcept -> std::vector<std::string>;
+    auto GetUUID() const noexcept -> const IRC::UUID;
+    auto GetCommand() const noexcept -> const std::string;
+    auto GetParams() const noexcept -> const std::vector<std::string>;
+
 private:
     IRC::UUID uuid_;
-    IRC::RawMessage message_;
+    IRC::RawMessage raw_message_;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Message& message) {
-    os << "Message(uuid: " << message.GetUUID() << ", " <<
-                  "command: \"" << message.GetCommand() << "\")";
+inline std::ostream &operator<<(std::ostream &os, const Message &message)
+{
+    os << "Message(uuid: " << message.GetUUID() << ", "
+       << "command: \"" << message.GetCommand() << "\")";
     return os;
 }
 

@@ -44,16 +44,12 @@ auto Server::RunOnce() -> void
             std::cout << "Received message from user with uuid: " << uuid << std::endl;
             std::cout << "Message: " << raw_message << std::endl;
 
-            using namespace IRC::Parser;
-
             try {
-                auto parsed = RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
+                auto parsed = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
                 auto message = Message(uuid, parsed);
 
                 std::cout << message << std::endl;
 
-                (void)parsed;
-                (void)message;
             } catch (ParseException &e) {
                 std::cout << "Failed to parse message" << std::endl;
             }

@@ -1,13 +1,20 @@
 #include "Message.h"
 
-const auto Message::GetUUID() const noexcept -> IRC::UUID {
+Message::Message(IRC::UUID uuid, IRC::RawMessage message) 
+    : uuid_(uuid), raw_message_(message) 
+{}
+
+Message::~Message()
+{}
+
+auto Message::GetUUID() const noexcept -> const IRC::UUID {
     return uuid_;
 }
 
-const auto Message::GetCommand() const noexcept -> std::string {
-    return message_.command.name;
+auto Message::GetCommand() const noexcept -> const std::string {
+    return raw_message_.command.name;
 }
 
-const auto Message::GetParams() const noexcept -> std::vector<std::string> {
-    return message_.command.parameters;
+auto Message::GetParams() const noexcept -> const std::vector<std::string> {
+    return raw_message_.command.parameters;
 }
