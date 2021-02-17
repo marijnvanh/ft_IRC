@@ -9,13 +9,11 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
             PingPongHandler(server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("PASS", [](auto server_data, auto message) {
-            std::shared_ptr<IRC::Mutex<IClient>> client;
             try {
-                client = server_data->client_database_->GetClient(message.GetUUID());
+                PASSHandler(server_data->client_database_->GetClient(message.GetUUID()), message);
             } catch (IClientDatabase::ClientNotFound &ex) {
                 return ;
             }
-            PASSHandler(client, message);
         }));
 }
 
