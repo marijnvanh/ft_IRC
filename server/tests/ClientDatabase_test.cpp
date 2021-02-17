@@ -15,7 +15,7 @@ using ::testing::_;
 class MockClient : public IClient {
     public:
 
-    MOCK_METHOD1(Push, void(std::shared_ptr<std::string> irc_message));
+    MOCK_METHOD1(Push, void(std::string irc_message));
     MOCK_METHOD0(Receive, std::optional<std::string>());
     MOCK_METHOD0(SendAll, void());
     MOCK_CONST_METHOD0(GetUUID, IRC::UUID());

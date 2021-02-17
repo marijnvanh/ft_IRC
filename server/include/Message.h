@@ -2,29 +2,23 @@
 #define __IRC__MESSAGE_H__
 
 #include <string>
+#include "IMessage.h"
 #include "RawMessage.h"
 #include "UUID.h"
 
-class Message
+class Message : public IMessage
 {
 public:
     Message(IRC::UUID uuid, IRC::RawMessage message);
     ~Message();
 
-    auto GetUUID() const noexcept -> const IRC::UUID;
-    auto GetCommand() const noexcept -> const std::string;
-    auto GetParams() const noexcept -> const std::vector<std::string>;
+    auto GetUUID() const noexcept -> const IRC::UUID override;
+    auto GetCommand() const noexcept -> const std::string override;
+    auto GetParams() const noexcept -> const std::vector<std::string> & override;
 
 private:
     IRC::UUID uuid_;
     IRC::RawMessage raw_message_;
 };
-
-inline std::ostream &operator<<(std::ostream &os, const Message &message)
-{
-    os << "Message(" << message.GetUUID() << ", "
-       << "command: \"" << message.GetCommand() << "\")";
-    return os;
-}
 
 #endif

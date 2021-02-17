@@ -4,5 +4,5 @@ auto PingPongHandler(std::shared_ptr<IClientDatabase> client_database, Message m
 {
     auto client = client_database->GetClient(message.GetUUID());
     
-    client->Take()->Push(std::make_shared<std::string>("pong"));
+    client->Take()->Push("pong");
 }

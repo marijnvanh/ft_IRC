@@ -33,9 +33,9 @@ class ClientTests : public ::testing::Test
 
 TEST_F(ClientTests, SendAllWithMultipleMessagesInQueue)
 {
-    client->Push(std::make_shared<std::string>("test1"));
-    client->Push(std::make_shared<std::string>("test2"));
-    client->Push(std::make_shared<std::string>("test3"));
+    client->Push("test1");
+    client->Push("test2");
+    client->Push("test3");
     
     EXPECT_CALL(*io_handler, Send("test1"))
         .Times(1);
@@ -53,7 +53,7 @@ TEST_F(ClientTests, SendAllWithMultipleMessagesInQueue)
 
 TEST_F(ClientTests, SendAllFailedToSendException)
 {
-    client->Push(std::make_shared<std::string>("test"));
+    client->Push("test");
 
     EXPECT_CALL(*io_handler, Send("test"))
         .Times(1)
@@ -69,7 +69,7 @@ TEST_F(ClientTests, SendAllFailedToSendException)
 
 TEST_F(ClientTests, SendAllClosedIOHandlerException)
 {
-    client->Push(std::make_shared<std::string>("test"));
+    client->Push("test");
 
     EXPECT_CALL(*io_handler, Send("test"))
         .Times(1)

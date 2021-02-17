@@ -1,6 +1,7 @@
 macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+    target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include/MessageHandlers)
     target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${PROJECT_DIR}
@@ -12,5 +13,16 @@ macro(package_add_test TESTNAME)
         FOLDER tests)
 endmacro()
 
-package_add_test(Client_test Client_test.cpp ../src/Client.cpp)
-package_add_test(ClientDatabase_test ClientDatabase_test.cpp ../src/ClientDatabase.cpp)
+package_add_test( Client_test
+    Client_test.cpp
+    ../src/Client.cpp
+)
+package_add_test( ClientDatabase_test
+    ClientDatabase_test.cpp
+    ../src/ClientDatabase.cpp
+)
+package_add_test( PASSHandler_test
+    PASSHandler_test.cpp
+    ../src/MessageHandlers/PASSHandler.cpp
+    ../src/Message.cpp
+)
