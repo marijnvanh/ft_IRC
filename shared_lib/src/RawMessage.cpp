@@ -22,9 +22,12 @@ auto IRC::ParseRawMessage(CharStream& s) -> RawMessage {
     return prefix;
   }, s);
   rawMessage.command.name = ParseCommandId(s);
-  rawMessage.command.parameters = 
-     Maybe<std::vector<std::string>>(ParseParams, s)
-       .value_or(std::vector<std::string>());
+  ParseWhitespace(s);
+  if (s.Remaining() > 0) {
+      rawMessage.command.parameters = ParseParams(s);
+  } else {
+      rawMessage.command.parameters = std::vector<std::string>{};
+  }
   return rawMessage;
 }
 
