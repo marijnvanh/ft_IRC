@@ -1,14 +1,14 @@
-#include "gtest/gtest.h"
 #include "unistd.h"
-#include "TimeStampManager.h"
 #include "Socket.h"
+#include "TimeStamps.h"
+#include "gtest/gtest.h"
 
 using namespace IRC;
 
-class TimeStampManagerTests : public ::testing::Test
+class TimeStampsTests : public ::testing::Test
 {
     public:
-	TimeStampManager timeStampManager;
+	TimeStamps timeStamps;
 
     void SetUp() override
     {
@@ -19,9 +19,9 @@ class TimeStampManagerTests : public ::testing::Test
     }
 };
 
-TEST_F(TimeStampManagerTests, CreateAndClearTimeStamp)
+TEST_F(TimeStampsTests, CreateAndClearTimeStamp)
 {
-	timeStampManager.AddNew("Time stamp test - 01");
+	timeStamps.Add("Time stamp test - 01");
 
-	timeStampManager.PrintAll();
+	timeStamps.PrintAll();
 }
