@@ -8,8 +8,8 @@ auto ParseException::Explain(const CharStream& stream) const -> void {
             << what()
             << ", at "
             << location
-            << ". Remaning: '"
-            << stream.Remaining()
+            << ". Tail: '"
+            << stream.Tail()
             << "'."
             << std::endl;
 }
@@ -34,7 +34,11 @@ auto CharStream::Peek() const -> char {
   return (*stream_)[read_head_];
 }
 
-auto CharStream::Remaining() const -> std::string {
+auto CharStream::Remaining() const -> size_t {
+  return stream_->size() - read_head_;
+}
+
+auto CharStream::Tail() const -> std::string {
   return (*stream_)
     .substr(read_head_, (*stream_).size() - read_head_);
 }
@@ -45,7 +49,7 @@ auto CharStream::Location() const -> size_t {
 
 auto CharStream::DebugStream() const -> void {
   std::cout << "Debugging stream at " << read_head_ << "." << std::endl;
-  std::cout << "Remaining text: <<" << Remaining() << ">>" << std::endl;
+  std::cout << "Tail text: <<" << Tail() << ">>" << std::endl;
 }
 
 auto IRC::Parser::Replicate(std::function<char(CharStream &s)> fun, int n, CharStream &s) -> std::string {
@@ -62,7 +66,7 @@ auto IRC::Parser::Replicate(std::function<char(CharStream &s)> fun, int n, CharS
 }
 
 auto IRC::Parser::Eof(CharStream &s) -> void {
-  if (s.Remaining().size() > 0)
+  if (s.Remaining() > 0)
     throw EOFException(s.Location());
   return;
 }

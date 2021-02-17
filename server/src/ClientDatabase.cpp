@@ -1,7 +1,8 @@
 #include <ClientDatabase.h>
 #include <optional>
 
-ClientDatabase::ClientDatabase()
+ClientDatabase::ClientDatabase() :
+    clients_(IRC::MakeMutex<std::unordered_map<IRC::UUID, std::shared_ptr<IRC::Mutex<IClient>>>>())
 {}
 
 ClientDatabase::~ClientDatabase()
@@ -12,7 +13,7 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
     auto uuid = new_client->GetUUID();
     auto client = std::make_shared<IRC::Mutex<IClient>>(std::move(new_client));
 
-    auto ret = clients_.insert(std::make_pair(uuid, client));
+    auto ret = clients_.Take()->insert(std::make_pair(uuid, client));
 
     /* Check if duplicate was found */
     if (ret.second == false)
@@ -21,21 +22,18 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
 
 auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
 {
-    clients_.erase(uuid);
+    clients_.Take()->erase(uuid);
 }
 
 auto ClientDatabase::PollClients(std::function<void(IRC::UUID uuid, std::string)> message_handler) -> void
 {
-    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
+    //TODO This might crash if other threads are deleting clients while we're in this loop
+    for (auto it = clients_.Take()->begin(), next_it = it;
+            it != clients_.Take()->end(); it = next_it)
     {
         ++next_it;
         try {
-            std::optional<std::string> irc_message;
-            it->second->Access([&irc_message](IClient &client)
-            {
-                irc_message = client.Receive();
-            });
-            
+            std::optional<std::string> irc_message = it->second->Take()->Receive();
             if (irc_message)
                 message_handler(it->first, *irc_message);
         }
@@ -49,27 +47,27 @@ auto ClientDatabase::PollClients(std::function<void(IRC::UUID uuid, std::string)
 
 auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>>
 {
-    auto client = clients_.find(uuid);
-    if (client == clients_.end())
+    auto client = clients_.Take()->find(uuid);
+    if (client == clients_.Take()->end())
         throw ClientNotFound();
     return client->second;
 }
 
 auto ClientDatabase::SendAll() -> void
 {
-    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
-    {
-        ++next_it;
-        try {
-            it->second->Access([](IClient &client)
-            {
-                client.SendAll();
-            });
-        }
-        catch (IClient::Disconnected &ex)
+    clients_.Access([](auto &clients) {
+        for (auto it = clients.begin(), next_it = it; it != clients.end(); it = next_it)
         {
-            //TODO Handle disconnection
-            RemoveClient(it->first);
+            ++next_it;
+            try {
+                it->second->Take()->SendAll();
+            }
+            catch (IClient::Disconnected &ex)
+            {
+                //TODO Handle disconnection
+                clients.erase(it->first);
+            }
         }
-    }
+
+    });
 }

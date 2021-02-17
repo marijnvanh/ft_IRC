@@ -17,8 +17,9 @@ namespace IRC {
             auto ConsumeMany(const size_t count) -> std::string;
             auto Consume() -> char;
             auto Peek() const -> char;
-            auto Remaining() const -> std::string;
+            auto Tail() const -> std::string;
             auto Location() const -> size_t;
+            auto Remaining() const -> size_t;
 
             auto DebugStream() const -> void;
 

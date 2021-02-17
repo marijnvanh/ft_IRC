@@ -4,11 +4,12 @@
 #include <unordered_map>
 #include <functional>
 
+#include "IClientDatabase.h"
 #include "IClient.h"
 #include "Mutex.h"
 #include "UUID.h"
 
-class ClientDatabase
+class ClientDatabase : public IClientDatabase
 {
     public:
 
@@ -22,7 +23,7 @@ class ClientDatabase
      * 
      * @param new_client 
      */
-    auto AddClient(std::unique_ptr<IClient> new_client) -> void;
+    auto AddClient(std::unique_ptr<IClient> new_client) -> void override;
 
     /**
      * @brief Remove client from database
@@ -30,7 +31,7 @@ class ClientDatabase
      * 
      * @param uuid 
      */
-    auto RemoveClient(IRC::UUID uuid) -> void;
+    auto RemoveClient(IRC::UUID uuid) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message
@@ -45,22 +46,17 @@ class ClientDatabase
      */
     auto SendAll() -> void;
 
-    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>>;
-
-    class ClientNotFound : public std::runtime_error
-    {
-    public:
-        ClientNotFound() : std::runtime_error("Client not found in Database") {}
-    };
-
-    class DuplicateClient : public std::runtime_error
-    {
-    public:
-        DuplicateClient() : std::runtime_error("Client already in database") {}
-    };
+    /**
+     * @brief Get the Client object
+     * 
+     * @exception ClientNotFound if client uuid is not in the database
+     * @param uuid 
+     * @return std::shared_ptr<IRC::Mutex<IClient>> 
+     */
+    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>> override;
 
     private:
-    std::unordered_map<IRC::UUID, std::shared_ptr<IRC::Mutex<IClient>>> clients_;
+    IRC::Mutex<std::unordered_map<IRC::UUID, std::shared_ptr<IRC::Mutex<IClient>>>> clients_;
 };
 
 #endif
