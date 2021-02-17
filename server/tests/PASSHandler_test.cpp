@@ -46,7 +46,7 @@ class PASSTests : public ::testing::Test
     }
 };
 
-TEST_F(PASSTests, test)
+TEST_F(PASSTests, SuccessTest)
 {
     EXPECT_CALL(*client1, GetState())
         .WillOnce(Return(IClient::State::kUnRegistered));
@@ -58,4 +58,27 @@ TEST_F(PASSTests, test)
     PASSHandler(shared_client1, message1);
 
     ASSERT_EQ(client1->GetPassword(), "test1");
+}
+
+TEST_F(PASSTests, InvalidParams)
+{
+    EXPECT_CALL(*client1, GetState())
+        .WillOnce(Return(IClient::State::kUnRegistered));
+    
+    EXPECT_CALL(message1, GetParams())
+        .WillOnce(ReturnRef(params));
+
+    EXPECT_CALL(*client1, Push(_)); //TODO add exact invalid msg
+
+    PASSHandler(shared_client1, message1);
+}
+
+TEST_F(PASSTests, AlreadyRegisteredClient)
+{
+    EXPECT_CALL(*client1, GetState())
+        .WillOnce(Return(IClient::State::kRegistered));
+    
+    EXPECT_CALL(*client1, Push(_)); //TODO add exact invalid msg
+
+    PASSHandler(shared_client1, message1);
 }
