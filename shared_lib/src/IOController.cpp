@@ -40,8 +40,6 @@ auto TCP::IOController::RunOnce() -> void
 
 auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void
 {
-	// TODO: Rob - As it stands, this loop accepts one client for each listener socket during every IOController revolution.
-	// Might be better to rework this to keep accepting new connections until there's none left ( while(accept) ).
 	for (auto const &listener_socket:sockets_)
 	{
 		if (listener_socket.second->GetType() == TCP::SocketType::kListenerSocket &&

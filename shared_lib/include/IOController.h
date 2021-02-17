@@ -46,6 +46,8 @@ namespace IRC::TCP
 		 */
         auto AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void;
 
+		auto GetSocketsCount() -> int { return this->sockets_.size(); }
+
         class Error : public std::runtime_error
         {
         public:

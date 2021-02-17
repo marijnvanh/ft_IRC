@@ -22,7 +22,12 @@ auto IRC::ParseRawMessage(CharStream& s) -> RawMessage {
     return prefix;
   }, s);
   rawMessage.command.name = ParseCommandId(s);
-  rawMessage.command.parameters = ParseParams(s);
+  ParseWhitespace(s);
+  if (s.Remaining() > 0) {
+      rawMessage.command.parameters = ParseParams(s);
+  } else {
+      rawMessage.command.parameters = std::vector<std::string>{};
+  }
   return rawMessage;
 }
 
@@ -55,10 +60,15 @@ auto IRC::ParseParams(CharStream& s) -> std::vector<std::string> {
   for(;;) {
     ParseWhitespace(s);
     if (s.Peek() == ':') {
+      s.Consume();
       params.push_back(ParseTrailing(s));
       return params;
     } else {
       params.push_back(ParseMiddle(s));
+      ParseWhitespace(s);
+      if (s.Remaining() == 0) {
+        return params;
+      }
     }
   }
 }

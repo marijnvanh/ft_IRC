@@ -76,7 +76,6 @@ namespace IRC {
 
     using namespace IRC::Parser;
 
-    /* <message>  ::= [':' < prefix > <SPACE>]<command><params><crlf> */
     auto ParseRawMessage(CharStream& s) -> RawMessage;
     auto ParsePrefix(CharStream& s) -> RawPrefix;
 
