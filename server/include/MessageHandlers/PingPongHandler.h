@@ -4,9 +4,9 @@
 #include <string>
 #include <memory>
 
-#include "ClientDatabase.h"
+#include "IClientDatabase.h"
 #include "Message.h"
 
-auto PingPongHandler(std::shared_ptr<ClientDatabase> client_database, Message message) -> void;
+auto PingPongHandler(std::shared_ptr<IClientDatabase> client_database, Message message) -> void;
 
 #endif
