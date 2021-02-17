@@ -23,15 +23,16 @@ namespace IRC
 		auto Add(std::string content) -> void;
 
 		auto PrintAll() -> void;
+
+		auto GetTimeStamps() const -> std::vector<std::pair<time_t, std::string>> {
+			return (this->timeStamps_);
+		}
+
+		friend auto operator<<(std::ostream& os, const TimeStamps& ts) -> std::ostream&;
 	
 	private:
 	
 		std::vector<std::pair<time_t, std::string>> timeStamps_;
-
-		/**
-		 * @brief Prints the given timestamp pair with the format ` Mo, 15.06.2009 20:20:00 - Content `.
-		 */
-		auto PrintTimeStamp(std::pair<time_t, std::string> timeStamp) -> void;
 	
 	};
 }

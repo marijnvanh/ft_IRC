@@ -20,20 +20,23 @@ auto TimeStamps::Add(std::string content) -> void
 
 auto TimeStamps::PrintAll() -> void
 {
-	std::vector<std::pair<time_t, std::string>>::iterator it = timeStamps_.begin();
-
-	for (; it != timeStamps_.end(); ++it)
-	{
-		PrintTimeStamp(*it);
-	}
+	std::cout << *this;
 }
 
-auto TimeStamps::PrintTimeStamp(std::pair<time_t, std::string> timeStamp) -> void
-{
-	std::tm * ptm = std::localtime(&timeStamp.first);
-	char buffer[32];
+namespace IRC {
+	auto operator<<(std::ostream& os, const TimeStamps& ts) -> std::ostream&
+	{
+		std::vector<std::pair<time_t, std::string>>::const_iterator it = ts.timeStamps_.begin();
 
-	std::strftime(buffer, 32, "%a, %d.%m.%Y %H:%M:%S", ptm);
+		for (; it != ts.timeStamps_.end(); ++it)
+		{
+			std::tm * ptm = std::localtime(&it->first);
+			char buffer[32];
 
-	std::cout << buffer << " - " << timeStamp.second << std::endl;	
+			std::strftime(buffer, 32, "%a, %d.%m.%Y %H:%M:%S", ptm);
+
+			os << buffer << " - " << it->second << std::endl;
+		}
+		return os;
+	}
 }
