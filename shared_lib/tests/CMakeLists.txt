@@ -13,3 +13,4 @@ endmacro()
 
 package_add_test(Mutex_test Mutex_test.cpp)
 package_add_test(TCPIOHandler_test TCPIOHandler_test.cpp)
+package_add_test(TimeStampManager_test TimeStampManager_test.cpp)
