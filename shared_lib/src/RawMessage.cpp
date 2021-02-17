@@ -65,6 +65,10 @@ auto IRC::ParseParams(CharStream& s) -> std::vector<std::string> {
       return params;
     } else {
       params.push_back(ParseMiddle(s));
+      ParseWhitespace(s);
+      if (s.Remaining() == 0) {
+        return params;
+      }
     }
   }
 }
