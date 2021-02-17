@@ -13,7 +13,7 @@ TimeStamps::~TimeStamps()
 
 auto TimeStamps::Add(std::string content) -> void
 {
-	std::pair<time_t, std::string> timeStamp = std::make_pair(time(NULL), content);
+	auto timeStamp = std::make_pair(time(NULL), content);
 
 	timeStamps_.push_back(timeStamp);
 }
@@ -26,7 +26,7 @@ auto TimeStamps::PrintAll() -> void
 namespace IRC {
 	auto operator<<(std::ostream& os, const TimeStamps& ts) -> std::ostream&
 	{
-		std::vector<std::pair<time_t, std::string>>::const_iterator it = ts.timeStamps_.begin();
+		auto it = ts.timeStamps_.begin();
 
 		for (; it != ts.timeStamps_.end(); ++it)
 		{
