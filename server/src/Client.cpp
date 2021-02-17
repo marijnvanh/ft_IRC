@@ -3,7 +3,7 @@
 
 Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler)
     : io_handler_(std::move(io_handler)),
-      UUID_(IRC::UUIDGenerator::GetInstance().Generate())
+      uuid_(IRC::UUIDGenerator::GetInstance().Generate())
 
 {
 
@@ -12,7 +12,7 @@ Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler)
 Client::~Client()
 {}
 
-auto Client::Push(std::shared_ptr<std::string> irc_message) -> void
+auto Client::Push(std::string irc_message) -> void
 {
     outgoing_msg_queue_.push(irc_message);
 }
@@ -23,7 +23,7 @@ auto Client::SendAll() -> void
     {
         auto irc_message = outgoing_msg_queue_.front();
         try {
-            io_handler_->Send(*irc_message);
+            io_handler_->Send(irc_message);
         }
         catch (IRC::IIOHandler::FailedToSend &ex)
         {

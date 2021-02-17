@@ -2,8 +2,6 @@
 #define __I_CLIENT_H__
 
 #include <string>
-#include <queue>
-#include <memory>
 #include <stdexcept>
 #include <optional>
 #include "UUID.h"
@@ -20,10 +18,11 @@ class IClient
         kClient,
         kServer
     };
-    //TODO refine states
+
     enum State
     {
         kUnRegistered = 0,
+        kRegistered,
         kDisconnecting,
         kDisconnected
     };
@@ -33,7 +32,7 @@ class IClient
      * 
      * @param irc_message 
      */
-    virtual auto Push(std::shared_ptr<std::string> irc_message) -> void = 0;
+    virtual auto Push(std::string irc_message) -> void = 0;
     
     /**
      * @brief Receive message from Client, will return nullopt when nothing to receive
@@ -50,11 +49,13 @@ class IClient
      * @exception IClient::Disconnected
      */
     virtual auto SendAll() -> void = 0;
-
-    auto GetState() const -> IClient::State { return state_; }
     virtual auto GetUUID() const -> IRC::UUID = 0;
 
-    IClient() {}
+    virtual auto GetState() const -> IClient::State { return state_; }
+    virtual auto SetState(IClient::State state) -> void { state_ = state; }
+    virtual auto GetPassword() const -> std::string { return password_; }
+    virtual auto SetPassword(std::string password) -> void { password_ = password; }
+
     virtual ~IClient() {};
 
     class Disconnected : public std::runtime_error
@@ -66,8 +67,8 @@ class IClient
     protected:
 
     // Type type_;
-    std::queue<std::shared_ptr<std::string>> outgoing_msg_queue_;
     State state_;
+    std::string password_;
 };
 
 #endif
