@@ -1,6 +1,7 @@
 #include "MessageDispatcher.h"
 #include "MessageHandlers/PingPongHandler.h"
 #include "MessageHandlers/PASSHandler.h"
+#include "MessageHandlers/NICKHandler.h"
 
 MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data) 
     : server_data_(server_data)
@@ -14,6 +15,9 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
             } catch (IClientDatabase::ClientNotFound &ex) {
                 return ;
             }
+        }));
+    handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
+            NICKHandler(server_data->client_database_, message);
         }));
 }
 

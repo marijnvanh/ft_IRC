@@ -55,6 +55,14 @@ class ClientDatabase : public IClientDatabase
      */
     auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>> override;
 
+    /**
+     * @brief Search client database for nickname
+     * 
+     * @param nickname 
+     * @return is a client if client with nickname is found
+     */
+    auto Find(std::string &nickname) -> std::optional<std::shared_ptr<IRC::Mutex<IClient>>> override;
+
     private:
     IRC::Mutex<std::unordered_map<IRC::UUID, std::shared_ptr<IRC::Mutex<IClient>>>> clients_;
 };

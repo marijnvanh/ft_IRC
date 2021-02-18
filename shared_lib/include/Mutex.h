@@ -24,6 +24,23 @@ namespace IRC {
             return _ref;
         }
 
+        MutexHandle(MutexHandle&& other) {
+            _ref = other._ref;
+            _lock = other._lock;
+            other._ref = nullptr;
+            other._lock = nullptr;
+        }
+
+        auto operator=(MutexHandle&& other) -> MutexHandle& {
+            if (this != &other) {
+                _ref = other._ref;
+                _lock = other._lock;
+                other._ref = nullptr;
+                other._lock = nullptr;
+            }
+            return *this;
+        }
+
         // Prevent duplication of a handle, as to disallow mutex copying
         MutexHandle(const MutexHandle& h2) = delete;
         MutexHandle& operator=(const MutexHandle& h2) = delete;

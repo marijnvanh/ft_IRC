@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <optional>
 
 #include "IClient.h"
 #include "Mutex.h"
@@ -17,6 +18,7 @@ class IClientDatabase
     virtual auto AddClient(std::unique_ptr<IClient> new_client) -> void = 0;
     virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
     virtual auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>> = 0;
+    virtual auto Find(std::string &nickname) -> std::optional<std::shared_ptr<IRC::Mutex<IClient>>> = 0;
 
     class ClientNotFound : public std::runtime_error
     {

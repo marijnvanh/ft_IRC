@@ -9,6 +9,7 @@
 using ::testing::AtLeast;
 using ::testing::Throw;
 using ::testing::Return;
+using ::testing::ReturnRef;
 using ::testing::_;
 
 
@@ -18,7 +19,7 @@ class MockClient : public IClient {
     MOCK_METHOD1(Push, void(std::string irc_message));
     MOCK_METHOD0(Receive, std::optional<std::string>());
     MOCK_METHOD0(SendAll, void());
-    MOCK_CONST_METHOD0(GetUUID, IRC::UUID());
+    MOCK_CONST_METHOD0(GetUUID, const IRC::UUID&());
 };
 
 /* Clientdatabase and three mock clients */
@@ -48,11 +49,11 @@ class ClientDatabaseTests : public ::testing::Test
         client_database = std::make_shared<ClientDatabase>();
 
         EXPECT_CALL(*client1, GetUUID())
-            .WillRepeatedly(Return(uuid1));
+            .WillRepeatedly(ReturnRef(uuid1));
         EXPECT_CALL(*client2, GetUUID())
-            .WillRepeatedly(Return(uuid2));
+            .WillRepeatedly(ReturnRef(uuid2));
         EXPECT_CALL(*client3, GetUUID())
-            .WillRepeatedly(Return(uuid3));
+            .WillRepeatedly(ReturnRef(uuid3));
     }
 };
 
@@ -146,4 +147,32 @@ TEST_F(ClientDatabaseTests, SendAllWithDisconnectedClient)
     client_database->SendAll();
 
     ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+}
+
+TEST_F(ClientDatabaseTests, FindNickname)
+{
+    unique_client1->SetNickname("test1");
+    unique_client2->SetNickname("test2");
+    unique_client3->SetNickname("test3");
+    client_database->AddClient(std::move(unique_client1));
+    client_database->AddClient(std::move(unique_client2));
+    client_database->AddClient(std::move(unique_client3));
+
+    std::string nickname_to_find("test2");
+    auto client = client_database->Find(nickname_to_find);
+    ASSERT_EQ((*client)->Take()->GetNickname(), nickname_to_find);
+}
+
+TEST_F(ClientDatabaseTests, FindNicknameDoesNotExist)
+{
+    unique_client1->SetNickname("test1");
+    unique_client2->SetNickname("test2");
+    unique_client3->SetNickname("test3");
+    client_database->AddClient(std::move(unique_client1));
+    client_database->AddClient(std::move(unique_client2));
+    client_database->AddClient(std::move(unique_client3));
+
+    std::string nickname_to_find("none");
+    auto client = client_database->Find(nickname_to_find);
+    ASSERT_EQ(client, std::nullopt);
 }

@@ -49,12 +49,14 @@ class IClient
      * @exception IClient::Disconnected
      */
     virtual auto SendAll() -> void = 0;
-    virtual auto GetUUID() const -> IRC::UUID = 0;
+    virtual auto GetUUID() const -> const IRC::UUID& = 0;
 
     virtual auto GetState() const -> IClient::State { return state_; }
     virtual auto SetState(IClient::State state) -> void { state_ = state; }
-    virtual auto GetPassword() const -> std::string { return password_; }
+    virtual auto GetPassword() const -> const std::string& { return password_; }
     virtual auto SetPassword(std::string password) -> void { password_ = password; }
+    virtual auto GetNickname() const -> const std::string& { return nickname_; }
+    virtual auto SetNickname(std::string nickname) -> void { nickname_ = nickname; }
 
     virtual ~IClient() {};
 
@@ -69,6 +71,7 @@ class IClient
     // Type type_;
     State state_;
     std::string password_;
+    std::string nickname_;
 };
 
 #endif
