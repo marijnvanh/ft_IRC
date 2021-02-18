@@ -17,7 +17,11 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
             }
         }));
     handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
-            NICKHandler(server_data->client_database_, message);
+            try {
+                NICKHandler(server_data->client_database_, server_data->client_database_->GetClient(message.GetUUID()), message);
+            } catch (IClientDatabase::ClientNotFound &ex) {
+                return ;
+            }
         }));
 }
 

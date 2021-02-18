@@ -27,6 +27,9 @@ class IClient
         kDisconnected
     };
 
+    IClient() : state_(IClient::State::kUnRegistered)
+    {};
+
     /**
      * @brief Push a message on to the send queue (later to be send by SendAll)
      * 
