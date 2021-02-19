@@ -31,7 +31,7 @@ auto TCPIOHandler::Send(const std::string data) -> void
     }
 }
 
-const auto SpliceToCRLF(std::string &buf) -> std::optional<std::string> {
+auto SpliceToCRLF(std::string &buf) -> std::optional<std::string> {
     // FIXME: this performs pretty badly, but the logic should be as simple as this function exposes.
     auto f = buf.find("\r\n");
     if (f == std::string::npos) {
