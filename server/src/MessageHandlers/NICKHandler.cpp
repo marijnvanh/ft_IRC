@@ -12,6 +12,7 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
     if (old_nickname == std::nullopt)
     {
         //TODO respond with error, maybe ERR_NONICKNAMEGIVEN ?
+        server->Take()->Push(std::to_string(ERR_NONICKNAMEGIVEN));
         return ;
     }
 
@@ -49,6 +50,7 @@ static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
         return ;
     }
     client->Take()->SetNickname(nickname);
+    //TODO Inform other servers of new nickname if user is already registered
 }
 
 auto NICKHandler(std::shared_ptr<IClientDatabase> client_database,
