@@ -36,6 +36,11 @@ auto SpliceToCRLF(std::string &buf) -> std::optional<std::string> {
     auto f = buf.find("\r\n");
     if (f == std::string::npos) {
         return std::nullopt;
+    } else if (f >= 512) {
+        // there's too many bytes here for a valid IRC message, try find after CRLF
+        auto ret = buf.substr(0, f);
+        buf = buf.substr(f + 2);
+        return SpliceToCRLF(buf);
     } else {
         auto ret = buf.substr(0, f);
         buf = buf.substr(f + 2);
