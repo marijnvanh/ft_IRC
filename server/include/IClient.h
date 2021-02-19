@@ -11,11 +11,10 @@ class IClient
 
     public:
 
-    //TODO Refine if we need this
     enum Type
     {
         kUnInitialized = 0,
-        kClient,
+        kUser,
         kServer
     };
 
@@ -27,7 +26,7 @@ class IClient
         kDisconnected
     };
 
-    IClient() : state_(IClient::State::kUnRegistered)
+    IClient() : state_(IClient::State::kUnRegistered), type_(IClient::Type::kUnInitialized)
     {};
 
     /**
@@ -60,6 +59,8 @@ class IClient
     virtual auto SetPassword(std::string password) -> void { password_ = password; }
     virtual auto GetNickname() const -> const std::string& { return nickname_; }
     virtual auto SetNickname(std::string nickname) -> void { nickname_ = nickname; }
+    virtual auto GetType() const -> IClient::Type { return type_; }
+    virtual auto SetType(IClient::Type type) -> void { type_ = type; }
 
     virtual ~IClient() {};
 
@@ -71,10 +72,10 @@ class IClient
 
     protected:
 
-    // Type type_;
     State state_;
     std::string password_;
     std::string nickname_;
+    Type type_;
 };
 
 #endif
