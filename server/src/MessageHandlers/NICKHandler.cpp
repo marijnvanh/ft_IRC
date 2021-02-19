@@ -27,7 +27,9 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
     if (client)
         (*client)->Take()->SetNickname(new_nickname);
     else
+    {
         ; //TODO What do we do if we do not have that client somehow?
+    }
 }
 
 static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
