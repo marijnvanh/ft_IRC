@@ -6,9 +6,9 @@ env:
 
 # Controls when the action will run. 
 on:
-  push:
-    branches:    
-      - '**'        # matches every branch but we can change it to something else
+#   push:
+#     branches:    
+#       - '**'        # matches every branch but we can change it to something else
   pull_request:
     branches:
       - '**'        # matches every branch but we can change it to something else
