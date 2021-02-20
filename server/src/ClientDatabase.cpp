@@ -33,9 +33,10 @@ auto ClientDatabase::PollClients(std::function<void(IRC::UUID uuid, std::string)
     {
         ++next_it;
         try {
-            std::optional<std::string> irc_message = it->second->Take()->Receive();
-            if (irc_message)
+            std::optional<std::string> irc_message;
+            while ((irc_message = it->second->Take()->Receive())) {
                 message_handler(it->first, *irc_message);
+            }
         }
         catch (IClient::Disconnected &ex)
         {

@@ -13,6 +13,7 @@ namespace IRC
     {
     private:
         std::shared_ptr<TCP::Socket> socket_; //TODO Make mutex
+        std::string splice_buffer_;
 
     public:
         TCPIOHandler(std::shared_ptr<TCP::Socket> socket);

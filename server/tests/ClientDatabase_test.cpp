@@ -83,11 +83,14 @@ TEST_F(ClientDatabaseTests, PollClients)
     client_database->AddClient(std::move(unique_client3));
 
     EXPECT_CALL(*client1, Receive())
-        .WillOnce(Return("test"));
+        .WillOnce(Return("test"))
+        .WillRepeatedly(Return(std::nullopt));
     EXPECT_CALL(*client2, Receive())
-        .WillOnce(Return("test1"));
+        .WillOnce(Return("test1"))
+        .WillRepeatedly(Return(std::nullopt));
     EXPECT_CALL(*client3, Receive())
-        .WillOnce(Return("test2"));
+        .WillOnce(Return("test2"))
+        .WillRepeatedly(Return(std::nullopt));
 
 
     std::unordered_map<IRC::UUID, std::string> expectations = {
