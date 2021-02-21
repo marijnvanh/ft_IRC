@@ -1,33 +1,14 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "PASSHandler.h"
-#include "IClient.h"
-#include "IMessage.h"
+#include "MockClient.h"
+#include "MockMessage.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
 using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::_;
-
-class MockClient : public IClient {
-    public:
-
-    MOCK_METHOD1(Push, void(std::string irc_message));
-    MOCK_METHOD0(Receive, std::optional<std::string>());
-    MOCK_METHOD0(SendAll, void());
-    MOCK_CONST_METHOD0(GetUUID, IRC::UUID());
-    MOCK_METHOD(IClient::State, GetState, (), (const, override));
-    MOCK_METHOD(void, SetState, (IClient::State state), (override));
-};
-
-class MockMessage : public IMessage {
-    public:
-
-    MOCK_METHOD(const IRC::UUID, GetUUID, (), (const, noexcept));
-    MOCK_METHOD(const std::string, GetCommand, (), (const, noexcept));
-    MOCK_METHOD(const std::vector<std::string> &, GetParams, (), (const, noexcept));
-};
 
 class PASSTests : public ::testing::Test
 {

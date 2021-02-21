@@ -21,7 +21,7 @@ class Client : public IClient
     auto Receive() -> std::optional<std::string> override;
     auto SendAll() -> void override;
 
-    auto GetUUID() const -> IRC::UUID override { return uuid_; };
+    auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
 
     private:
     std::queue<std::string> outgoing_msg_queue_;

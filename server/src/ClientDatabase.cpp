@@ -72,3 +72,15 @@ auto ClientDatabase::SendAll() -> void
 
     });
 }
+auto ClientDatabase::Find(const std::string &nickname) -> std::optional<std::shared_ptr<IRC::Mutex<IClient>>>
+{
+    auto clients = clients_.Take();
+
+    for (auto it = clients->begin(), next_it = it; it != clients->end(); it = next_it)
+    {
+        ++next_it;
+        if (it->second->Take()->GetNickname() == nickname)
+            return std::optional<std::shared_ptr<IRC::Mutex<IClient>>>(it->second);
+    }
+    return std::nullopt;
+}

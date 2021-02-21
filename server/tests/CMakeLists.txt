@@ -24,5 +24,8 @@ package_add_test( ClientDatabase_test
 package_add_test( PASSHandler_test
     PASSHandler_test.cpp
     ../src/MessageHandlers/PASSHandler.cpp
-    ../src/Message.cpp
+)
+package_add_test( NICKHandler_test
+NICKHandler_test.cpp
+    ../src/MessageHandlers/NICKHandler.cpp
 )

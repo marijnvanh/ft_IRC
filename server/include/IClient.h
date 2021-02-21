@@ -11,11 +11,10 @@ class IClient
 
     public:
 
-    //TODO Refine if we need this
     enum Type
     {
         kUnInitialized = 0,
-        kClient,
+        kUser,
         kServer
     };
 
@@ -26,6 +25,9 @@ class IClient
         kDisconnecting,
         kDisconnected
     };
+
+    IClient() : state_(IClient::State::kUnRegistered), type_(IClient::Type::kUnInitialized)
+    {};
 
     /**
      * @brief Push a message on to the send queue (later to be send by SendAll)
@@ -49,12 +51,16 @@ class IClient
      * @exception IClient::Disconnected
      */
     virtual auto SendAll() -> void = 0;
-    virtual auto GetUUID() const -> IRC::UUID = 0;
+    virtual auto GetUUID() const -> const IRC::UUID& = 0;
 
     virtual auto GetState() const -> IClient::State { return state_; }
     virtual auto SetState(IClient::State state) -> void { state_ = state; }
-    virtual auto GetPassword() const -> std::string { return password_; }
+    virtual auto GetPassword() const -> const std::string& { return password_; }
     virtual auto SetPassword(std::string password) -> void { password_ = password; }
+    virtual auto GetNickname() const -> const std::string& { return nickname_; }
+    virtual auto SetNickname(std::string nickname) -> void { nickname_ = nickname; }
+    virtual auto GetType() const -> IClient::Type { return type_; }
+    virtual auto SetType(IClient::Type type) -> void { type_ = type; }
 
     virtual ~IClient() {};
 
@@ -66,9 +72,10 @@ class IClient
 
     protected:
 
-    // Type type_;
     State state_;
     std::string password_;
+    std::string nickname_;
+    Type type_;
 };
 
 #endif
