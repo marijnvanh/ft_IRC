@@ -42,11 +42,11 @@ auto Server::RunOnce() -> void
         });
 
     server_data_->client_database_->PollClients(
-        [this](IRC::UUID uuid, std::string raw_message)
+        [this](std::shared_ptr<IRC::Mutex<IClient>> client, std::string raw_message)
         {
             try {
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
-                auto message = Message(uuid, parsed_message);
+                auto message = Message(client, parsed_message);
 
                 std::cout << message << std::endl;
                 message_dispatcher_->Dispatch(message);

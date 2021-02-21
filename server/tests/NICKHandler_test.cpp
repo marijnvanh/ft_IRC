@@ -70,6 +70,8 @@ class NICKFromServerTests : public ::testing::Test
 
 TEST_F(NICKFromUserTests, SuccessTest)
 {
+    EXPECT_CALL(message1, GetClient())
+        .WillOnce(Return(mock_client_shared1));
     EXPECT_CALL(message1, GetParams())
         .WillOnce(ReturnRef(message_params));
     message_params.push_back("new_nickname");
@@ -77,23 +79,27 @@ TEST_F(NICKFromUserTests, SuccessTest)
     EXPECT_CALL(*mock_client_database, Find(_))
         .WillOnce(Return(std::nullopt));
 
-    NICKHandler(mock_client_database_shared, mock_client_shared1, message1);
+    NICKHandler(mock_client_database_shared, message1);
 
     ASSERT_EQ(mock_client1->GetNickname(), "new_nickname");
 }
 
 TEST_F(NICKFromUserTests, NoNickNameGiven)
 {
+    EXPECT_CALL(message1, GetClient())
+        .WillOnce(Return(mock_client_shared1));
     EXPECT_CALL(message1, GetParams())
         .WillOnce(ReturnRef(message_params));
 
     EXPECT_CALL(*mock_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(mock_client_database_shared, mock_client_shared1, message1);
+    NICKHandler(mock_client_database_shared, message1);
 }
 
 TEST_F(NICKFromUserTests, ClientNickCollision)
 {
+    EXPECT_CALL(message1, GetClient())
+        .WillOnce(Return(mock_client_shared1));
     EXPECT_CALL(message1, GetParams())
         .WillOnce(ReturnRef(message_params));
     message_params.push_back("same_nickname");
@@ -102,11 +108,14 @@ TEST_F(NICKFromUserTests, ClientNickCollision)
 
     EXPECT_CALL(*mock_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(mock_client_database_shared, mock_client_shared1, message1);
+    NICKHandler(mock_client_database_shared, message1);
 }
 
 TEST_F(NICKFromServerTests, SuccessTest)
 {
+    EXPECT_CALL(message1, GetClient())
+        .WillOnce(Return(server_client_shared1));
+
     /* Init Message content and set expectations */
     message_params.push_back("new_nickname");
     EXPECT_CALL(message1, GetParams())
@@ -122,13 +131,16 @@ TEST_F(NICKFromServerTests, SuccessTest)
     /* Init client with old_nickname */
     user_client1->SetNickname("old_nickname");
 
-    NICKHandler(mock_client_database_shared, server_client_shared1, message1);
+    NICKHandler(mock_client_database_shared, message1);
 
     ASSERT_EQ(user_client1->GetNickname(), "new_nickname");
 }
 
 TEST_F(NICKFromServerTests, NoOrigin)
 {
+    EXPECT_CALL(message1, GetClient())
+        .WillOnce(Return(server_client_shared1));
+
     message_params.push_back("new_nickname");
     EXPECT_CALL(message1, GetParams())
         .WillOnce(ReturnRef(message_params));
@@ -138,5 +150,5 @@ TEST_F(NICKFromServerTests, NoOrigin)
 
     EXPECT_CALL(*server_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(mock_client_database_shared, server_client_shared1, message1);
+    NICKHandler(mock_client_database_shared, message1);
 }

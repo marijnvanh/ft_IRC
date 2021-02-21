@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 			if (c != 0 && c != EOF && std::getline(std::cin, line))
 			{
 				// Send to remote.
-				client_socket->Send(line);
+				client_socket->Send(line + "\r\n");
 			}
 
 			// Check to see if socket can be read.

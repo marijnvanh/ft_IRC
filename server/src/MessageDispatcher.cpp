@@ -2,6 +2,7 @@
 #include "MessageHandlers/PingPongHandler.h"
 #include "MessageHandlers/PASSHandler.h"
 #include "MessageHandlers/NICKHandler.h"
+#include "MessageHandlers/USERHandler.h"
 
 MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data) 
     : server_data_(server_data)
@@ -10,18 +11,14 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
             PingPongHandler(server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("PASS", [](auto server_data, auto message) {
-            try {
-                PASSHandler(server_data->client_database_->GetClient(message.GetUUID()), message);
-            } catch (IClientDatabase::ClientNotFound &ex) {
-                return ;
-            }
+            (void)server_data;
+            PASSHandler(message);
         }));
     handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
-            try {
-                NICKHandler(server_data->client_database_, server_data->client_database_->GetClient(message.GetUUID()), message);
-            } catch (IClientDatabase::ClientNotFound &ex) {
-                return ;
-            }
+            NICKHandler(server_data->client_database_, message);
+        }));
+    handlers_.insert(std::make_pair("USER", [](auto server_data, auto message) {
+            USERHandler(server_data->client_database_, message);
         }));
 }
 

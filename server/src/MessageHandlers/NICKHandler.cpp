@@ -50,12 +50,15 @@ static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
         return ;
     }
     client->Take()->SetNickname(nickname);
-    //TODO Inform other servers of new nickname if user is already registered
+    //TODO if client is already registered:
+    //TODO Inform all connected clients that nickname has changed
+    //TODO Inform other servers of new nickname
 }
 
-auto NICKHandler(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IRC::Mutex<IClient>> client, IMessage &message) -> void
+auto NICKHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
+    std::shared_ptr<IRC::Mutex<IClient>> client = message.GetClient();
+
     auto params = message.GetParams();
     if (params.size() == 0)
     {

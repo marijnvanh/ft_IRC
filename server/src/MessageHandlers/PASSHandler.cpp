@@ -1,8 +1,10 @@
 #include "MessageHandlers/PASSHandler.h"
 #include "Numerics.h"
 
-auto PASSHandler(std::shared_ptr<IRC::Mutex<IClient>> client, IMessage &message) -> void
+auto PASSHandler(IMessage &message) -> void
 {
+    std::shared_ptr<IRC::Mutex<IClient>> client = message.GetClient();
+
     if (client->Take()->GetState() != IClient::State::kUnRegistered)
     {
         client->Take()->Push(std::to_string(ERR_ALREADYREGISTERED));

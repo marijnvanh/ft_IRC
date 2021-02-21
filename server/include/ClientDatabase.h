@@ -38,7 +38,7 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param message_handler 
      */
-    auto PollClients(std::function<void(IRC::UUID, std::string)> message_handler) -> void;
+    auto PollClients(std::function<void(std::shared_ptr<IRC::Mutex<IClient>>, std::string)> message_handler) -> void;
 
     /**
      * @brief Empty all client send queus
