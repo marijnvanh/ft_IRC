@@ -12,8 +12,6 @@ class MockClient : public IClient {
     MOCK_METHOD0(Receive, std::optional<std::string>());
     MOCK_METHOD0(SendAll, void());
     MOCK_CONST_METHOD0(GetUUID, const IRC::UUID&());
-    MOCK_METHOD(IClient::State, GetState, (), (const, override));
-    MOCK_METHOD(void, SetState, (IClient::State state), (override));
 };
 
 #endif

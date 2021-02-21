@@ -14,7 +14,8 @@ class IClient
     enum Type
     {
         kUnInitialized = 0,
-        kUser,
+        kLocalUser,
+        kRemoteUser,
         kServer
     };
 
@@ -22,7 +23,6 @@ class IClient
     {
         kUnRegistered = 0,
         kRegistered,
-        kDisconnecting,
         kDisconnected
     };
 
@@ -61,6 +61,10 @@ class IClient
     virtual auto SetNickname(std::string nickname) -> void { nickname_ = nickname; }
     virtual auto GetType() const -> IClient::Type { return type_; }
     virtual auto SetType(IClient::Type type) -> void { type_ = type; }
+    virtual auto GetUsername() const -> const std::string& { return username_; }
+    virtual auto SetUsername(std::string username) -> void { username_ = username; }
+    virtual auto GetRealname() const -> const std::string& { return realname_; }
+    virtual auto SetRealname(std::string realname) -> void { realname_ = realname; }
 
     virtual ~IClient() {};
 
@@ -75,6 +79,8 @@ class IClient
     State state_;
     std::string password_;
     std::string nickname_;
+    std::string username_;
+    std::string realname_;
     Type type_;
 };
 

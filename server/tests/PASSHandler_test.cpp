@@ -32,9 +32,6 @@ TEST_F(PASSTests, SuccessTest)
     EXPECT_CALL(message1, GetClient())
         .WillOnce(Return(shared_client1));
 
-    EXPECT_CALL(*client1, GetState())
-        .WillOnce(Return(IClient::State::kUnRegistered));
-    
     EXPECT_CALL(message1, GetParams())
         .WillOnce(ReturnRef(params));
 
@@ -49,9 +46,6 @@ TEST_F(PASSTests, InvalidParams)
     EXPECT_CALL(message1, GetClient())
         .WillOnce(Return(shared_client1));
 
-    EXPECT_CALL(*client1, GetState())
-        .WillOnce(Return(IClient::State::kUnRegistered));
-    
     EXPECT_CALL(message1, GetParams())
         .WillOnce(ReturnRef(params));
 
@@ -65,9 +59,8 @@ TEST_F(PASSTests, AlreadyRegisteredClient)
     EXPECT_CALL(message1, GetClient())
         .WillOnce(Return(shared_client1));
 
-    EXPECT_CALL(*client1, GetState())
-        .WillOnce(Return(IClient::State::kRegistered));
-    
+    client1->SetState(IClient::State::kRegistered);
+
     EXPECT_CALL(*client1, Push(_)); //TODO add exact invalid msg
 
     PASSHandler(message1);
