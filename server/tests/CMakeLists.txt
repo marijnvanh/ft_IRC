@@ -28,4 +28,10 @@ package_add_test( PASSHandler_test
 package_add_test( NICKHandler_test
 NICKHandler_test.cpp
     ../src/MessageHandlers/NICKHandler.cpp
+    ../src/RegisterUser.cpp
+    )
+    package_add_test( USERHandler_test
+    USERHandler_test.cpp
+    ../src/MessageHandlers/USERHandler.cpp
+    ../src/RegisterUser.cpp
 )

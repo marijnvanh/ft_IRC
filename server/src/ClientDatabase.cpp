@@ -25,7 +25,7 @@ auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
     clients_.Take()->erase(uuid);
 }
 
-auto ClientDatabase::PollClients(std::function<void(IRC::UUID uuid, std::string)> message_handler) -> void
+auto ClientDatabase::PollClients(std::function<void(std::shared_ptr<IRC::Mutex<IClient>>, std::string)> message_handler) -> void
 {
     //TODO This might crash if other threads are deleting clients while we're in this loop
     for (auto it = clients_.Take()->begin(), next_it = it;
@@ -35,7 +35,7 @@ auto ClientDatabase::PollClients(std::function<void(IRC::UUID uuid, std::string)
         try {
             std::optional<std::string> irc_message;
             while ((irc_message = it->second->Take()->Receive())) {
-                message_handler(it->first, *irc_message);
+                message_handler(it->second, *irc_message);
             }
         }
         catch (IClient::Disconnected &ex)

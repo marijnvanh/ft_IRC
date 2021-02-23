@@ -8,6 +8,6 @@
 #include "IMessage.h"
 #include "Mutex.h"
 
-auto PASSHandler(std::shared_ptr<IRC::Mutex<IClient>> client, IMessage &message) -> void;
+auto PASSHandler(IMessage &message) -> void;
 
 #endif

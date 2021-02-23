@@ -13,6 +13,7 @@ class MockMessage : public IMessage {
     MOCK_METHOD(const std::vector<std::string> &, GetParams, (), (const, noexcept));
     MOCK_METHOD(const std::optional<std::string>, GetServername, (), (const, noexcept));
     MOCK_METHOD(const std::optional<std::string>, GetNickname, (), (const, noexcept));
+    MOCK_METHOD(std::shared_ptr<IRC::Mutex<IClient>>, GetClient, (), (const, noexcept));
 };
 
 #endif

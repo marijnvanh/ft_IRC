@@ -1,5 +1,6 @@
 #include "MessageHandlers/NICKHandler.h"
 #include "Numerics.h"
+#include "RegisterUser.h"
 
 //TODO handle server side message
 static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_database,
@@ -50,12 +51,17 @@ static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
         return ;
     }
     client->Take()->SetNickname(nickname);
-    //TODO Inform other servers of new nickname if user is already registered
+
+    if (client->Take()->GetState() == IClient::State::kRegistered)
+        ;//TODO Inform all connected clients that nickname has changed
+    else if (client->Take()->GetState() == IClient::State::kUnRegistered)
+        RegisterUser(client_database, client);
 }
 
-auto NICKHandler(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IRC::Mutex<IClient>> client, IMessage &message) -> void
+auto NICKHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
+    std::shared_ptr<IRC::Mutex<IClient>> client = message.GetClient();
+
     auto params = message.GetParams();
     if (params.size() == 0)
     {
