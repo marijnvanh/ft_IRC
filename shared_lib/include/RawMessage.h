@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Parser.h"
+#include "Coparser.h"
 
 /*
 **
@@ -86,6 +87,9 @@ namespace IRC {
 
     auto ParseHostname(CharStream& s) -> Hostname;
     auto ParseNickname(CharStream& s) -> std::string;
+
+    auto CoparseRawMessage(std::ostringstream& os, const RawMessage& rm) -> void;
+    auto CoparsePrefix(std::ostringstream& os, const RawPrefix& rm) -> void;
 } // namespace IRC
 
 #endif // RATW_MESSAGE_HPP
