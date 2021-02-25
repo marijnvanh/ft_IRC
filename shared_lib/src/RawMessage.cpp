@@ -30,6 +30,12 @@ auto IRC::ParseRawMessage(CharStream& s) -> RawMessage {
   } else {
       rawMessage.command.parameters = std::vector<std::string>{};
   }
+  if (s.Remaining() > 0 && s.Peek() == ':') {
+    s.Consume();
+    rawMessage.command.trailing = std::optional<std::string>{ParseTrailing(s)};
+  } else {
+    rawMessage.command.trailing = std::nullopt;
+  }
   return rawMessage;
 }
 
@@ -62,8 +68,6 @@ auto IRC::ParseParams(CharStream& s) -> std::vector<std::string> {
   for(;;) {
     ParseWhitespace(s);
     if (s.Peek() == ':') {
-      s.Consume();
-      params.push_back(ParseTrailing(s));
       return params;
     } else {
       params.push_back(ParseMiddle(s));
@@ -128,7 +132,11 @@ auto IRC::operator<<(std::ostream& os, const RawMessage& msg) -> std::ostream& {
     return os;
 }
 auto IRC::operator<<(std::ostream& os, const RawCommand& cmd) -> std::ostream& {
-    os << cmd.name << " " << IRC::Coparser::SepBy<std::vector, std::string>(cmd.parameters, " ");
+    os << cmd.name 
+       << " " 
+       << IRC::Coparser::SepBy<std::vector, std::string>(cmd.parameters, " ");
+    if (cmd.trailing.has_value())
+        os << " :" << *cmd.trailing;
     return os;
 }
 auto IRC::operator<<(std::ostream& os, const RawPrefix& prefix) -> std::ostream& {

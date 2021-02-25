@@ -42,20 +42,21 @@ auto Server::RunOnce() -> void
         });
 
     server_data_->client_database_->PollClients(
-        [this](std::shared_ptr<IRC::Mutex<IClient>> client, std::string raw_message)
+        [this](std::shared_ptr<IRC::Mutex<IClient>> client, const std::string raw_message)
         {
+            auto cs = IRC::Parser::CharStream(std::make_shared<std::string>(raw_message));
             try {
-                auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
+                std::cout << "IN:     \"" << raw_message << "\"" << std::endl;
+                auto parsed_message = IRC::ParseRawMessage(cs);
 
-                std::cout << "IN:     " << raw_message << std::endl;
-                std::cout << "PARSED: " << parsed_message << std::endl;
+                std::cout << "PARSED: \"" << parsed_message << "\"" << std::endl;
                 auto message = Message(client, parsed_message);
 
                 std::cout << message << std::endl;
                 message_dispatcher_->Dispatch(message);
 
             } catch (ParseException &e) {
-                std::cout << "Failed to parse message" << std::endl;
+                e.Explain(cs);
                 //TODO Handle invalid message
             }
         });

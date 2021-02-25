@@ -58,7 +58,8 @@ namespace IRC {
 
     struct RawCommand {
         std::string name;
-        std::vector<std::string> parameters; // TODO: trailing should be separate
+        std::vector<std::string> parameters;
+        std::optional<std::string> trailing;
     };
 
     struct RawPrefix {
