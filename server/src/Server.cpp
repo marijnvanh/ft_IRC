@@ -46,6 +46,9 @@ auto Server::RunOnce() -> void
         {
             try {
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
+
+                std::cout << "IN:     " << raw_message << std::endl;
+                std::cout << "PARSED: " << parsed_message << std::endl;
                 auto message = Message(client, parsed_message);
 
                 std::cout << message << std::endl;

@@ -58,7 +58,7 @@ namespace IRC {
 
     struct RawCommand {
         std::string name;
-        std::vector<std::string> parameters;
+        std::vector<std::string> parameters; // TODO: trailing should be separate
     };
 
     struct RawPrefix {
@@ -88,8 +88,10 @@ namespace IRC {
     auto ParseHostname(CharStream& s) -> Hostname;
     auto ParseNickname(CharStream& s) -> std::string;
 
-    auto CoparseRawMessage(std::ostringstream& os, const RawMessage& rm) -> void;
-    auto CoparsePrefix(std::ostringstream& os, const RawPrefix& rm) -> void;
+    auto operator<<(std::ostream& os, const RawMessage& rm) -> std::ostream&;
+    auto operator<<(std::ostream& os, const RawPrefix& rm) -> std::ostream&;
+    auto operator<<(std::ostream& os, const RawCommand& rm) -> std::ostream&;
+    auto operator<<(std::ostream& os, const Hostname& hostname) -> std::ostream&;
 } // namespace IRC
 
-#endif // RATW_MESSAGE_HPP
+#endif // RAW_MESSAGE_HPP

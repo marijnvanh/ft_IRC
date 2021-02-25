@@ -1,6 +1,8 @@
 #include "RawMessage.h"
 #include <cctype>
 
+// PARSING
+
 auto IsSpecial(char c) -> bool {
   return (c == '-')
       || (c == '[')
@@ -113,4 +115,31 @@ auto IRC::ParseNickname(CharStream& s) -> std::string {
   }, s);
 
   return accum;
+}
+
+// COPARSING
+
+auto IRC::operator<<(std::ostream& os, const RawMessage& msg) -> std::ostream& {
+    if (msg.prefix.has_value()) {
+        os << ":" << *msg.prefix << " ";
+    }
+    os << msg.command;
+        
+    return os;
+}
+auto IRC::operator<<(std::ostream& os, const RawCommand& cmd) -> std::ostream& {
+    os << cmd.name << " " << IRC::Coparser::SepBy<std::vector, std::string>(cmd.parameters, " ");
+    return os;
+}
+auto IRC::operator<<(std::ostream& os, const RawPrefix& prefix) -> std::ostream& {
+    os << prefix.name;
+    if (prefix.hostname.has_value())
+        os << "@" << *prefix.hostname;
+    if (prefix.username.has_value())
+        os << "!" << *prefix.username;
+    return os;
+}
+auto IRC::operator<<(std::ostream& os, const Hostname& hostname) -> std::ostream& {
+    os << hostname.value;
+    return os;
 }
