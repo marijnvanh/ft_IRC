@@ -4,8 +4,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "MockClient.h"
+#include "IServer.h"
 
-class MockServer : public MockClient, public IServer {
+class MockServer : public IServer, public MockClient {
     public:
 };
 
