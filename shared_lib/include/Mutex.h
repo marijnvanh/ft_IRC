@@ -5,6 +5,7 @@
 #include <memory>
 #include <mutex>
 #include <iostream>
+#include <functional>
 
 namespace IRC {
 

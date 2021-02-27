@@ -3,6 +3,7 @@
 #include "MessageHandlers/PASSHandler.h"
 #include "MessageHandlers/NICKHandler.h"
 #include "MessageHandlers/USERHandler.h"
+#include "MessageHandlers/KILLHandler.h"
 
 MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data) 
     : server_data_(server_data)
@@ -19,6 +20,9 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
         }));
     handlers_.insert(std::make_pair("USER", [](auto server_data, auto message) {
             USERHandler(server_data->client_database_, message);
+        }));
+    handlers_.insert(std::make_pair("KILL", [](auto server_data, auto message) {
+            KILLHandler(server_data->client_database_, message);
         }));
 }
 
