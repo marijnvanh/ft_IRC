@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "IRCServer.h"
 #include "Client.h"
 #include "Parser.h"
 #include "RawMessage.h"
@@ -6,15 +6,15 @@
 #include "TCPIOHandler.h"
 #include "MessageDispatcher.h"
 
-Server::Server() :
+IRCServer::IRCServer() :
     server_data_(std::make_shared<ServerData>()),
     message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_))
 {}
 
-Server::~Server()
+IRCServer::~IRCServer()
 {}
 
-auto Server::Start(std::string address) -> void
+auto IRCServer::Start(std::string address) -> void
 {
     std::cout << "Attempting to start server..." << std::endl;
 
@@ -28,7 +28,7 @@ auto Server::Start(std::string address) -> void
     std::cout << "Server started!" << std::endl;
 };
 
-auto Server::RunOnce() -> void
+auto IRCServer::RunOnce() -> void
 {
     tcp_io_controller_.RunOnce();
 

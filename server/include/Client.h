@@ -23,6 +23,25 @@ class Client : public IClient
 
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
 
+    Client (Client&& other) : IClient(std::move(other)), uuid_(other.uuid_)
+    {
+        if (other.state_ != kUnRegistered)
+            throw AlreadyRegistered("Can't move a client after registration");
+
+        io_handler_ = std::move(other.io_handler_);
+        outgoing_msg_queue_ = std::move(other.outgoing_msg_queue_);
+    };
+
+    Client (Client& other) = delete;
+    Client &operator =(Client& other) = delete;
+    Client &operator= (Client&& other) = delete;
+
+    class AlreadyRegistered : public std::runtime_error
+    {
+    public:
+        AlreadyRegistered(const char *msg) : std::runtime_error(msg) {}
+    };
+
     private:
     std::queue<std::string> outgoing_msg_queue_;
     std::unique_ptr<IRC::IIOHandler> io_handler_;

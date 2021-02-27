@@ -1,44 +1,29 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#include <memory>
-#include <vector>
+#include <string>
+#include <stdexcept>
+#include <optional>
+#include <queue>
 
-#include "Socket.h"
-#include "AddressInfo.h"
-#include "IOController.h"
-#include "ServerData.h"
-#include "IMessageDispatcher.h"
+#include "Client.h"
+#include "IServer.h"
+#include "IIOHandler.h"
 
-#define PORT "5000" //TODO remove this
 
-using namespace IRC;
-
-class Server
+class Server : public Client, IServer
 {
     public:
 
-    Server();
-    ~Server();
+    Server() = delete;
+    Server(Client &&old_client) : Client(std::move(old_client)) {};
+    ~Server() {};
 
-    /**
-     * @brief Init listener socket and io controller
-     * 
-     * @param address 
-     */
-    auto Start(std::string address) -> void;
-
-    /**
-     * @brief Run server loop once
-     * 
-     */
-    auto RunOnce() -> void;
+    Server (Server& other) = delete;
+    Server &operator =(Server& other) = delete;
+    Server &operator= (Server&& other) = delete;
 
     private:
-    std::shared_ptr<ServerData> server_data_;
-    std::unique_ptr<IMessageDispatcher> message_dispatcher_;
-    TCP::IOController tcp_io_controller_;
-    
 };
 
 #endif

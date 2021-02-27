@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include "Mutex.h"
+#include "MockClient.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -12,15 +13,6 @@ using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::_;
 
-
-class MockClient : public IClient {
-    public:
-
-    MOCK_METHOD1(Push, void(std::string irc_message));
-    MOCK_METHOD0(Receive, std::optional<std::string>());
-    MOCK_METHOD0(SendAll, void());
-    MOCK_CONST_METHOD0(GetUUID, const IRC::UUID&());
-};
 
 /* Clientdatabase and three mock clients */
 class ClientDatabaseTests : public ::testing::Test
