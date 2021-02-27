@@ -39,3 +39,7 @@ package_add_test( Server_test
     Server_test.cpp
     ../src/Client.cpp
 )
+package_add_test( User_test
+    User_test.cpp
+    ../src/Client.cpp
+)

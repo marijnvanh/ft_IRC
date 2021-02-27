@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "Client.h"
-#include "Server.h"
 #include "MockIOHandler.h"
+#include "User.h"
 #include "MockClient.h"
 #include <memory>
 
@@ -11,7 +11,13 @@ using ::testing::Throw;
 using ::testing::Return;
 using ::testing::_;
 
-class ServerTests : public ::testing::Test
+class FakeUser : public MockClient, User
+{
+    public:
+
+};
+
+class UserTests : public ::testing::Test
 {
     public:
     std::unique_ptr<MockIOHandler> unique_io_handler;
@@ -26,8 +32,8 @@ class ServerTests : public ::testing::Test
     }
 };
 
-//TODO when we implement server stuff
-TEST_F(ServerTests, Todo)
+// TODO when we implement user coce
+TEST_F(UserTests, todo)
 {
-    Server server(std::move(*client.get()));
+    FakeUser hello;
 }
