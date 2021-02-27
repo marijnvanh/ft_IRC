@@ -27,7 +27,9 @@ class ServerTests : public ::testing::Test
 };
 
 //TODO when we implement server stuff
+#include "MockServer.h"
 TEST_F(ServerTests, Todo)
 {
+    MockServer();
     Server server(std::move(*client.get()));
 }

@@ -10,7 +10,7 @@
 #include "IIOHandler.h"
 
 
-class Client : public IClient
+class Client : public virtual IClient
 {
     public:
 

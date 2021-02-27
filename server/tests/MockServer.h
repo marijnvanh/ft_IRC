@@ -5,9 +5,8 @@
 #include "gmock/gmock.h"
 #include "MockClient.h"
 
-class MockServer : public MockClient, IServer {
+class MockServer : public MockClient, public IServer {
     public:
-
 };
 
 #endif

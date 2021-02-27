@@ -5,7 +5,7 @@
 #include "gmock/gmock.h"
 #include "IClient.h"
 
-class MockClient : public IClient {
+class MockClient : public virtual IClient {
     public:
 
     MOCK_METHOD1(Push, void(std::string irc_message));
