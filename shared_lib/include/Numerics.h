@@ -63,7 +63,7 @@ enum
      * @brief Error numerics
      * 
      */
-	// ERR_NOSUCHNICK                  = 401,
+	ERR_NOSUCHNICK                  = 401,
 	// ERR_NOSUCHSERVER                = 402,
 	// ERR_NOSUCHCHANNEL               = 403,
 	// ERR_CANNOTSENDTOCHAN            = 404,
@@ -93,9 +93,10 @@ enum
 
 	// ERR_BANLISTFULL                 = 478,
 
-	// ERR_NOPRIVILEGES                = 481,
+	ERR_NOPRIVILEGES                = 481,
+    
 	// ERR_CHANOPRIVSNEEDED            = 482,
-
+	ERR_CANTKILLSERVER				= 483
 	// ERR_RESTRICTED                  = 484,
 
 	// ERR_NOOPERHOST                  = 491,

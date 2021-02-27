@@ -26,6 +26,7 @@ TCP::Socket::Socket() : socket_fd_(kUnInitialized),
 TCP::Socket::~Socket()
 {
 	this->Close();
+	socket_fd_ = -1;
 }
 
 auto TCP::Socket::InitSocket(struct addrinfo *addr_info, bool block) -> int
