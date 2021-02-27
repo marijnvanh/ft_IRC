@@ -22,12 +22,15 @@ auto TCP::IOController::RunOnce() -> void
     
     fd_set read_fds;
     fd_set write_fds;
+
+	ValidateSockets();
+
+	// This needs to happen AFTER validation, because sockets CAN BE REMOVED during said validation.
     FD_ZERO(&read_fds);
     FD_ZERO(&write_fds);
     read_fds = master_fd_list_;
     write_fds = master_fd_list_;
 
-	ValidateSockets();
     int total_ready_fds = select(max_fd_ + 1, &read_fds, &write_fds, NULL, &time_val);
 
 	if (total_ready_fds == -1)
@@ -104,21 +107,15 @@ auto TCP::IOController::ValidateSockets() -> void
 
 auto TCP::IOController::UpdateSocketStates(fd_set *ready_fds) -> void
 {
-	for (auto it = sockets_.cbegin(); it != sockets_.cend();)
+	for (auto it = sockets_.begin(), next_it = it; it != sockets_.end(); it = next_it)
 	{
-		if (it->second->GetState() == TCP::SocketState::kDisconnected)
-		{
-			RemoveSocket(it->second);
-			it--;
-		}
-		else
+		++next_it;
+		if (it->second->GetState() != TCP::SocketState::kDisconnected)
 		{
 			if (FD_ISSET(it->second->GetFD(), ready_fds))
 			{
 				it->second->SetState(TCP::SocketState::kReadyToRead);
-			}			
-
-			++it;
+			}
 		}		
 	}
 }
