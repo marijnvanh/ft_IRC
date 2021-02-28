@@ -1,20 +1,13 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "Client.h"
-#include "IIOHandler.h"
+#include "MockIOHandler.h"
 #include <memory>
 
 using ::testing::AtLeast;
 using ::testing::Throw;
 using ::testing::Return;
 using ::testing::_;
-
-class MockIOHandler : public IRC::IIOHandler {
-    public:
-
-    MOCK_METHOD1(Send, void(std::string msg));
-    MOCK_METHOD0(Receive, std::optional<std::string>());
-};
 
 class ClientTests : public ::testing::Test
 {

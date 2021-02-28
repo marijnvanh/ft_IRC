@@ -18,20 +18,28 @@ package_add_test( Client_test
     ../src/Client.cpp
 )
 package_add_test( ClientDatabase_test
-    ClientDatabase_test.cpp
-    ../src/ClientDatabase.cpp
+ClientDatabase_test.cpp
+../src/ClientDatabase.cpp
 )
 package_add_test( PASSHandler_test
-    PASSHandler_test.cpp
-    ../src/MessageHandlers/PASSHandler.cpp
+PASSHandler_test.cpp
+../src/MessageHandlers/PASSHandler.cpp
 )
 package_add_test( NICKHandler_test
 NICKHandler_test.cpp
-    ../src/MessageHandlers/NICKHandler.cpp
-    ../src/RegisterUser.cpp
-    )
-    package_add_test( USERHandler_test
-    USERHandler_test.cpp
-    ../src/MessageHandlers/USERHandler.cpp
-    ../src/RegisterUser.cpp
+../src/MessageHandlers/NICKHandler.cpp
+../src/RegisterUser.cpp
+)
+package_add_test( USERHandler_test
+USERHandler_test.cpp
+../src/MessageHandlers/USERHandler.cpp
+../src/RegisterUser.cpp
+)
+package_add_test( Server_test
+    Server_test.cpp
+    ../src/Client.cpp
+)
+package_add_test( User_test
+    User_test.cpp
+    ../src/Client.cpp
 )

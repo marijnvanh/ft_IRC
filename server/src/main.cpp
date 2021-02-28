@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "IRCServer.h"
 
 #include <queue>
 #include <memory>
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     try
 	{
-        Server server;
+        IRCServer server;
 
 		server.Start(std::move(server_address));
 
