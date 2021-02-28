@@ -1,13 +1,8 @@
 #ifndef _CLIENT_DATABASE_H__
 #define _CLIENT_DATABASE_H__
 
-#include <unordered_map>
-#include <functional>
-
+#include <string>
 #include "IClientDatabase.h"
-#include "IClient.h"
-#include "Mutex.h"
-#include "UUID.h"
 
 class ClientDatabase : public IClientDatabase
 {
@@ -17,13 +12,24 @@ class ClientDatabase : public IClientDatabase
     ~ClientDatabase();
 
     /**
-     * @brief Add client to ClientDatabase
+     * @brief Add client type to ClientDatabase
      * 
      * @exception DuplicateClient if client already exists
      * 
      * @param new_client 
      */
     auto AddClient(std::unique_ptr<IClient> new_client) -> void override;
+    auto AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void override;
+    auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void override;
+    auto AddServer(std::shared_ptr<IServer> new_server) -> void override;
+
+    /**
+     * @brief Register functions to upgrade a client to a localuser or server 
+     * 
+     * @param uuid 
+     */
+    auto RegisterLocalUser(IRC::UUID uuid) -> void override;
+    auto RegisterServer(IRC::UUID uuid) -> void override;
 
     /**
      * @brief Remove client from database
@@ -65,6 +71,9 @@ class ClientDatabase : public IClientDatabase
 
     private:
     IRC::Mutex<std::unordered_map<IRC::UUID, std::shared_ptr<IRC::Mutex<IClient>>>> clients_;
+    std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
+    std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;
+    std::unordered_map<std::string, std::shared_ptr<IServer>> servers_;
 };
 
 #endif

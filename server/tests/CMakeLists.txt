@@ -20,6 +20,7 @@ package_add_test( Client_test
 package_add_test( ClientDatabase_test
 ClientDatabase_test.cpp
 ../src/ClientDatabase.cpp
+../src/Client.cpp
 )
 package_add_test( PASSHandler_test
 PASSHandler_test.cpp

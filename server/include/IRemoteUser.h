@@ -7,6 +7,10 @@ class IRemoteUser : public virtual IUser
 {
     public:
 
+    IRemoteUser()
+    {
+        type_ = IClient::Type::kRemoteUser;
+    };
     virtual ~IRemoteUser() {};
 
     private:
