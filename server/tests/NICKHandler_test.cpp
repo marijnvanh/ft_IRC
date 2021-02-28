@@ -17,6 +17,7 @@ class NICKFromUserTests : public ::testing::Test
     std::shared_ptr<IRC::Mutex<IClient>> mock_client_shared1;
     std::unique_ptr<MockClient> mock_client_unique1;
     MockClient *mock_client1;
+    IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
 
     MockMessage message1;
     std::vector<std::string> message_params;
@@ -32,6 +33,9 @@ class NICKFromUserTests : public ::testing::Test
 
         mock_client_database_shared = std::make_shared<MockClientDatabase>();
         mock_client_database = mock_client_database_shared.get();
+
+        EXPECT_CALL(*mock_client1, GetUUID())
+            .WillRepeatedly(ReturnRef(uuid1));
     }
 };
 
