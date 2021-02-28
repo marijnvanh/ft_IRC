@@ -97,6 +97,9 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> void
         if (client->GetState() != IClient::State::kUnRegistered)
             throw ClientDatabase::UnAbleToRegister("Client not in a UnRegistered state");
 
+        if (client->GetNickname() == "" || client->GetUsername() == "")
+            throw ClientDatabase::UnAbleToRegister("Nickname or Username not set");
+
         auto local_user = std::make_shared<LocalUser>(std::move(*client));
         local_users_.insert(std::make_pair(local_user->GetNickname(), local_user));
 

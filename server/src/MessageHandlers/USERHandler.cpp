@@ -1,6 +1,5 @@
 #include "MessageHandlers/NICKHandler.h"
 #include "Numerics.h"
-#include "RegisterUser.h"
 
 
 #define USERNAME_PARAM 0
@@ -34,7 +33,11 @@ static auto HandleUSERFromUser(std::shared_ptr<IClientDatabase> client_database,
         client_handle->SetUsername(new_username);
         client_handle->SetRealname(new_realname);
     }
-    RegisterUser(client_database, client);
+    try {
+        client_database->RegisterLocalUser(client->Take()->GetUUID());
+    } catch (IClientDatabase::UnAbleToRegister &ex) {
+        ;
+    }
 }
 
 auto USERHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
