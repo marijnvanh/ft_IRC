@@ -144,8 +144,18 @@ auto ClientDatabase::AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) 
 
 auto ClientDatabase::AddServer(std::shared_ptr<IServer> new_server) -> void
 {
-    if (servers_.find(new_server->GetNickname()) != servers_.end())
+    if (servers_.find(new_server->GetNickname()) != servers_.end())//TODO not by nickname ?
         throw ClientDatabase::DuplicateClient();
 
     servers_.insert(std::make_pair(new_server->GetNickname(), new_server));
+}
+
+//TODO server name ?
+auto ClientDatabase::GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>>
+{
+    auto server = servers_.find(server_name);
+    if (server != servers_.end())
+        return std::optional<std::shared_ptr<IServer>>(server->second);
+    else
+        return std::nullopt;
 }

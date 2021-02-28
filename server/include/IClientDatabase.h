@@ -27,6 +27,7 @@ class IClientDatabase
     virtual auto AddServer(std::shared_ptr<IServer> new_server) -> void = 0;
     virtual auto RegisterLocalUser(IRC::UUID uuid) -> void = 0;
     virtual auto RegisterServer(IRC::UUID uuid) -> void = 0;
+    virtual auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> = 0;
 
     class ClientNotFound : public std::runtime_error
     {
