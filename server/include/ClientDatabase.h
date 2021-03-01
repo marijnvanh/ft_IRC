@@ -53,22 +53,17 @@ class ClientDatabase : public IClientDatabase
     auto SendAll() -> void;
 
     /**
-     * @brief Get the Client object
+     * @brief Search functions to find IClient/IServer objects
      * 
-     * @exception ClientNotFound if client uuid is not in the database
-     * @param uuid 
+     * @exception ClientNotFound if client uuid is not in the database //TODO remove
      * @return std::shared_ptr<IClient> 
      */
-    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> override;
+    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> override; //TODO change to optional
+    
+    // Get Client by nickname currently returns both Registered and UnRegistered users
+    // This might not be what we want because of Nick collisions on UnRegistered users
+    auto GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> override;
     auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> override;
-
-    /**
-     * @brief Search client database for nickname
-     * 
-     * @param nickname 
-     * @return is a client if client with nickname is found
-     */
-    auto Find(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> override;
 
     private:
     std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;

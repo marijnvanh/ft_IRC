@@ -6,6 +6,7 @@
 #include <optional>
 #include "Mutex.h"
 #include "MockClient.h"
+#include "MockLocalUser.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -24,11 +25,17 @@ class ClientDatabaseTests : public ::testing::Test
     MockClient *client2;
     std::unique_ptr<MockClient> unique_client3;
     MockClient *client3;
+
+    std::unique_ptr<MockLocalUser> unique_local_user1;
+    MockLocalUser *local_user1;
+
+
     std::shared_ptr<ClientDatabase> client_database;
 
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
     IRC::UUID uuid2 = IRC::UUIDGenerator::GetInstance().Generate();
     IRC::UUID uuid3 = IRC::UUIDGenerator::GetInstance().Generate();
+    IRC::UUID uuid4 = IRC::UUIDGenerator::GetInstance().Generate();
 
     void SetUp() override
     {
@@ -38,6 +45,10 @@ class ClientDatabaseTests : public ::testing::Test
         client2 = unique_client2.get();
         unique_client3 = std::make_unique<MockClient>();
         client3 = unique_client3.get();
+
+        unique_local_user1 = std::make_unique<MockLocalUser>();
+        local_user1 = unique_local_user1.get();
+        
         client_database = std::make_shared<ClientDatabase>();
 
         EXPECT_CALL(*client1, GetUUID())
@@ -46,6 +57,8 @@ class ClientDatabaseTests : public ::testing::Test
             .WillRepeatedly(ReturnRef(uuid2));
         EXPECT_CALL(*client3, GetUUID())
             .WillRepeatedly(ReturnRef(uuid3));
+        EXPECT_CALL(*local_user1, GetUUID())
+            .WillRepeatedly(ReturnRef(uuid4));
     }
 };
 
@@ -144,7 +157,7 @@ TEST_F(ClientDatabaseTests, SendAllWithDisconnectedClient)
     ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
 }
 
-TEST_F(ClientDatabaseTests, FindNickname)
+TEST_F(ClientDatabaseTests, GetClientByNickname)
 {
     unique_client1->SetNickname("test1");
     unique_client2->SetNickname("test2");
@@ -154,11 +167,11 @@ TEST_F(ClientDatabaseTests, FindNickname)
     client_database->AddClient(std::move(unique_client3));
 
     std::string nickname_to_find("test2");
-    auto client = client_database->Find(nickname_to_find);
+    auto client = client_database->GetClient(nickname_to_find);
     ASSERT_EQ((*client)->GetNickname(), nickname_to_find);
 }
 
-TEST_F(ClientDatabaseTests, FindNicknameDoesNotExist)
+TEST_F(ClientDatabaseTests, NicknameDoesNotExist)
 {
     unique_client1->SetNickname("test1");
     unique_client2->SetNickname("test2");
@@ -168,6 +181,24 @@ TEST_F(ClientDatabaseTests, FindNicknameDoesNotExist)
     client_database->AddClient(std::move(unique_client3));
 
     std::string nickname_to_find("none");
-    auto client = client_database->Find(nickname_to_find);
+    auto client = client_database->GetClient(nickname_to_find);
     ASSERT_EQ(client, std::nullopt);
+}
+
+/* GetClient by nickname should return both Registered and UnRegistered client */
+TEST_F(ClientDatabaseTests, GetRegisteredAndUnregisteredClient)
+{
+    std::string client_nickname("nickname1");
+    std::string localuser_nickname("nickname2");
+    
+    unique_client1->SetNickname(client_nickname);
+    local_user1->SetNickname(localuser_nickname);
+    client_database->AddClient(std::move(unique_client1));
+    client_database->AddLocalUser(std::move(unique_local_user1));
+
+    auto client = client_database->GetClient(client_nickname);
+    ASSERT_EQ((*client)->GetNickname(), client_nickname);
+    
+    auto local_user = client_database->GetClient(localuser_nickname);
+    ASSERT_EQ((*local_user)->GetNickname(), localuser_nickname);
 }

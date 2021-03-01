@@ -16,7 +16,7 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
         return ;
     }
 
-    auto client_with_same_nickname = client_database->Find(new_nickname);
+    auto client_with_same_nickname = client_database->GetClient(new_nickname);
     if (client_with_same_nickname)
     {
         //TODO send kill command to both users with nickname
@@ -24,7 +24,7 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
         return ;
     }
 
-    auto client = client_database->Find(*old_nickname);
+    auto client = client_database->GetClient(*old_nickname);
     if (client)
         (*client)->SetNickname(new_nickname);
     else
@@ -36,7 +36,7 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
 static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
     std::shared_ptr<IClient> client, const std::string &nickname) -> void
 {
-    auto client_with_nickname = client_database->Find(nickname);
+    auto client_with_nickname = client_database->GetClient(nickname);
 
     if (client_with_nickname)
     {

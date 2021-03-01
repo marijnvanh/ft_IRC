@@ -45,14 +45,6 @@ auto ClientDatabase::PollClients(std::function<void(std::shared_ptr<IClient>, st
     }
 }
 
-auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient>
-{
-    auto client = clients_.find(uuid);
-    if (client == clients_.end())
-        throw ClientNotFound();
-    return client->second;
-}
-
 auto ClientDatabase::SendAll() -> void
 {
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
@@ -67,17 +59,6 @@ auto ClientDatabase::SendAll() -> void
             clients_.erase(it->first);
         }
     }
-}
-
-auto ClientDatabase::Find(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>>
-{
-    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
-    {
-        ++next_it;
-        if (it->second->GetNickname() == nickname)
-            return std::optional<std::shared_ptr<IClient>>(it->second);
-    }
-    return std::nullopt;
 }
 
 auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> void
@@ -139,6 +120,34 @@ auto ClientDatabase::AddServer(std::shared_ptr<IServer> new_server) -> void
         throw ClientDatabase::DuplicateClient();
 
     servers_.insert(std::make_pair(new_server->GetNickname(), new_server));
+}
+
+auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient>
+{
+    auto client = clients_.find(uuid);
+    if (client == clients_.end())
+        throw ClientNotFound();
+    return client->second;
+}
+
+auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>>
+{
+    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
+    {
+        ++next_it;
+        if (it->second->GetNickname() == nickname)
+            return std::optional<std::shared_ptr<IClient>>(it->second);
+    }
+
+    auto local_user = local_users_.find(nickname);
+    if (local_user != local_users_.end())
+        return std::optional<std::shared_ptr<IClient>>(local_user->second);
+    
+    auto remote_user = remote_users_.find(nickname);
+    if (remote_user != remote_users_.end())
+        return std::optional<std::shared_ptr<IClient>>(remote_user->second);
+
+    return std::nullopt;
 }
 
 //TODO server name ?

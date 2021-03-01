@@ -2,7 +2,8 @@
 
 auto PingPongHandler(std::shared_ptr<IClientDatabase> client_database, Message message) -> void
 {
-    auto client = client_database->GetClient(message.GetUUID());
+    (void)client_database;
+    auto client = message.GetClient();
     
     client->Push("pong");
 }

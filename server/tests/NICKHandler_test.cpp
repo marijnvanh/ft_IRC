@@ -80,7 +80,7 @@ TEST_F(NICKFromUserTests, SuccessTest)
         .WillOnce(ReturnRef(message_params));
     message_params.push_back("new_nickname");
 
-    EXPECT_CALL(*mock_client_database, Find(_))
+    EXPECT_CALL(*mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::nullopt));
 
     NICKHandler(mock_client_database_shared, message1);
@@ -128,8 +128,9 @@ TEST_F(NICKFromServerTests, SuccessTest)
         .WillOnce(Return(std::optional<std::string>("old_nickname")));
 
     /* Set ClientDatabase expectations */
-    EXPECT_CALL(*mock_client_database, Find(_))
-        .WillOnce(Return(std::nullopt))
+    EXPECT_CALL(*mock_client_database, GetClient("new_nickname"))
+        .WillOnce(Return(std::nullopt));
+    EXPECT_CALL(*mock_client_database, GetClient("old_nickname"))
         .WillOnce(Return(user_client_shared1));
 
     /* Init client with old_nickname */

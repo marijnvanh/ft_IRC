@@ -19,7 +19,7 @@ auto KILLHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &mes
 	auto nickname = params[NICKNAME_PARAM];
 
 	// Attempt to KILL all clients with the given username.
-	if (auto otherClient = client_database->Find(nickname))
+	if (auto otherClient = client_database->GetClient(nickname))
 	{
 		if ((*otherClient)->GetType() == IClient::Type::kServer)
 		{
