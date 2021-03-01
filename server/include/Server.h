@@ -10,8 +10,7 @@
 #include "IServer.h"
 #include "IIOHandler.h"
 
-
-class Server : public Client, IServer
+class Server : public IServer, Client
 {
     public:
 

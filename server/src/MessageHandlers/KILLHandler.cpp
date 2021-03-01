@@ -5,12 +5,12 @@
 
 auto KILLHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IRC::Mutex<IClient>> client = message.GetClient();
+    std::shared_ptr<IClient> client = message.GetClient();
 
 	auto params = message.GetParams();
 	if (params.size() < 2)
 	{
-		client->Take()->Push(std::to_string(ERR_NEEDMOREPARAMS));
+		client->Push(std::to_string(ERR_NEEDMOREPARAMS));
 		return;
 	}
 
@@ -19,11 +19,11 @@ auto KILLHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &mes
 	auto nickname = params[NICKNAME_PARAM];
 
 	// Attempt to KILL all clients with the given username.
-	if (auto otherClient = client_database->Find(nickname))
+	if (auto otherClient = client_database->GetClient(nickname))
 	{
-		if ((*otherClient)->Take()->GetType() == IClient::Type::kServer)
+		if ((*otherClient)->GetType() == IClient::Type::kServer)
 		{
-			client->Take()->Push(std::to_string(ERR_CANTKILLSERVER));
+			client->Push(std::to_string(ERR_CANTKILLSERVER));
 			return;
 		}
 
@@ -33,7 +33,7 @@ auto KILLHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &mes
 	else
 	{
 		// TODO: Forward to other known servers?
-		client->Take()->Push(std::to_string(ERR_NOSUCHNICK));
+		client->Push(std::to_string(ERR_NOSUCHNICK));
 		return;
 	}
 }

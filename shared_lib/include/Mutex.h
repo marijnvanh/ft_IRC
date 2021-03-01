@@ -25,6 +25,8 @@ namespace IRC {
             return _ref;
         }
 
+        auto Get() -> T* { return _ref; }
+
         MutexHandle(MutexHandle&& other) {
             _ref = other._ref;
             _lock = other._lock;

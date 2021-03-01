@@ -6,7 +6,6 @@
 #include <optional>
 
 #include "IClient.h"
-#include "Mutex.h"
 
 class IMessage
 {
@@ -18,7 +17,7 @@ public:
     virtual auto GetParams() const noexcept -> const std::vector<std::string> & = 0;
     virtual auto GetServername() const noexcept -> const std::optional<std::string> = 0;
     virtual auto GetNickname() const noexcept -> const std::optional<std::string> = 0;
-    virtual auto GetClient() const noexcept -> std::shared_ptr<IRC::Mutex<IClient>> = 0;
+    virtual auto GetClient() const noexcept -> std::shared_ptr<IClient> = 0;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const IMessage &message)

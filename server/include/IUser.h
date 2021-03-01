@@ -7,6 +7,10 @@ class IUser : public virtual IClient
 {
     public:
 
+    IUser()
+    {
+        state_ = IClient::State::kRegistered;
+    };
     virtual ~IUser() {};
 
     private:

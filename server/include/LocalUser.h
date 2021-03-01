@@ -5,7 +5,7 @@
 #include "User.h"
 #include "ILocalUser.h"
 
-class LocalUser : public Client, User, ILocalUser
+class LocalUser : public ILocalUser, Client, User
 {
     public:
 

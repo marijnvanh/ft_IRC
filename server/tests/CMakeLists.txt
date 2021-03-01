@@ -20,6 +20,7 @@ package_add_test( Client_test
 package_add_test( ClientDatabase_test
 ClientDatabase_test.cpp
 ../src/ClientDatabase.cpp
+../src/Client.cpp
 )
 package_add_test( PASSHandler_test
 PASSHandler_test.cpp
@@ -28,12 +29,10 @@ PASSHandler_test.cpp
 package_add_test( NICKHandler_test
 NICKHandler_test.cpp
 ../src/MessageHandlers/NICKHandler.cpp
-../src/RegisterUser.cpp
 )
 package_add_test( USERHandler_test
 USERHandler_test.cpp
 ../src/MessageHandlers/USERHandler.cpp
-../src/RegisterUser.cpp
 )
 package_add_test( Server_test
     Server_test.cpp

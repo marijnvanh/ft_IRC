@@ -7,6 +7,10 @@ class ILocalUser : public virtual IUser
 {
     public:
 
+    ILocalUser()
+    {
+        type_ = IClient::Type::kLocalUser;
+    };
     virtual ~ILocalUser() {};
 
     private:

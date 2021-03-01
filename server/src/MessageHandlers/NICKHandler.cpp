@@ -1,10 +1,9 @@
 #include "MessageHandlers/NICKHandler.h"
 #include "Numerics.h"
-#include "RegisterUser.h"
 
 //TODO handle server side message
 static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IRC::Mutex<IClient>> server, IMessage &message,
+    std::shared_ptr<IClient> server, IMessage &message,
     const std::string &new_nickname) -> void
 {
     (void)server;
@@ -13,11 +12,11 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
     if (old_nickname == std::nullopt)
     {
         //TODO respond with error, maybe ERR_NONICKNAMEGIVEN ?
-        server->Take()->Push(std::to_string(ERR_NONICKNAMEGIVEN));
+        server->Push(std::to_string(ERR_NONICKNAMEGIVEN));
         return ;
     }
 
-    auto client_with_same_nickname = client_database->Find(new_nickname);
+    auto client_with_same_nickname = client_database->GetClient(new_nickname);
     if (client_with_same_nickname)
     {
         //TODO send kill command to both users with nickname
@@ -25,9 +24,9 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
         return ;
     }
 
-    auto client = client_database->Find(*old_nickname);
+    auto client = client_database->GetClient(*old_nickname);
     if (client)
-        (*client)->Take()->SetNickname(new_nickname);
+        (*client)->SetNickname(new_nickname);
     else
     {
         ; //TODO What do we do if we do not have that client somehow?
@@ -35,44 +34,50 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
 }
 
 static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IRC::Mutex<IClient>> client, const std::string &nickname) -> void
+    std::shared_ptr<IClient> client, const std::string &nickname) -> void
 {
-    auto client_with_nickname = client_database->Find(nickname);
+    auto client_with_nickname = client_database->GetClient(nickname);
 
     if (client_with_nickname)
     {
-        client->Take()->Push(std::to_string(ERR_NICKNAMEINUSE));
+        client->Push(std::to_string(ERR_NICKNAMEINUSE));
         return ;
     }
 
-    if (client->Take()->GetNickname() == nickname)
+    if (client->GetNickname() == nickname)
     {
-        client->Take()->Push(std::to_string(ERR_NICKCOLLISION));
+        client->Push(std::to_string(ERR_NICKCOLLISION));
         return ;
     }
-    client->Take()->SetNickname(nickname);
+    client->SetNickname(nickname);
 
-    if (client->Take()->GetState() == IClient::State::kRegistered)
+    if (client->GetState() == IClient::State::kRegistered)
         ;//TODO Inform all connected clients that nickname has changed
-    else if (client->Take()->GetState() == IClient::State::kUnRegistered)
-        RegisterUser(client_database, client);
+    else if (client->GetState() == IClient::State::kUnRegistered)
+    {
+        try {
+            client_database->RegisterLocalUser(client->GetUUID());
+        } catch (IClientDatabase::UnableToRegister &ex) {
+            ;
+        }
+    }
 }
 
 auto NICKHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IRC::Mutex<IClient>> client = message.GetClient();
+    std::shared_ptr<IClient> client = message.GetClient();
 
     auto params = message.GetParams();
     if (params.size() == 0)
     {
-        client->Take()->Push(std::to_string(ERR_NONICKNAMEGIVEN));
+        client->Push(std::to_string(ERR_NONICKNAMEGIVEN));
         return ;
     }
 
     auto nickname = params.front();
     //TODO validate nickname
 
-    if (client->Take()->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kServer)
         HandleNICKFromServer(client_database, client, message, nickname);
     else
         HandleNICKFromUser(client_database, client, nickname);
