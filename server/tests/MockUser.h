@@ -6,7 +6,7 @@
 #include "MockClient.h"
 #include "IUser.h"
 
-class MockUser : public IUser, public MockClient {
+class MockUser : public virtual IUser, public MockClient {
     public:
 };
 
