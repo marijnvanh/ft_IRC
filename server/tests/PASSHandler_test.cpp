@@ -13,7 +13,7 @@ using ::testing::_;
 class PASSTests : public ::testing::Test
 {
     public:
-    std::shared_ptr<IRC::Mutex<IClient>> shared_client1;
+    std::shared_ptr<IClient> shared_client1;
     std::unique_ptr<MockClient> unique_client1;
     MockClient *client1;
     MockMessage message1;
@@ -23,7 +23,7 @@ class PASSTests : public ::testing::Test
     {
         unique_client1 = std::make_unique<MockClient>();
         client1 = unique_client1.get();
-        shared_client1 = std::make_shared<IRC::Mutex<IClient>>(std::move(unique_client1));
+        shared_client1 = std::move(unique_client1);
     }
 };
 

@@ -14,7 +14,7 @@ using ::testing::_;
 class NICKFromUserTests : public ::testing::Test
 {
     public:
-    std::shared_ptr<IRC::Mutex<IClient>> mock_client_shared1;
+    std::shared_ptr<IClient> mock_client_shared1;
     std::unique_ptr<MockClient> mock_client_unique1;
     MockClient *mock_client1;
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
@@ -29,7 +29,7 @@ class NICKFromUserTests : public ::testing::Test
     {
         mock_client_unique1 = std::make_unique<MockClient>();
         mock_client1 = mock_client_unique1.get();
-        mock_client_shared1 = std::make_shared<IRC::Mutex<IClient>>(std::move(mock_client_unique1));
+        mock_client_shared1 = std::move(mock_client_unique1);
 
         mock_client_database_shared = std::make_shared<MockClientDatabase>();
         mock_client_database = mock_client_database_shared.get();
@@ -42,10 +42,10 @@ class NICKFromUserTests : public ::testing::Test
 class NICKFromServerTests : public ::testing::Test
 {
     public:
-    std::shared_ptr<IRC::Mutex<IClient>> server_client_shared1;
+    std::shared_ptr<IClient> server_client_shared1;
     std::unique_ptr<MockClient> server_client_unique1;
     MockClient *server_client1;
-    std::shared_ptr<IRC::Mutex<IClient>> user_client_shared1;
+    std::shared_ptr<IClient> user_client_shared1;
     std::unique_ptr<MockClient> user_client_unique1;
     MockClient *user_client1;
 
@@ -59,12 +59,12 @@ class NICKFromServerTests : public ::testing::Test
     {
         server_client_unique1 = std::make_unique<MockClient>();
         server_client1 = server_client_unique1.get();
-        server_client_shared1 = std::make_shared<IRC::Mutex<IClient>>(std::move(server_client_unique1));
+        server_client_shared1 = std::move(server_client_unique1);
         server_client1->SetType(IClient::Type::kServer);
 
         user_client_unique1 = std::make_unique<MockClient>();
         user_client1 = user_client_unique1.get();
-        user_client_shared1 = std::make_shared<IRC::Mutex<IClient>>(std::move(user_client_unique1));
+        user_client_shared1 = std::move(user_client_unique1);
 
         mock_client_database_shared = std::make_shared<MockClientDatabase>();
         mock_client_database = mock_client_database_shared.get();

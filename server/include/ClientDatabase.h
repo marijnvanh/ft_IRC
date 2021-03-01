@@ -44,7 +44,7 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param message_handler 
      */
-    auto PollClients(std::function<void(std::shared_ptr<IRC::Mutex<IClient>>, std::string)> message_handler) -> void;
+    auto PollClients(std::function<void(std::shared_ptr<IClient>, std::string)> message_handler) -> void;
 
     /**
      * @brief Empty all client send queus
@@ -57,9 +57,9 @@ class ClientDatabase : public IClientDatabase
      * 
      * @exception ClientNotFound if client uuid is not in the database
      * @param uuid 
-     * @return std::shared_ptr<IRC::Mutex<IClient>> 
+     * @return std::shared_ptr<IClient> 
      */
-    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>> override;
+    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> override;
     auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> override;
 
     /**
@@ -68,10 +68,10 @@ class ClientDatabase : public IClientDatabase
      * @param nickname 
      * @return is a client if client with nickname is found
      */
-    auto Find(const std::string &nickname) -> std::optional<std::shared_ptr<IRC::Mutex<IClient>>> override;
+    auto Find(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> override;
 
     private:
-    IRC::Mutex<std::unordered_map<IRC::UUID, std::shared_ptr<IRC::Mutex<IClient>>>> clients_;
+    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
     std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
     std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;
     std::unordered_map<std::string, std::shared_ptr<IServer>> servers_;

@@ -53,7 +53,7 @@ TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 {
     client_database->AddClient(std::move(unique_client1));
 
-    ASSERT_EQ(client_database->GetClient(uuid1)->Take()->GetUUID(), uuid1);
+    ASSERT_EQ(client_database->GetClient(uuid1)->GetUUID(), uuid1);
 
     client_database->RemoveClient(uuid1);
 
@@ -93,8 +93,8 @@ TEST_F(ClientDatabaseTests, PollClients)
     };
 
     int callback_count = 0;
-    client_database->PollClients([&callback_count, &expectations](std::shared_ptr<IRC::Mutex<IClient>> client, std::string message) {
-        EXPECT_EQ(expectations[client->Take()->GetUUID()], message);
+    client_database->PollClients([&callback_count, &expectations](std::shared_ptr<IClient> client, std::string message) {
+        EXPECT_EQ(expectations[client->GetUUID()], message);
         callback_count += 1;
     });
 
@@ -109,7 +109,7 @@ TEST_F(ClientDatabaseTests, PollDisconnectedClient)
     EXPECT_CALL(*client1, Receive())
         .WillOnce(Throw(IClient::Disconnected("test")));
 
-    client_database->PollClients([](std::shared_ptr<IRC::Mutex<IClient>> client, std::string message) {
+    client_database->PollClients([](std::shared_ptr<IClient> client, std::string message) {
         (void)client;
         (void)message;
     });
@@ -155,7 +155,7 @@ TEST_F(ClientDatabaseTests, FindNickname)
 
     std::string nickname_to_find("test2");
     auto client = client_database->Find(nickname_to_find);
-    ASSERT_EQ((*client)->Take()->GetNickname(), nickname_to_find);
+    ASSERT_EQ((*client)->GetNickname(), nickname_to_find);
 }
 
 TEST_F(ClientDatabaseTests, FindNicknameDoesNotExist)

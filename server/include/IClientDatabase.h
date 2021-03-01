@@ -6,7 +6,6 @@
 #include <optional>
 
 #include "IClient.h"
-#include "Mutex.h"
 #include "UUID.h"
 #include "ILocalUser.h"
 #include "IRemoteUser.h"
@@ -20,8 +19,8 @@ class IClientDatabase
 
     virtual auto AddClient(std::unique_ptr<IClient> new_client) -> void = 0;
     virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
-    virtual auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IRC::Mutex<IClient>> = 0;
-    virtual auto Find(const std::string &nickname) -> std::optional<std::shared_ptr<IRC::Mutex<IClient>>> = 0;
+    virtual auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> = 0;
+    virtual auto Find(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> = 0;
     virtual auto AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void = 0;
     virtual auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void = 0;
     virtual auto AddServer(std::shared_ptr<IServer> new_server) -> void = 0;
@@ -41,10 +40,10 @@ class IClientDatabase
         DuplicateClient() : std::runtime_error("Client already in database") {}
     };
 
-    class UnAbleToRegister : public std::runtime_error
+    class UnableToRegister : public std::runtime_error
     {
     public:
-        UnAbleToRegister(std::string err) : std::runtime_error(err) {}
+        UnableToRegister(std::string err) : std::runtime_error(err) {}
     };
 };
 

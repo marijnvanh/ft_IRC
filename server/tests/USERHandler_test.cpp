@@ -14,7 +14,7 @@ using ::testing::_;
 class USERFromUserTests : public ::testing::Test
 {
     public:
-    std::shared_ptr<IRC::Mutex<IClient>> mock_client_shared1;
+    std::shared_ptr<IClient> mock_client_shared1;
     std::unique_ptr<MockClient> mock_client_unique1;
     MockClient *mock_client1;
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
@@ -30,7 +30,7 @@ class USERFromUserTests : public ::testing::Test
 
         mock_client_unique1 = std::make_unique<MockClient>();
         mock_client1 = mock_client_unique1.get();
-        mock_client_shared1 = std::make_shared<IRC::Mutex<IClient>>(std::move(mock_client_unique1));
+        mock_client_shared1 = std::move(mock_client_unique1);
 
         mock_client_database_shared = std::make_shared<MockClientDatabase>();
         mock_client_database = mock_client_database_shared.get();
