@@ -7,48 +7,6 @@
 
 #include "IUser.h"
 
-class IChannel
-{
-
-public:
-
-    enum ChannelType
-    {
-        kLocal = 0,
-        kNetwork = 1
-    };
-
-	virtual ~IChannel();
-
-	/**
-     * @brief Push a message on to the send queue of all connected users.
-     * 
-     * @param irc_message The message to be send to all connected users.
-     */
-    virtual auto PushToAll(std::string irc_message) -> void = 0;
-
-    virtual auto RemoveUser(std::string nickname) -> void = 0;
-    virtual auto AddUser(std::unique_ptr<IUser> new_user) -> void = 0;
-
-	virtual auto SetName(std::string new_name) -> void { name_ = new_name; }
-	virtual auto SetMode(ChannelMode new_mode) -> void { mode_ = new_mode; }
-	virtual auto SetType(ChannelType new_type) -> void { type_ = new_type; }
-
-	virtual auto GetName() const -> std::string { return name_; }
-	virtual auto GetMode() const -> ChannelMode { return mode_; }
-	virtual auto GetType() const -> ChannelType { return type_; }
-
-	virtual auto ClearMode() -> void { mode_ = ChannelMode::None; }
-	virtual auto HasMode(ChannelMode mode) -> bool { return mode_ & mode; }
-
-protected:
-	std::string name_;
-
-	ChannelMode mode_;
-	ChannelType type_;
-
-};
-
 enum ChannelMode : uint32_t
 {
 	None				= 1 << 0,
@@ -71,5 +29,48 @@ inline ChannelMode& operator |= (ChannelMode& lhs, ChannelMode rhs)
     return lhs;
 }
 
+class IChannel
+{
+
+public:
+
+    enum ChannelType
+    {
+        kLocal = 0,
+        kNetwork = 1
+    };
+
+	virtual ~IChannel() {};
+
+	/**
+     * @brief Push a message on to the send queue of all connected users.
+     * 
+     * @param irc_message The message to be send to all connected users.
+     */
+    virtual auto PushToAll(std::string irc_message) -> void = 0;
+    virtual auto PushToLocal(std::string irc_message) -> void = 0;
+    virtual auto PushToRemote(std::string irc_message) -> void = 0;
+
+    virtual auto RemoveUser(std::string nickname) -> void = 0;
+    virtual auto AddUser(std::shared_ptr<IUser> new_user) -> void = 0;
+
+	virtual auto SetName(std::string new_name) -> void { name_ = new_name; }
+	virtual auto SetMode(ChannelMode new_mode) -> void { mode_ = new_mode; }
+	virtual auto SetType(ChannelType new_type) -> void { type_ = new_type; }
+
+	virtual auto GetName() const -> std::string { return name_; }
+	virtual auto GetMode() const -> ChannelMode { return mode_; }
+	virtual auto GetType() const -> ChannelType { return type_; }
+
+	virtual auto ClearMode() -> void { mode_ = ChannelMode::None; }
+	virtual auto HasMode(ChannelMode mode) -> bool { return mode_ & mode; }
+
+protected:
+	std::string name_;
+
+	ChannelMode mode_;
+	ChannelType type_;
+
+};
 
 #endif // __I_CHANNEL_H__
