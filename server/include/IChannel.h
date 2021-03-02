@@ -22,6 +22,11 @@ inline ChannelMode operator | (ChannelMode lhs, ChannelMode rhs)
 {
 	return static_cast<ChannelMode>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
 }
+
+inline ChannelMode operator & (ChannelMode lhs, ChannelMode rhs)
+{
+	return static_cast<ChannelMode>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
     
 inline ChannelMode& operator |= (ChannelMode& lhs, ChannelMode rhs)
 {
@@ -61,6 +66,8 @@ public:
 	virtual auto GetName() const -> std::string { return name_; }
 	virtual auto GetMode() const -> ChannelMode { return mode_; }
 	virtual auto GetType() const -> ChannelType { return type_; }
+
+	virtual auto HasMode(ChannelMode mode) const -> bool { return mode_ & mode; }
 
 	virtual auto ClearMode() -> void { mode_ = ChannelMode::None; }
 	virtual auto HasMode(ChannelMode mode) -> bool { return mode_ & mode; }
