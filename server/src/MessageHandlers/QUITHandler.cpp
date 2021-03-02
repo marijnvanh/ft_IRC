@@ -48,7 +48,6 @@ static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_databas
 
 }
 
-#include <iostream>
 auto QUITHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
     auto client = message.GetClient();
