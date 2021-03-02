@@ -31,7 +31,10 @@ static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_databas
 {
     auto nickname = message.GetNickname();
     if (nickname == std::nullopt)
-        return ; //TODO error
+    {
+        message.GetClient()->Push(std::to_string(ERR_NONICKNAMEGIVEN)); //TODO improve response
+        return ;
+    }
     //TODO validate nickname    
 
     auto quit_message = GetQuitMessage(message);
@@ -44,8 +47,10 @@ static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_databas
         client_database->RemoveUser(*nickname);
     }
     else
-        ; //TODO error no such client
-
+    {
+        message.GetClient()->Push(std::to_string(ERR_NOSUCHNICK)); //TODO improve response
+        return ;
+    }
 }
 
 auto QUITHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
