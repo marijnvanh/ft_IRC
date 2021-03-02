@@ -38,6 +38,8 @@ class ClientDatabase : public IClientDatabase
      * @param uuid 
      */
     auto RemoveClient(IRC::UUID uuid) -> void override;
+    auto RemoveUser(const std::string &nickname) -> void override;
+    auto RemoveServer(const std::string &server_name) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message

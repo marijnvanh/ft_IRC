@@ -13,17 +13,17 @@ class IClient
 
     enum Type
     {
-        kUnInitialized = 0,
+        kUnInitialized = 0, // Maybe this should be kUnRegistered
         kLocalUser,
         kRemoteUser,
         kServer
     };
 
+    //TODO move UnRegistered state to Type?
     enum State
     {
         kUnRegistered = 0,
-        kRegistered,
-        kDisconnected
+        kRegistered
     };
 
     IClient() : state_(IClient::State::kUnRegistered), type_(IClient::Type::kUnInitialized)

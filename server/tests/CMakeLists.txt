@@ -1,5 +1,6 @@
 macro(package_add_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
+    target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mocks)
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include/MessageHandlers)
     target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib)
@@ -23,15 +24,15 @@ ClientDatabase_test.cpp
 ../src/Client.cpp
 )
 package_add_test( PASSHandler_test
-PASSHandler_test.cpp
+./HandlerTests/PASSHandler_test.cpp
 ../src/MessageHandlers/PASSHandler.cpp
 )
 package_add_test( NICKHandler_test
-NICKHandler_test.cpp
+./HandlerTests/NICKHandler_test.cpp
 ../src/MessageHandlers/NICKHandler.cpp
 )
 package_add_test( USERHandler_test
-USERHandler_test.cpp
+./HandlerTests/USERHandler_test.cpp
 ../src/MessageHandlers/USERHandler.cpp
 )
 package_add_test( Server_test
@@ -41,4 +42,8 @@ package_add_test( Server_test
 package_add_test( User_test
     User_test.cpp
     ../src/Client.cpp
+)
+package_add_test( QUITHandler_test
+    ./HandlerTests/QUITHandler_test.cpp
+    ../src/MessageHandlers/QUITHandler.cpp
 )

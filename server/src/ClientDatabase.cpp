@@ -26,6 +26,17 @@ auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
     clients_.erase(uuid);
 }
 
+auto ClientDatabase::RemoveUser(const std::string &nickname) -> void
+{
+    local_users_.erase(nickname);
+    remote_users_.erase(nickname);
+}
+
+auto ClientDatabase::RemoveServer(const std::string &server_name) -> void
+{
+    servers_.erase(server_name);
+}
+
 auto ClientDatabase::PollClients(std::function<void(std::shared_ptr<IClient>, std::string)> message_handler) -> void
 {
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)

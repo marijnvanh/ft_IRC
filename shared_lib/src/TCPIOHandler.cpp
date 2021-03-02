@@ -9,6 +9,7 @@ TCPIOHandler::TCPIOHandler(std::shared_ptr<TCP::Socket> socket) : socket_(socket
 
 TCPIOHandler::~TCPIOHandler()
 {
+    socket_->Close();
 }
 
 auto TCPIOHandler::Send(const std::string data) -> void
@@ -32,7 +33,7 @@ auto TCPIOHandler::Send(const std::string data) -> void
 }
 
 auto SpliceToCRLF(std::string &buf) -> std::optional<std::string> {
-    // FIXME: this performs pretty badly, but the logic should be as simple as this function exposes.
+    //TODO FIXME: this performs pretty badly, but the logic should be as simple as this function exposes.
     auto f = buf.find("\r\n");
     if (f == std::string::npos) {
         return std::nullopt;
