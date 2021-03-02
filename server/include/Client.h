@@ -8,13 +8,14 @@
 
 #include "IClient.h"
 #include "IIOHandler.h"
+#include "IServer.h"
 
 
 class Client : public virtual IClient
 {
     public:
 
-    Client(std::unique_ptr<IRC::IIOHandler> io_handler);
+    Client(std::unique_ptr<IRC::IIOHandler> io_handler, std::shared_ptr<IServer> server);
     ~Client();
 
     auto Push(std::string irc_message) -> void override;
@@ -45,6 +46,7 @@ class Client : public virtual IClient
     private:
     std::queue<std::string> outgoing_msg_queue_;
     std::unique_ptr<IRC::IIOHandler> io_handler_;
+    std::shared_ptr<IServer> server_;
     IRC::UUID uuid_;
 };
 

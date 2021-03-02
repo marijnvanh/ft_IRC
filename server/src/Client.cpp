@@ -1,8 +1,9 @@
 #include "Client.h"
 #include <iostream>
 
-Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
+Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler, std::shared_ptr<IServer> server) :
     io_handler_(std::move(io_handler)),
+    server_(server),
     uuid_(IRC::UUIDGenerator::GetInstance().Generate())
 
 {
