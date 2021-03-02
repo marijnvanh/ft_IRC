@@ -39,18 +39,7 @@ auto ChannelDatabase::AddChannel(std::shared_ptr<IChannel> new_channel) -> void
 	}
 }
 
-auto ChannelDatabase::GetChannel(std::string channel_name) -> std::shared_ptr<IChannel>
-{
-    auto channel = channels_.find(channel_name);
-    if (channel == channels_.end())
-	{
-		throw ChannelNotFound();
-	}
-
-    return channel->second;
-}
-
-auto ChannelDatabase::FindChannel(const std::string &channel_name) -> std::optional<std::shared_ptr<IChannel>>
+auto ChannelDatabase::GetChannel(std::string channel_name) -> std::optional<std::shared_ptr<IChannel>>
 {
     for (auto it = channels_.begin(), next_it = it; it != channels_.end(); it = next_it)
     {
