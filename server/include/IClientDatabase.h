@@ -17,7 +17,7 @@ class IClientDatabase
 
     virtual ~IClientDatabase() {};
 
-    virtual auto AddClient(std::unique_ptr<IClient> new_client) -> void = 0;
+    virtual auto AddClient(std::unique_ptr<IClient> new_client) -> std::shared_ptr<IClient> = 0;
     virtual auto AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void = 0;
     virtual auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void = 0;
     virtual auto AddServer(std::shared_ptr<IServer> new_server) -> void = 0;

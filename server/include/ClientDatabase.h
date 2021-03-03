@@ -18,7 +18,7 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param new_client 
      */
-    auto AddClient(std::unique_ptr<IClient> new_client) -> void override;
+    auto AddClient(std::unique_ptr<IClient> new_client) -> std::shared_ptr<IClient> override;
     auto AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void override;
     auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void override;
     auto AddServer(std::shared_ptr<IServer> new_server) -> void override;
