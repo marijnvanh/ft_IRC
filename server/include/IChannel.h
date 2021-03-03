@@ -64,6 +64,8 @@ public:
     virtual auto RemoveUser(std::string nickname) -> void = 0;
     virtual auto AddUser(std::shared_ptr<IUser> new_user) -> void = 0;
 
+	virtual auto CountUsers() -> uint32_t = 0;
+
 	virtual auto SetName(std::string new_name) -> void { name_ = new_name; }
 	virtual auto SetMode(ChannelMode new_mode) -> void { mode_ = new_mode; }
 	virtual auto SetType(ChannelType new_type) -> void { type_ = new_type; }

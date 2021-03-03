@@ -53,3 +53,8 @@ auto Channel::AddUser(std::shared_ptr<IUser> new_user) -> void
     	remote_users_.insert(std::make_pair(nickname, std::dynamic_pointer_cast<IRemoteUser>(new_user)));	
 	}
 }
+
+auto Channel::CountUsers() -> uint32_t
+{
+	return (local_users_.size() + remote_users_.size());
+}

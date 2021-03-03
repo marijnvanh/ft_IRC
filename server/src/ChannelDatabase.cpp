@@ -14,6 +14,18 @@ auto ChannelDatabase::RemoveChannel(std::string channel_name) -> void
     channels_.erase(channel_name);
 }
 
+auto ChannelDatabase::DeleteEmptyChannels() -> void
+{
+    for (auto it = channels_.begin(), next_it = it; it != channels_.end(); it = next_it)
+    {
+        ++next_it;
+        if (it->second->CountUsers() == 0)
+		{
+			this->channels_.erase(it->first);
+		}
+    }	
+}
+
 auto ChannelDatabase::CreateChannel(std::string channel_name,
 	ChannelType type = ChannelType::kLocal,
 	ChannelMode mode = ChannelMode::None) -> std::shared_ptr<IChannel>

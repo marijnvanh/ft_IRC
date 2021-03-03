@@ -14,6 +14,8 @@ public:
 
     virtual ~IChannelDatabase() {};
 
+	virtual auto DeleteEmptyChannels() -> void = 0;
+
     virtual auto RemoveChannel(std::string channel_name) -> void = 0;
     virtual auto AddChannel(std::shared_ptr<IChannel> new_channel) -> void = 0;
     virtual auto CreateChannel(std::string channel_name, ChannelType type, ChannelMode mode) -> std::shared_ptr<IChannel> = 0;

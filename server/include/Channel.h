@@ -18,6 +18,8 @@ public:
     auto RemoveUser(std::string nickname) -> void override;
     auto AddUser(std::shared_ptr<IUser> new_user) -> void override;
 
+	auto CountUsers() -> uint32_t override;
+
 private:
 	std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
 	std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;

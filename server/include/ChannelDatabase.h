@@ -15,6 +15,8 @@ public:
 	ChannelDatabase();
 	~ChannelDatabase();
 
+	auto DeleteEmptyChannels() -> void override;
+
     auto RemoveChannel(std::string channel_name) -> void override;
     auto AddChannel(std::shared_ptr<IChannel> new_channel) -> void override;
 	auto CreateChannel(std::string channel_name, ChannelType type, ChannelMode mode) -> std::shared_ptr<IChannel> override;
