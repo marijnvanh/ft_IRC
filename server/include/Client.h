@@ -31,6 +31,8 @@ class Client : public virtual IClient
 
         io_handler_ = std::move(other.io_handler_);
         outgoing_msg_queue_ = std::move(other.outgoing_msg_queue_);
+        server_ = std::move(other.server_);
+        uuid_ = other.uuid_;
     };
 
     Client (Client& other) = delete;
