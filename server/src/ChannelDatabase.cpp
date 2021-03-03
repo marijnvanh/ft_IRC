@@ -3,8 +3,7 @@
 #include "Channel.h"
 #include "ChannelDatabase.h"
 
-ChannelDatabase::ChannelDatabase() :
-    channels_(std::unordered_map<std::string, std::shared_ptr<IChannel>>())
+ChannelDatabase::ChannelDatabase()
 {}
 
 ChannelDatabase::~ChannelDatabase()
@@ -28,10 +27,9 @@ auto ChannelDatabase::CreateChannel(std::string channel_name,
 
 auto ChannelDatabase::AddChannel(std::shared_ptr<IChannel> new_channel) -> void
 {
-    auto channel = new_channel;
-    auto channel_name = channel->GetName();
+    auto channel_name = new_channel->GetName();
 
-    auto ret = channels_.insert(std::make_pair(channel_name, channel));
+    auto ret = channels_.insert(std::make_pair(channel_name, new_channel));
 
     if (ret.second == false)
 	{
