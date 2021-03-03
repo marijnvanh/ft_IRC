@@ -73,7 +73,7 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> void
             throw ClientDatabase::UnableToRegister("Nickname or Username not set");
 
         auto local_user = std::make_shared<LocalUser>(std::move(*client));
-        local_users_.insert(std::make_pair(local_user->GetNickname(), local_user));
+        local_users_.insert(std::make_pair(uuid, local_user));
 
         RemoveClient(uuid);
     } catch (ClientDatabase::ClientNotFound &ex) {
@@ -90,7 +90,7 @@ auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> void
             throw ClientDatabase::UnableToRegister("Client not in a UnRegistered state");
 
         auto server = std::make_shared<Server>(std::move(*client));
-        servers_.insert(std::make_pair(server->GetNickname(), server));
+        servers_.insert(std::make_pair(uuid, server));
 
         RemoveClient(uuid);
     } catch (ClientDatabase::ClientNotFound &ex) {
@@ -100,26 +100,26 @@ auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> void
 
 auto ClientDatabase::AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void
 {
-    if (local_users_.find(new_localuser->GetNickname()) != local_users_.end())
+    if (local_users_.find(new_localuser->GetUUID()) != local_users_.end())
         throw ClientDatabase::DuplicateClient();
 
-    local_users_.insert(std::make_pair(new_localuser->GetNickname(), new_localuser));
+    local_users_.insert(std::make_pair(new_localuser->GetUUID(), new_localuser));
 }
 
 auto ClientDatabase::AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void
 {
-    if (remote_users_.find(new_remoteuser->GetNickname()) != remote_users_.end())
+    if (remote_users_.find(new_remoteuser->GetUUID()) != remote_users_.end())
         throw ClientDatabase::DuplicateClient();
 
-    remote_users_.insert(std::make_pair(new_remoteuser->GetNickname(), new_remoteuser));
+    remote_users_.insert(std::make_pair(new_remoteuser->GetUUID(), new_remoteuser));
 }
 
 auto ClientDatabase::AddServer(std::shared_ptr<IServer> new_server) -> void
 {
-    if (servers_.find(new_server->GetNickname()) != servers_.end())//TODO not by nickname ?
+    if (servers_.find(new_server->GetUUID()) != servers_.end())
         throw ClientDatabase::DuplicateClient();
 
-    servers_.insert(std::make_pair(new_server->GetNickname(), new_server));
+    servers_.insert(std::make_pair(new_server->GetUUID(), new_server));
 }
 
 auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient>
@@ -130,32 +130,39 @@ auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient>
     return client->second;
 }
 
-auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>>
+static auto FindNickname(std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> &clients, const std::string &nickname) ->
+    std::optional<std::shared_ptr<IClient>>
 {
-    for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
+    for (auto it = clients.begin(), next_it = it; it != clients.end(); it = next_it)
     {
         ++next_it;
         if (it->second->GetNickname() == nickname)
             return std::optional<std::shared_ptr<IClient>>(it->second);
     }
+    return std::nullopt;
+}
 
-    auto local_user = local_users_.find(nickname);
-    if (local_user != local_users_.end())
-        return std::optional<std::shared_ptr<IClient>>(local_user->second);
-    
-    auto remote_user = remote_users_.find(nickname);
-    if (remote_user != remote_users_.end())
-        return std::optional<std::shared_ptr<IClient>>(remote_user->second);
-
+auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>>
+{
+    auto client = FindNickname(clients_, nickname);
+    if (client)
+        return client;
+    // client = FindNickname(local_users_, nickname);
+    // if (client)
+    //     return client;
+    // client = FindNickname(remote_users_, nickname);
+    // if (client)
+        return client;
     return std::nullopt;
 }
 
 //TODO server name ?
 auto ClientDatabase::GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>>
 {
-    auto server = servers_.find(server_name);
-    if (server != servers_.end())
-        return std::optional<std::shared_ptr<IServer>>(server->second);
-    else
+    // auto server = servers_.find(server_name);
+    // if (server != servers_.end())
+    //     return std::optional<std::shared_ptr<IServer>>(server->second);
+    // else
+    (void)server_name;
         return std::nullopt;
 }
