@@ -15,14 +15,14 @@ public:
 	auto PushToLocal(std::string irc_message) -> void override;
 	auto PushToRemote(std::string irc_message) -> void override;
 
-    auto RemoveUser(std::string nickname) -> void override;
+    auto RemoveUser(IRC::UUID uuid) -> void override;
     auto AddUser(std::shared_ptr<IUser> new_user) -> void override;
 
 	auto CountUsers() -> uint32_t override;
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
-	std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;
+	std::unordered_map<IRC::UUID, std::shared_ptr<ILocalUser>> local_users_;
+	std::unordered_map<IRC::UUID, std::shared_ptr<IRemoteUser>> remote_users_;
 
 };
 

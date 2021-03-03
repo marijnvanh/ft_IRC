@@ -34,23 +34,23 @@ auto Channel::PushToRemote(std::string irc_message) -> void
 	}
 }
 
-auto Channel::RemoveUser(std::string nickname) -> void
+auto Channel::RemoveUser(IRC::UUID uuid) -> void
 {
-    local_users_.erase(nickname);
-    remote_users_.erase(nickname);
+    local_users_.erase(uuid);
+    remote_users_.erase(uuid);
 }
 
 auto Channel::AddUser(std::shared_ptr<IUser> new_user) -> void
 {
-    auto nickname = new_user->GetNickname();
+    auto uuid = new_user->GetUUID();
 
 	if (new_user->GetType() == IClient::Type::kLocalUser)
 	{
-    	local_users_.insert(std::make_pair(nickname, std::dynamic_pointer_cast<ILocalUser>(new_user)));
+    	local_users_.insert(std::make_pair(uuid, std::dynamic_pointer_cast<ILocalUser>(new_user)));
 	}
 	else
 	{
-    	remote_users_.insert(std::make_pair(nickname, std::dynamic_pointer_cast<IRemoteUser>(new_user)));	
+    	remote_users_.insert(std::make_pair(uuid, std::dynamic_pointer_cast<IRemoteUser>(new_user)));	
 	}
 }
 

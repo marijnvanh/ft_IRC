@@ -61,7 +61,7 @@ public:
     virtual auto PushToLocal(std::string irc_message) -> void = 0;
     virtual auto PushToRemote(std::string irc_message) -> void = 0;
 
-    virtual auto RemoveUser(std::string nickname) -> void = 0;
+    virtual auto RemoveUser(IRC::UUID uuid) -> void = 0;
     virtual auto AddUser(std::shared_ptr<IUser> new_user) -> void = 0;
 
 	virtual auto CountUsers() -> uint32_t = 0;

@@ -38,8 +38,8 @@ class ClientDatabase : public IClientDatabase
      * @param uuid 
      */
     auto RemoveClient(IRC::UUID uuid) -> void override;
-    auto RemoveUser(const std::string &nickname) -> void override;
-    auto RemoveServer(const std::string &server_name) -> void override;
+    auto RemoveUser(IRC::UUID uuid) -> void override;
+    auto RemoveServer(IRC::UUID uuid) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message
@@ -55,12 +55,11 @@ class ClientDatabase : public IClientDatabase
     auto SendAll() -> void;
 
     /**
-     * @brief Search functions to find IClient/IServer objects
+     * @brief Get client
      * 
-     * @exception ClientNotFound if client uuid is not in the database //TODO remove
-     * @return std::shared_ptr<IClient> 
+     * @param uuid 
      */
-    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> override; //TODO change to optional
+    auto GetClient(IRC::UUID uuid) -> std::optional<std::shared_ptr<IClient>> override;
     
     // Get Client by nickname currently returns both Registered and UnRegistered users
     // This might not be what we want because of Nick collisions on UnRegistered users
@@ -69,10 +68,14 @@ class ClientDatabase : public IClientDatabase
 
     private:
 
+    auto HandlePoll(std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> &clients, 
+        std::function<void(std::shared_ptr<IClient>, std::string)> &message_handler) -> void;
+    auto HandleSendAll(std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> &clients) -> void;
+
     std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
-    std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
-    std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;
-    std::unordered_map<std::string, std::shared_ptr<IServer>> servers_;
+    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> local_users_;
+    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> remote_users_;
+    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> servers_;
 };
 
 #endif
