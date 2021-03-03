@@ -26,6 +26,18 @@ auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
     clients_.erase(uuid);
 }
 
+auto ClientDatabase::RemoveUser(const std::string &nickname) -> void
+{
+    local_users_.erase(nickname);
+    remote_users_.erase(nickname);
+}
+
+auto ClientDatabase::RemoveServer(const std::string &server_name) -> void
+{
+    servers_.erase(server_name);
+}
+
+//TODO Fix this mess
 auto ClientDatabase::PollClients(std::function<void(std::shared_ptr<IClient>, std::string)> message_handler) -> void
 {
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
@@ -33,9 +45,11 @@ auto ClientDatabase::PollClients(std::function<void(std::shared_ptr<IClient>, st
         ++next_it;
         try {
             std::optional<std::string> irc_message;
-            while ((irc_message = it->second->Receive())) {
+
+            /* Only receive one message each iteration. If we do more we can crash if we QUIT clients in the meantime */
+            irc_message = it->second->Receive();
+            if (irc_message)
                 message_handler(it->second, *irc_message);
-            }
         }
         catch (IClient::Disconnected &ex)
         {
@@ -43,6 +57,61 @@ auto ClientDatabase::PollClients(std::function<void(std::shared_ptr<IClient>, st
             RemoveClient(it->first);
         }
     }
+
+    for (auto it = local_users_.begin(), next_it = it; it != local_users_.end(); it = next_it)
+    {
+        ++next_it;
+        try {
+            std::optional<std::string> irc_message;
+
+            /* Only receive one message each iteration. If we do more we can crash if we QUIT clients in the meantime */
+            irc_message = it->second->Receive();
+            if (irc_message)
+                message_handler(it->second, *irc_message);
+        }
+        catch (IClient::Disconnected &ex)
+        {
+            //TODO Handle disconnection
+            RemoveUser(it->first);
+        }
+    }
+
+    for (auto it = remote_users_.begin(), next_it = it; it != remote_users_.end(); it = next_it)
+    {
+        ++next_it;
+        try {
+            std::optional<std::string> irc_message;
+
+            /* Only receive one message each iteration. If we do more we can crash if we QUIT clients in the meantime */
+            irc_message = it->second->Receive();
+            if (irc_message)
+                message_handler(it->second, *irc_message);
+        }
+        catch (IClient::Disconnected &ex)
+        {
+            //TODO Handle disconnection
+            RemoveUser(it->first);
+        }
+    }
+
+    for (auto it = servers_.begin(), next_it = it; it != servers_.end(); it = next_it)
+    {
+        ++next_it;
+        try {
+            std::optional<std::string> irc_message;
+
+            /* Only receive one message each iteration. If we do more we can crash if we QUIT clients in the meantime */
+            irc_message = it->second->Receive();
+            if (irc_message)
+                message_handler(it->second, *irc_message);
+        }
+        catch (IClient::Disconnected &ex)
+        {
+            //TODO Handle disconnection
+            RemoveServer(it->first);
+        }
+    }
+
 }
 
 auto ClientDatabase::SendAll() -> void
