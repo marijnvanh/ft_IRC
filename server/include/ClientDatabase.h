@@ -38,6 +38,8 @@ class ClientDatabase : public IClientDatabase
      * @param uuid 
      */
     auto RemoveClient(IRC::UUID uuid) -> void override;
+    auto RemoveUser(const std::string &nickname) -> void override;
+    auto RemoveServer(const std::string &server_name) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message
@@ -66,6 +68,7 @@ class ClientDatabase : public IClientDatabase
     auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> override;
 
     private:
+
     std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
     std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
     std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;
