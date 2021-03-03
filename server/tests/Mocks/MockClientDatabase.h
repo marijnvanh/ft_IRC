@@ -13,9 +13,9 @@ class MockClientDatabase : public IClientDatabase {
     MOCK_METHOD(void, AddRemoteUser, (std::shared_ptr<IRemoteUser> new_remoteuser), ());
     MOCK_METHOD(void, AddServer, (std::shared_ptr<IServer> new_server), ());
     MOCK_METHOD(void, RemoveClient, (IRC::UUID uuid), ());
-    MOCK_METHOD(void, RemoveUser, (const std::string &nickname), ());
-    MOCK_METHOD(void, RemoveServer, (const std::string &server_name), ());
-    MOCK_METHOD(std::shared_ptr<IClient>, GetClient, (IRC::UUID uuid), ());
+    MOCK_METHOD(void, RemoveUser, (IRC::UUID uuid), ());
+    MOCK_METHOD(void, RemoveServer, (IRC::UUID uuid), ());
+    MOCK_METHOD(std::optional<std::shared_ptr<IClient>>, GetClient, (IRC::UUID uuid), ());
     MOCK_METHOD(std::optional<std::shared_ptr<IClient>>, GetClient, (const std::string &nickname), ());
     MOCK_METHOD(void, RegisterLocalUser, (IRC::UUID uuid), ());
     MOCK_METHOD(void, RegisterServer, (IRC::UUID uuid), ());

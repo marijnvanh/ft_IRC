@@ -66,18 +66,18 @@ TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 {
     client_database->AddClient(std::move(unique_client1));
 
-    ASSERT_EQ(client_database->GetClient(uuid1)->GetUUID(), uuid1);
+    ASSERT_EQ((*client_database->GetClient(uuid1))->GetUUID(), uuid1);
 
     client_database->RemoveClient(uuid1);
 
-    ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
 
 TEST_F(ClientDatabaseTests, GetInvalidClientByFakeUUID)
 {
     client_database->AddClient(std::move(unique_client1));
 
-    ASSERT_THROW(client_database->GetClient(uuid2), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid2), std::nullopt);
 }
 
 /* This test adds three clients and expects to receive from all of them.
@@ -127,7 +127,7 @@ TEST_F(ClientDatabaseTests, PollDisconnectedClient)
         (void)message;
     });
 
-    ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
 
 /* This test adds three clients and expects to call SendAll from all of them. */
@@ -154,7 +154,7 @@ TEST_F(ClientDatabaseTests, SendAllWithDisconnectedClient)
 
     client_database->SendAll();
 
-    ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
 
 TEST_F(ClientDatabaseTests, GetClientByNickname)

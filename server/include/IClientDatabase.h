@@ -22,19 +22,13 @@ class IClientDatabase
     virtual auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void = 0;
     virtual auto AddServer(std::shared_ptr<IServer> new_server) -> void = 0;
     virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
-    virtual auto RemoveUser(const std::string &nickname) -> void = 0;
-    virtual auto RemoveServer(const std::string &server_name) -> void = 0;
-    virtual auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> = 0;
+    virtual auto RemoveUser(IRC::UUID uuid) -> void = 0;
+    virtual auto RemoveServer(IRC::UUID uuid) -> void = 0;
+    virtual auto GetClient(IRC::UUID uuid) -> std::optional<std::shared_ptr<IClient>> = 0;
     virtual auto GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> = 0;
     virtual auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> = 0;
     virtual auto RegisterLocalUser(IRC::UUID uuid) -> void = 0;
     virtual auto RegisterServer(IRC::UUID uuid) -> void = 0;
-
-    class ClientNotFound : public std::runtime_error
-    {
-    public:
-        ClientNotFound() : std::runtime_error("Client not found in Database") {}
-    };
 
     class DuplicateClient : public std::runtime_error
     {

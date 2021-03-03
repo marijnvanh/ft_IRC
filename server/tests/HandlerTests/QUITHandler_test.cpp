@@ -27,6 +27,7 @@ class QUITTests : public ::testing::Test
     MockMessage local_user_message1;
     std::string local_user_nickname1;
     std::vector<std::string> local_user_message_params1;
+    IRC::UUID local_user1_uuid = IRC::UUIDGenerator::GetInstance().Generate();
 
     std::shared_ptr<IClient> base_client_shared1;
     std::unique_ptr<MockClient> base_client_unique1;
@@ -71,6 +72,8 @@ class QUITTests : public ::testing::Test
         
         EXPECT_CALL(*base_client1, GetUUID())
             .WillRepeatedly(ReturnRef(base_client1_uuid));
+        EXPECT_CALL(*local_user1, GetUUID())
+            .WillRepeatedly(ReturnRef(local_user1_uuid));
     }
 };
 
@@ -82,6 +85,6 @@ TEST_F(QUITTests, RemoveUnregisteredClient)
 
 TEST_F(QUITTests, RemoveLocalUser)
 {
-    EXPECT_CALL(*mock_client_database, RemoveUser(local_user_nickname1));
+    EXPECT_CALL(*mock_client_database, RemoveUser(local_user1_uuid));
     QUITHandler(mock_client_database_shared, local_user_message1);
 }
