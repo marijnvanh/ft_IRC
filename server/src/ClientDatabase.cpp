@@ -11,14 +11,15 @@ ClientDatabase::ClientDatabase()
 ClientDatabase::~ClientDatabase()
 {}
 
-auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> void
+auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> std::shared_ptr<IClient>
 {
     std::shared_ptr<IClient> client = std::move(new_client);
     auto ret = clients_.insert(std::make_pair(client->GetUUID(), client));
 
     /* Check if duplicate was found */
     if (ret.second == false)
-        throw DuplicateClient();
+        throw DuplicateClient(); // Should never happen
+    return client;
 }
 
 auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void

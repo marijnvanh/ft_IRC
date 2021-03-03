@@ -8,6 +8,9 @@
 
 class MockServer : public IServer, public MockClient {
     public:
+
+    MOCK_METHOD(void, AddClient, (std::shared_ptr<IClient>), ());
+    MOCK_METHOD(void, RemoveClient, (IRC::UUID), ());
 };
 
 #endif

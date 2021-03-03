@@ -10,7 +10,7 @@ Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler, std::shared_ptr<ISer
 
 Client::~Client()
 {
-    server_->RemoveUser(uuid_);
+    server_->RemoveClient(uuid_);
 }
 
 auto Client::Push(std::string irc_message) -> void

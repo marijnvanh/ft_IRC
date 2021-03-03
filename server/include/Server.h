@@ -15,7 +15,7 @@ class Server : public IServer, Client
 
     Server() = delete;
     Server(Client &&old_client);
-    ~Server() {};
+    ~Server();
 
     auto AddClient(std::shared_ptr<IClient> client) -> void override;
     auto RemoveClient(IRC::UUID uuid) -> void override;

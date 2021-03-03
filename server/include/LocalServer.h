@@ -7,8 +7,8 @@
 class LocalServer : public IServer
 {
     public:
-    LocalServer() : uuid_(IRC::UUIDGenerator::GetInstance().Generate()) {};
-    ~LocalServer() {};
+    LocalServer();
+    ~LocalServer();
 
     /* Fake IClient functionality */
     auto Receive() -> std::optional<std::string> override { return std::nullopt; };
@@ -17,9 +17,12 @@ class LocalServer : public IServer
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
 
     /* Fake IServer functionality */
+    auto AddClient(std::shared_ptr<IClient> client) -> void override;
+    auto RemoveClient(IRC::UUID uuid) -> void override;
 
     private:
     IRC::UUID uuid_;
+    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
 };
 
 #endif

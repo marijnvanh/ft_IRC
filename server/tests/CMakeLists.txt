@@ -22,6 +22,7 @@ package_add_test( ClientDatabase_test
 ClientDatabase_test.cpp
 ../src/ClientDatabase.cpp
 ../src/Client.cpp
+../src/Server.cpp
 )
 package_add_test( PASSHandler_test
 ./HandlerTests/PASSHandler_test.cpp
@@ -38,6 +39,7 @@ package_add_test( USERHandler_test
 package_add_test( Server_test
     Server_test.cpp
     ../src/Client.cpp
+    ../src/Server.cpp
 )
 package_add_test( User_test
     User_test.cpp
