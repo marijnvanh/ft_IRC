@@ -6,6 +6,8 @@
 #include <optional>
 #include "UUID.h"
 
+class IServer;
+
 class IClient
 {
 
@@ -52,7 +54,9 @@ class IClient
      * @exception IClient::Disconnected
      */
     virtual auto SendAll() -> void = 0;
+    
     virtual auto GetUUID() const -> const IRC::UUID& = 0;
+    virtual auto GetServer() -> std::shared_ptr<IServer> = 0;
 
     virtual auto GetState() const -> IClient::State { return state_; }
     virtual auto SetState(IClient::State state) -> void { state_ = state; }

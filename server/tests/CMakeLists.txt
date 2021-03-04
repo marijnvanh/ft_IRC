@@ -49,3 +49,9 @@ package_add_test( QUITHandler_test
     ./HandlerTests/QUITHandler_test.cpp
     ../src/MessageHandlers/QUITHandler.cpp
 )
+package_add_test( ClientUpgrade_test
+ClientUpgrade_test.cpp
+../src/ClientDatabase.cpp
+../src/Client.cpp
+../src/Server.cpp
+)

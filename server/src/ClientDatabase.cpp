@@ -96,40 +96,61 @@ auto ClientDatabase::SendAll() -> void
 //TODO add check if nickname already exists ?
 auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> void
 {
-    auto old_client = GetClient(uuid);
-    if (old_client == std::nullopt)
+    auto new_local_user = GetClient(uuid);
+    if (new_local_user == std::nullopt)
         return ;
 
-    auto client = dynamic_cast<Client *>((*old_client).get());
-
-    if (client->GetState() != IClient::State::kUnRegistered)
+    if ((*new_local_user)->GetState() != IClient::State::kUnRegistered)
         throw ClientDatabase::UnableToRegister("Client not in a UnRegistered state");
 
-    if (client->GetNickname() == "" || client->GetUsername() == "")
+    if ((*new_local_user)->GetNickname() == "" || (*new_local_user)->GetUsername() == "")
         throw ClientDatabase::UnableToRegister("Nickname or Username not set");
 
-    auto local_user = std::make_shared<LocalUser>(std::move(*client));
-    local_users_.insert(std::make_pair(uuid, local_user));
+    /* The following is rather hacky... but here's what's happening:
+        We create a new LockelUser object from the old UnRegistered Client object
+        We exchange the content of the shared pointer that is holding the (now moved) Client object
+        with the new LocalUser object. We add the shared pointer with the LocalUser to
+        our list with local_users_ and remove the shared pointer from the clients_ list.
+        This only works if there are now references to the original shared object.
+    */
+    if ((*new_local_user).use_count() > 2)
+        throw std::runtime_error("Can't register client because too many references"); //Should never happen
 
+    auto raw_client = dynamic_cast<Client *>((*new_local_user).get());
+    std::shared_ptr<IClient> tmp_local_user = std::make_shared<LocalUser>(std::move(*raw_client));
+    new_local_user->swap(tmp_local_user);
+    local_users_.insert(std::make_pair(uuid, *new_local_user));
     RemoveClient(uuid);
+
+    auto server = (*new_local_user)->GetServer();
+    server->AddClient(*new_local_user);
 }
 
 /* Note that this only works with REAL Client objects */
 //TODO add check if server already exists ?
 auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> void
 {
-    auto old_client = GetClient(uuid);
-    if (old_client == std::nullopt)
+    auto new_server = GetClient(uuid);
+    if (new_server == std::nullopt)
         return ;
 
-    auto client = dynamic_cast<Client *>((*old_client).get());
-
-    if (client->GetState() != IClient::State::kUnRegistered)
+    if ((*new_server)->GetState() != IClient::State::kUnRegistered)
         throw ClientDatabase::UnableToRegister("Client not in a UnRegistered state");
 
-    auto server = std::make_shared<Server>(std::move(*client));
-    servers_.insert(std::make_pair(uuid, server));
+    /* The following is rather hacky... but here's what's happening:
+        We create a new server object from the old UnRegistered Client object
+        We exchange the content of the shared pointer that is holding the (now moved) Client object
+        with the new server object. We add the shared pointer with the server to
+        our list with servers_ and remove the shared pointer from the clients_ list.
+        This only works if there are now references to the original shared object.
+    */
+    if ((*new_server).use_count() > 2)
+        throw std::runtime_error("Can't register client because too many references"); //Should never happen
+    auto raw_client = dynamic_cast<Client *>((*new_server).get());
 
+    std::shared_ptr<IClient> tmp_server = std::make_shared<LocalUser>(std::move(*raw_client));
+    new_server->swap(tmp_server);
+    servers_.insert(std::make_pair(uuid, *new_server));
     RemoveClient(uuid);
 }
 

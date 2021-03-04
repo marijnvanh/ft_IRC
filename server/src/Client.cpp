@@ -5,7 +5,6 @@ Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler, std::shared_ptr<ISer
     io_handler_(std::move(io_handler)),
     server_(server),
     uuid_(IRC::UUIDGenerator::GetInstance().Generate())
-
 {}
 
 Client::~Client()

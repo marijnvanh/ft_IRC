@@ -10,7 +10,7 @@ class RemoteUser : public IRemoteUser, Client, User
     public:
 
     RemoteUser() = delete;
-    RemoteUser(Client &&old_client) : Client(std::move(old_client)) {};
+    RemoteUser(Client &&old_client) : Client(std::move(old_client)) { type_ = IClient::Type::kRemoteUser; };
     virtual ~RemoteUser() {};
 
     private:

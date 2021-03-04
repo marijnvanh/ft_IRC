@@ -10,7 +10,7 @@ class LocalUser : public ILocalUser, Client, User
     public:
 
     LocalUser() = delete;
-    LocalUser(Client &&old_client) : Client(std::move(old_client)) {};
+    LocalUser(Client &&old_client) : Client(std::move(old_client)) { type_ = IClient::Type::kLocalUser; };
     ~LocalUser() {};
 
     private:

@@ -23,6 +23,7 @@ class Client : public virtual IClient
     auto SendAll() -> void override;
 
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
+    auto GetServer() -> std::shared_ptr<IServer> override { return server_; };
 
     Client (Client&& other) : IClient(std::move(other)), uuid_(other.uuid_)
     {

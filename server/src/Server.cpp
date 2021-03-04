@@ -1,7 +1,9 @@
 #include "Server.h"
 
 Server::Server(Client &&old_client) : Client(std::move(old_client))
-{}
+{
+    type_ = IClient::Type::kServer;
+}
 
 Server::~Server()
 {}

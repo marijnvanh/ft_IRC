@@ -15,6 +15,7 @@ class LocalServer : public IServer
     auto Push(std::string irc_message) -> void override { (void)irc_message; };
     auto SendAll() -> void override {};
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
+    auto GetServer() -> std::shared_ptr<IServer> override { std::shared_ptr<IServer> fake; return fake; };
 
     /* Fake IServer functionality */
     auto AddClient(std::shared_ptr<IClient> client) -> void override;
