@@ -8,15 +8,13 @@
 //TODO
 static auto HandleUSERFromServer(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IClient> server = message.GetClient();
-    (void)server;
     (void)message;
     (void)client_database;
 }
 
 static auto HandleUSERFromUser(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IClient> client = message.GetClient();
+    auto client = *(client_database->GetClient(message.GetClientUUID()));
 
     if (client->GetState() != IClient::State::kUnRegistered)
     {
@@ -39,7 +37,7 @@ static auto HandleUSERFromUser(std::shared_ptr<IClientDatabase> client_database,
 
 auto USERHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IClient> client = message.GetClient();
+    auto client = *(client_database->GetClient(message.GetClientUUID()));
 
     auto params = message.GetParams();
     if (params.size() < 4)

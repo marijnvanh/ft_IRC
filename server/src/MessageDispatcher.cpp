@@ -13,8 +13,7 @@ MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data)
             PingPongHandler(server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("PASS", [](auto server_data, auto message) {
-            (void)server_data;
-            PASSHandler(message);
+            PASSHandler(server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
             NICKHandler(server_data->client_database_, message);

@@ -4,10 +4,9 @@
 #include <string>
 #include <memory>
 
-#include "IClient.h"
+#include "IClientDatabase.h"
 #include "IMessage.h"
-#include "Mutex.h"
 
-auto PASSHandler(IMessage &message) -> void;
+auto PASSHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void;
 
 #endif

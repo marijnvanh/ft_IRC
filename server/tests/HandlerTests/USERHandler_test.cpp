@@ -43,8 +43,10 @@ class USERFromUserTests : public ::testing::Test
 
 TEST_F(USERFromUserTests, SuccessTest)
 {
-    EXPECT_CALL(message1, GetClient())
-        .WillRepeatedly(Return(mock_client_shared1));
+    EXPECT_CALL(message1, GetClientUUID())
+        .WillRepeatedly(Return(uuid1));
+    EXPECT_CALL(*mock_client_database, GetClient(uuid1))
+        .WillRepeatedly(Return(std::optional<std::shared_ptr<IClient>>(mock_client_shared1)));
     EXPECT_CALL(message1, GetParams())
         .WillRepeatedly(ReturnRef(message_params));
     message_params.push_back("username");

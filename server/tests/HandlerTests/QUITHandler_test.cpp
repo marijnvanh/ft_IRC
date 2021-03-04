@@ -61,12 +61,12 @@ class QUITTests : public ::testing::Test
         //     .WillRepeatedly(Return(server_client_shared1));
         // EXPECT_CALL(server_message1, GetParams())
         //     .WillRepeatedly(ReturnRef(server_message_params1));
-        EXPECT_CALL(base_message1, GetClient())
-            .WillRepeatedly(Return(base_client_shared1));
+        EXPECT_CALL(base_message1, GetClientUUID())
+            .WillRepeatedly(Return(base_client1_uuid));
         EXPECT_CALL(base_message1, GetParams())
             .WillRepeatedly(ReturnRef(base_message_params1));
-        EXPECT_CALL(local_user_message1, GetClient())
-            .WillRepeatedly(Return(local_user_shared1));
+        EXPECT_CALL(local_user_message1, GetClientUUID())
+            .WillRepeatedly(Return(local_user1_uuid));
         EXPECT_CALL(local_user_message1, GetParams())
             .WillRepeatedly(ReturnRef(local_user_message_params1));
         
@@ -79,12 +79,18 @@ class QUITTests : public ::testing::Test
 
 TEST_F(QUITTests, RemoveUnregisteredClient)
 {
+    EXPECT_CALL(*mock_client_database, GetClient(base_client1_uuid))
+        .WillOnce(Return(std::optional<std::shared_ptr<IClient>>(base_client_shared1)));
+
     EXPECT_CALL(*mock_client_database, RemoveClient(base_client1_uuid));
     QUITHandler(mock_client_database_shared, base_message1);
 }
 
 TEST_F(QUITTests, RemoveLocalUser)
 {
+    EXPECT_CALL(*mock_client_database, GetClient(local_user1_uuid))
+        .WillOnce(Return(std::optional<std::shared_ptr<IClient>>(local_user_shared1)));
+
     EXPECT_CALL(*mock_client_database, RemoveUser(local_user1_uuid));
     QUITHandler(mock_client_database_shared, local_user_message1);
 }

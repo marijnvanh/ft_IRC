@@ -19,20 +19,21 @@ static auto GetQuitMessage(IMessage &message) -> std::string
 
 static auto DisconnectLocalUser(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    auto client = message.GetClient();
     auto quit_message = GetQuitMessage(message);
     // auto local_user = std::dynamic_pointer_cast<ILocalUser>(client);
     //TODO send quit message to all local Users in all the channels from local_user.GetChannels()
     //TODO remove from IServer it is connected to
-    client_database->RemoveUser(client->GetUUID());
+    client_database->RemoveUser(message.GetClientUUID());
 }
 
-static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_database,
+    std::shared_ptr<IClient> remote_user,
+    IMessage &message) -> void
 {
     auto nickname = message.GetNickname();
     if (nickname == std::nullopt)
     {
-        message.GetClient()->Push(std::to_string(ERR_NONICKNAMEGIVEN)); //TODO improve response
+        remote_user->Push(std::to_string(ERR_NONICKNAMEGIVEN)); //TODO improve response
         return ;
     }
     //TODO validate nickname    
@@ -48,14 +49,14 @@ static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_databas
     }
     else
     {
-        message.GetClient()->Push(std::to_string(ERR_NOSUCHNICK)); //TODO improve response
+        remote_user->Push(std::to_string(ERR_NOSUCHNICK)); //TODO improve response
         return ;
     }
 }
 
 auto QUITHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    auto client = message.GetClient();
+    auto client = *(client_database->GetClient(message.GetClientUUID()));
 
     if (client->GetState() == IClient::State::kUnRegistered)
     {
@@ -67,6 +68,6 @@ auto QUITHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &mes
     }
     else if (client->GetType() == IClient::Type::kServer)
     {
-        DisconnectRemoteUser(client_database, message);
+        DisconnectRemoteUser(client_database, client, message);
     }
 }

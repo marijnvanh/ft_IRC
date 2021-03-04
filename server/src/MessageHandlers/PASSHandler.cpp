@@ -1,9 +1,9 @@
 #include "MessageHandlers/PASSHandler.h"
 #include "Numerics.h"
 
-auto PASSHandler(IMessage &message) -> void
+auto PASSHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IClient> client = message.GetClient();
+    auto client = *(client_database->GetClient(message.GetClientUUID()));
 
     if (client->GetState() != IClient::State::kUnRegistered)
     {

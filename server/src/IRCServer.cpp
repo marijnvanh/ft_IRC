@@ -46,7 +46,7 @@ auto IRCServer::RunOnce() -> void
         {
             try {
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
-                auto message = Message(client, parsed_message);
+                auto message = Message(client->GetUUID(), parsed_message);
 
                 std::cout << message << std::endl;
                 message_dispatcher_->Dispatch(message);

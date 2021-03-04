@@ -5,7 +5,7 @@
 
 auto KILLHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
 {
-    std::shared_ptr<IClient> client = message.GetClient();
+    auto client = *(client_database->GetClient(message.GetClientUUID()));
 
 	auto params = message.GetParams();
 	if (params.size() < 2)
