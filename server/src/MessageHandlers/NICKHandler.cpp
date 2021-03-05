@@ -3,7 +3,7 @@
 
 //TODO handle server side message
 static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IClient> server, IMessage &message,
+    IClient* server, IMessage &message,
     const std::string &new_nickname) -> void
 {
     (void)server;
@@ -34,7 +34,7 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
 }
 
 static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IClient> client, const std::string &nickname) -> void
+    IClient* client, const std::string &nickname) -> void
 {
     auto client_with_nickname = client_database->GetClient(nickname);
 

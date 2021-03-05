@@ -27,7 +27,7 @@ static auto DisconnectLocalUser(std::shared_ptr<IClientDatabase> client_database
 }
 
 static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_database,
-    std::shared_ptr<IClient> remote_user,
+    IClient* remote_user,
     IMessage &message) -> void
 {
     auto nickname = message.GetNickname();

@@ -4,7 +4,7 @@
 #include "ClientDatabase.h"
 #include "LocalServer.h"
 #include <memory>
-
+//TODO make shared unique
 struct ServerData
 {
     ServerData() :

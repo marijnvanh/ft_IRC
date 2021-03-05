@@ -106,7 +106,7 @@ TEST_F(ClientDatabaseTests, PollClients)
     };
 
     int callback_count = 0;
-    client_database->PollClients([&callback_count, &expectations](std::shared_ptr<IClient> client, std::string message) {
+    client_database->PollClients([&callback_count, &expectations](IClient* client, std::string message) {
         EXPECT_EQ(expectations[client->GetUUID()], message);
         callback_count += 1;
     });
@@ -122,7 +122,7 @@ TEST_F(ClientDatabaseTests, PollDisconnectedClient)
     EXPECT_CALL(*client1, Receive())
         .WillOnce(Throw(IClient::Disconnected("test")));
 
-    client_database->PollClients([](std::shared_ptr<IClient> client, std::string message) {
+    client_database->PollClients([](IClient* client, std::string message) {
         (void)client;
         (void)message;
     });

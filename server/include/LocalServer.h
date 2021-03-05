@@ -15,15 +15,15 @@ class LocalServer : public IServer
     auto Push(std::string irc_message) -> void override { (void)irc_message; };
     auto SendAll() -> void override {};
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
-    auto GetServer() -> std::shared_ptr<IServer> override { std::shared_ptr<IServer> fake; return fake; };
+    auto GetServer() -> IServer* override { return nullptr; };
 
     /* Fake IServer functionality */
-    auto AddClient(std::shared_ptr<IClient> client) -> void override;
+    auto AddClient(IClient* client) -> void override;
     auto RemoveClient(IRC::UUID uuid) -> void override;
 
     private:
     IRC::UUID uuid_;
-    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
+    std::unordered_map<IRC::UUID, IClient*> clients_;
 };
 
 #endif

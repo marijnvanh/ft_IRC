@@ -17,7 +17,7 @@ class Server : public IServer, Client
     Server(Client &&old_client);
     ~Server();
 
-    auto AddClient(std::shared_ptr<IClient> client) -> void override;
+    auto AddClient(IClient* client) -> void override;
     auto RemoveClient(IRC::UUID uuid) -> void override;
 
     Server (Server& other) = delete;
@@ -26,7 +26,7 @@ class Server : public IServer, Client
 
     private:
 
-    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
+    std::unordered_map<IRC::UUID, IClient*> clients_;
 };
 
 #endif

@@ -14,7 +14,7 @@ class IServer : public virtual IClient
     };
     virtual ~IServer() {};
 
-    virtual auto AddClient(std::shared_ptr<IClient> client) -> void = 0;
+    virtual auto AddClient(IClient* client) -> void = 0;
     virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
 
     private:
