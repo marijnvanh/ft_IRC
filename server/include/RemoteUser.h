@@ -4,16 +4,19 @@
 #include "Client.h"
 #include "User.h"
 #include "IRemoteUser.h"
+#include "IServer.h"
 
 class RemoteUser : public IRemoteUser, Client, User
 {
     public:
 
     RemoteUser() = delete;
-    RemoteUser(Client &&old_client) : Client(std::move(old_client)) { type_ = IClient::Type::kRemoteUser; };
-    virtual ~RemoteUser() {};
+    RemoteUser(Client &&old_client, IServer* server);
+    ~RemoteUser();
 
+    auto GetServer() -> IServer* override;
     private:
+    IServer* server_;
 };
 
 #endif

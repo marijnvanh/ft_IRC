@@ -28,8 +28,8 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param uuid 
      */
-    auto RegisterLocalUser(IRC::UUID uuid) -> void override;
-    auto RegisterServer(IRC::UUID uuid) -> void override;
+    auto RegisterLocalUser(IRC::UUID uuid) -> IClient* override;
+    auto RegisterServer(IRC::UUID uuid) -> IClient* override;
 
     /**
      * @brief Remove client from database

@@ -27,8 +27,8 @@ class IClientDatabase
     virtual auto GetClient(IRC::UUID uuid) -> std::optional<IClient*> = 0;
     virtual auto GetClient(const std::string &nickname) -> std::optional<IClient*> = 0;
     virtual auto GetServer(std::string &server_name) -> std::optional<IServer*> = 0;
-    virtual auto RegisterLocalUser(IRC::UUID uuid) -> void = 0;
-    virtual auto RegisterServer(IRC::UUID uuid) -> void = 0;
+    virtual auto RegisterLocalUser(IRC::UUID uuid) -> IClient* = 0;
+    virtual auto RegisterServer(IRC::UUID uuid) -> IClient* = 0;
 
     class DuplicateClient : public std::runtime_error
     {

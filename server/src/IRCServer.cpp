@@ -36,7 +36,7 @@ auto IRCServer::RunOnce() -> void
         [this](std::shared_ptr<TCP::Socket> socket)
         {
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
-            auto client = std::make_unique<Client>(std::move(io_handler), server_data_->local_server_.get());
+            auto client = std::make_unique<Client>(std::move(io_handler));
             server_data_->client_database_->AddClient(std::move(client));
             std::cout << "New client on FD: " << socket->GetFD() << std::endl;
         });

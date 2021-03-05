@@ -1,17 +1,13 @@
 #include "Client.h"
 #include <iostream>
 
-Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler, IServer* server) :
+Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
     io_handler_(std::move(io_handler)),
-    server_(server),
     uuid_(IRC::UUIDGenerator::GetInstance().Generate())
 {}
 
 Client::~Client()
-{
-    if (server_ != nullptr)
-        server_->RemoveClient(uuid_);
-}
+{}
 
 auto Client::Push(std::string irc_message) -> void
 {

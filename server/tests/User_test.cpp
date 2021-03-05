@@ -3,7 +3,6 @@
 #include "Client.h"
 #include "MockIOHandler.h"
 #include "User.h"
-#include "MockServer.h"
 #include "MockClient.h"
 #include <memory>
 
@@ -22,7 +21,6 @@ class UserTests : public ::testing::Test
 {
     public:
     std::unique_ptr<MockIOHandler> unique_io_handler;
-    MockServer mock_server;
     MockIOHandler *io_handler;
     std::shared_ptr<Client> client;
 
@@ -30,7 +28,7 @@ class UserTests : public ::testing::Test
     {
         unique_io_handler = std::make_unique<MockIOHandler>();
         io_handler = unique_io_handler.get();
-        client = std::make_shared<Client>(std::move(unique_io_handler), &mock_server);
+        client = std::make_shared<Client>(std::move(unique_io_handler));
     }
 };
 

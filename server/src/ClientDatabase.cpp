@@ -93,60 +93,52 @@ auto ClientDatabase::SendAll() -> void
 
 /* Note that this only works with REAL Client objects */
 //TODO add check if nickname already exists ?
-auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> void
+auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
 {
-    (void)uuid;
-    // auto new_local_user = GetClient(uuid);
-    // if (new_local_user == std::nullopt)
-    //     return ;
+    auto stored_client = clients_.find(uuid);
+    if (stored_client == clients_.end())
+        throw ClientDatabase::UnableToRegister("Unable to find unregistered client");
 
-    // if ((*new_local_user)->GetState() != IClient::State::kUnRegistered)
-    //     throw ClientDatabase::UnableToRegister("Client not in a UnRegistered state");
+    auto client = dynamic_cast<Client *>(stored_client->second.get());
 
-    // if ((*new_local_user)->GetNickname() == "" || (*new_local_user)->GetUsername() == "")
-    //     throw ClientDatabase::UnableToRegister("Nickname or Username not set");
+    if (client->GetNickname() == "" || client->GetUsername() == "")
+        throw ClientDatabase::UnableToRegister("Nickname or Username not set");
 
-    // /* The following is rather hacky... but here's what's happening:
-    //     We create a new LockelUser object from the old UnRegistered Client object
-    //     We exchange the content of the shared pointer that is holding the (now moved) Client object
-    //     with the new LocalUser object. We add the shared pointer with the LocalUser to
-    //     our list with local_users_ and remove the shared pointer from the clients_ list.
-    // */
-
-    // auto raw_client = dynamic_cast<Client *>(*new_local_user);
-    // std::unique_ptr<IClient> tmp_local_user = std::make_unique<LocalUser>(std::move(*raw_client));
-    // new_local_user->swap(tmp_local_user);
-    // local_users_.insert(std::make_pair(uuid, *new_local_user));
-    // RemoveClient(uuid);
-
-    // auto server = (*new_local_user)->GetServer();
-    // server->AddClient(*new_local_user);
+    /* The following is quite hacky... my apologies, but here's what's happening:
+        We create a new LockelUser object from the old UnRegistered Client object
+        We exchange the content of the unique pointer that is holding the (now moved) Client object
+        with the new LocalUser object. We move the unique pointer with the LocalUser to
+        our list with local_users_ and remove the empty pointer from the clients_ list.
+    */
+    auto tmp_unique_client = std::move(stored_client->second);
+    tmp_unique_client.reset(new LocalUser(std::move(*client)));
+    auto new_local_user = local_users_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
+    RemoveClient(uuid);
+    return new_local_user.first->second.get();
 }
 
 /* Note that this only works with REAL Client objects */
 //TODO add check if server already exists ?
-auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> void
+auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> IClient*
 {
-    (void)uuid;
-    // auto new_server = GetClient(uuid);
-    // if (new_server == std::nullopt)
-    //     return ;
+    auto stored_client = clients_.find(uuid);
+    if (stored_client == clients_.end())
+        throw ClientDatabase::UnableToRegister("Unable to find unregistered client");
 
-    // if ((*new_server)->GetState() != IClient::State::kUnRegistered)
-    //     throw ClientDatabase::UnableToRegister("Client not in a UnRegistered state");
+    auto client = dynamic_cast<Client *>(stored_client->second.get());
 
-    // /* The following is rather hacky... but here's what's happening:
-    //     We create a new server object from the old UnRegistered Client object
-    //     We exchange the content of the shared pointer that is holding the (now moved) Client object
-    //     with the new server object. We add the shared pointer with the server to
-    //     our list with servers_ and remove the shared pointer from the clients_ list.
-    // */
-    // auto raw_client = dynamic_cast<Client *>((*new_server).get());
+    /* The following is quite hacky... my apologies, but here's what's happening:
+        We create a new Server object from the old UnRegistered Client object
+        We exchange the content of the unique pointer that is holding the (now moved) Client object
+        with the new Server object. We move the unique pointer with the Server to
+        our list with servers_ and remove the empty pointer from the clients_ list.
+    */
 
-    // std::unique_ptr<IClient> tmp_server = std::make_shared<LocalUser>(std::move(*raw_client));
-    // new_server->swap(tmp_server);
-    // servers_.insert(std::make_pair(uuid, *new_server));
-    // RemoveClient(uuid);
+    auto tmp_unique_client = std::move(stored_client->second);
+    tmp_unique_client.reset(new Server(std::move(*client)));
+    auto new_server = servers_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
+    RemoveClient(uuid);
+    return new_server.first->second.get();
 }
 
 auto ClientDatabase::AddLocalUser(std::unique_ptr<ILocalUser> new_localuser) -> void

@@ -2,7 +2,6 @@
 #include "gmock/gmock.h"
 #include "Client.h"
 #include "MockIOHandler.h"
-#include "MockServer.h"
 #include <memory>
 
 using ::testing::AtLeast;
@@ -16,15 +15,12 @@ class ClientTests : public ::testing::Test
     std::unique_ptr<MockIOHandler> unique_io_handler;
     MockIOHandler *io_handler;
     std::shared_ptr<Client> client;
-    MockServer mock_server;
 
     void SetUp() override
     {
         unique_io_handler = std::make_unique<MockIOHandler>();
         io_handler = unique_io_handler.get();
-        client = std::make_shared<Client>(std::move(unique_io_handler), &mock_server);
-
-        EXPECT_CALL(mock_server, RemoveClient(_));
+        client = std::make_shared<Client>(std::move(unique_io_handler));
     }
 };
 
@@ -46,7 +42,6 @@ TEST_F(ClientTests, SendAllWithMultipleMessagesInQueue)
     EXPECT_CALL(*io_handler, Send(_))
         .Times(0);
     client->SendAll();
-    client.reset();
 }
 
 TEST_F(ClientTests, SendAllFailedToSendException)
@@ -63,7 +58,6 @@ TEST_F(ClientTests, SendAllFailedToSendException)
     EXPECT_CALL(*io_handler, Send("test"))
         .Times(1);
     client->SendAll();
-    client.reset();
 }
 
 TEST_F(ClientTests, SendAllClosedIOHandlerException)
@@ -75,7 +69,6 @@ TEST_F(ClientTests, SendAllClosedIOHandlerException)
         .WillOnce(Throw(IRC::IIOHandler::Closed("test")));
 
     ASSERT_THROW(client->SendAll(), IClient::Disconnected);
-    client.reset();
 }
 
 TEST_F(ClientTests, ReceiveMessage)
@@ -85,7 +78,6 @@ TEST_F(ClientTests, ReceiveMessage)
         .WillOnce(Return(std::optional<std::string>("test")));
 
     ASSERT_EQ(client->Receive(), "test");
-    client.reset();
 }
 
 TEST_F(ClientTests, NothingToReceive)
@@ -95,7 +87,6 @@ TEST_F(ClientTests, NothingToReceive)
         .WillOnce(Return(std::nullopt));
     
     ASSERT_EQ(client->Receive(), std::nullopt);
-    client.reset();
 }
 
 TEST_F(ClientTests, ReceiveClosedIOHandlerException)
@@ -105,5 +96,4 @@ TEST_F(ClientTests, ReceiveClosedIOHandlerException)
         .WillOnce(Throw(IRC::IIOHandler::Closed("test")));
 
     ASSERT_THROW(client->Receive(), IClient::Disconnected);
-    client.reset();
 }

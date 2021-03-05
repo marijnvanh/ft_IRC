@@ -15,7 +15,7 @@ class Client : public virtual IClient
 {
     public:
 
-    Client(std::unique_ptr<IRC::IIOHandler> io_handler, IServer* server);
+    Client(std::unique_ptr<IRC::IIOHandler> io_handler);
     ~Client();
 
     auto Push(std::string irc_message) -> void override;
@@ -23,7 +23,6 @@ class Client : public virtual IClient
     auto SendAll() -> void override;
 
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
-    auto GetServer() -> IServer* override { return server_; };
 
     Client (Client&& other) : IClient(std::move(other)), uuid_(other.uuid_)
     {
@@ -32,7 +31,6 @@ class Client : public virtual IClient
 
         io_handler_ = std::move(other.io_handler_);
         outgoing_msg_queue_ = std::move(other.outgoing_msg_queue_);
-        server_ = other.server_;
         uuid_ = other.uuid_;
     };
 
@@ -46,10 +44,9 @@ class Client : public virtual IClient
         AlreadyRegistered(const char *msg) : std::runtime_error(msg) {}
     };
 
-    private:
+    protected:
     std::queue<std::string> outgoing_msg_queue_;
     std::unique_ptr<IRC::IIOHandler> io_handler_;
-    IServer* server_;
     IRC::UUID uuid_;
 };
 
