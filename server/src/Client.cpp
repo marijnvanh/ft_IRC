@@ -3,14 +3,17 @@
 
 Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
     io_handler_(std::move(io_handler)),
-    uuid_(IRC::UUIDGenerator::GetInstance().Generate())
+    uuid_(IRC::UUIDGenerator::GetInstance().Generate()),
+    logger("Client")
 
 {
-
+    logger.Log(LogLevel::INFO, "Client connected");
 }
 
 Client::~Client()
-{}
+{
+    logger.Log(LogLevel::INFO, "Client disconnected");
+}
 
 auto Client::Push(std::string irc_message) -> void
 {

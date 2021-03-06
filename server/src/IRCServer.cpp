@@ -5,18 +5,22 @@
 #include "Message.h"
 #include "TCPIOHandler.h"
 #include "MessageDispatcher.h"
+#include "LogSettings.h"
 
 IRCServer::IRCServer() :
     server_data_(std::make_shared<ServerData>()),
-    message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_))
-{}
+    message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_)),
+    logger("IRCServer")
+{
+    SetLogSettings();
+}
 
 IRCServer::~IRCServer()
 {}
 
 auto IRCServer::Start(std::string address) -> void
 {
-    std::cout << "Attempting to start server..." << std::endl;
+    logger.Log(LogLevel::INFO, "Attempting to start server...");
 
     TCP::AddressInfo address_info(address, PORT);
 
@@ -25,7 +29,7 @@ auto IRCServer::Start(std::string address) -> void
 
     tcp_io_controller_.AddSocket(server_socket);
 
-    std::cout << "Server started!" << std::endl;
+    logger.Log(LogLevel::INFO, "Server started!");
 };
 
 auto IRCServer::RunOnce() -> void
@@ -38,7 +42,8 @@ auto IRCServer::RunOnce() -> void
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));
             server_data_->client_database_->AddClient(std::move(client));
-            std::cout << "New client on FD: " << socket->GetFD() << std::endl;
+            
+            logger.Log(LogLevel::DEBUG, "New client on FD: ", socket->GetFD());
         });
 
     server_data_->client_database_->PollClients(
@@ -52,7 +57,7 @@ auto IRCServer::RunOnce() -> void
                 message_dispatcher_->Dispatch(message);
 
             } catch (ParseException &e) {
-                std::cout << "Failed to parse message" << std::endl;
+                logger.Log(LogLevel::WARNING, "Failed to parse: %s ", raw_message.c_str());
                 //TODO Handle invalid message
             }
         });

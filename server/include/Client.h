@@ -6,6 +6,7 @@
 #include <optional>
 #include <queue>
 
+#include "Logger.h"
 #include "IClient.h"
 #include "IIOHandler.h"
 
@@ -23,7 +24,7 @@ class Client : public virtual IClient
 
     auto GetUUID() const -> const IRC::UUID& override { return uuid_; };
 
-    Client (Client&& other) : IClient(std::move(other)), uuid_(other.uuid_)
+    Client (Client&& other) : IClient(std::move(other)), uuid_(other.uuid_), logger("Client")
     {
         if (other.state_ != kUnRegistered)
             throw AlreadyRegistered("Can't move a client after registration");
@@ -46,6 +47,7 @@ class Client : public virtual IClient
     std::queue<std::string> outgoing_msg_queue_;
     std::unique_ptr<IRC::IIOHandler> io_handler_;
     IRC::UUID uuid_;
+    Logger logger;
 };
 
 #endif
