@@ -17,18 +17,18 @@ class IClientDatabase
 
     virtual ~IClientDatabase() {};
 
-    virtual auto AddClient(std::unique_ptr<IClient> new_client) -> void = 0;
-    virtual auto AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void = 0;
-    virtual auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void = 0;
-    virtual auto AddServer(std::shared_ptr<IServer> new_server) -> void = 0;
+    virtual auto AddClient(std::unique_ptr<IClient> new_client) -> IClient* = 0;
+    virtual auto AddLocalUser(std::unique_ptr<ILocalUser> new_localuser) -> void = 0;
+    virtual auto AddRemoteUser(std::unique_ptr<IRemoteUser> new_remoteuser) -> void = 0;
+    virtual auto AddServer(std::unique_ptr<IServer> new_server) -> void = 0;
     virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
     virtual auto RemoveUser(IRC::UUID uuid) -> void = 0;
     virtual auto RemoveServer(IRC::UUID uuid) -> void = 0;
-    virtual auto GetClient(IRC::UUID uuid) -> std::optional<std::shared_ptr<IClient>> = 0;
-    virtual auto GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> = 0;
-    virtual auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> = 0;
-    virtual auto RegisterLocalUser(IRC::UUID uuid) -> void = 0;
-    virtual auto RegisterServer(IRC::UUID uuid) -> void = 0;
+    virtual auto GetClient(IRC::UUID uuid) -> std::optional<IClient*> = 0;
+    virtual auto GetClient(const std::string &nickname) -> std::optional<IClient*> = 0;
+    virtual auto GetServer(std::string &server_name) -> std::optional<IServer*> = 0;
+    virtual auto RegisterLocalUser(IRC::UUID uuid) -> IClient* = 0;
+    virtual auto RegisterServer(IRC::UUID uuid) -> IClient* = 0;
 
     class DuplicateClient : public std::runtime_error
     {

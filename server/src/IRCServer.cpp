@@ -8,8 +8,8 @@
 #include "LogSettings.h"
 
 IRCServer::IRCServer() :
-    server_data_(std::make_shared<ServerData>()),
-    message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_)),
+    server_data_(std::make_unique<ServerData>()),
+    message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_.get())),
     logger("IRCServer")
 {
     SetLogSettings();
@@ -41,17 +41,17 @@ auto IRCServer::RunOnce() -> void
         {
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));
-            server_data_->client_database_->AddClient(std::move(client));
-            
+
+            server_data_->client_database_.AddClient(std::move(client));
             logger.Log(LogLevel::DEBUG, "New client on FD: ", socket->GetFD());
         });
 
-    server_data_->client_database_->PollClients(
-        [this](std::shared_ptr<IClient> client, std::string raw_message)
+    server_data_->client_database_.PollClients(
+        [this](IClient* client, std::string raw_message)
         {
             try {
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
-                auto message = Message(client, parsed_message);
+                auto message = Message(client->GetUUID(), parsed_message);
 
                 std::cout << message << std::endl;
                 message_dispatcher_->Dispatch(message);
@@ -61,5 +61,5 @@ auto IRCServer::RunOnce() -> void
                 //TODO Handle invalid message
             }
         });
-    server_data_->client_database_->SendAll();
+    server_data_->client_database_.SendAll();
 }

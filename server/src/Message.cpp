@@ -1,15 +1,14 @@
 #include "Message.h"
 
-Message::Message(std::shared_ptr<IClient> client, IRC::RawMessage message) 
-    : client_(client),
-    uuid_(client_->GetUUID()),
+Message::Message(IRC::UUID uuid, IRC::RawMessage message) :
+    uuid_(uuid),
     raw_message_(message)
 {}
 
 Message::~Message()
 {}
 
-auto Message::GetUUID() const noexcept -> const IRC::UUID {
+auto Message::GetClientUUID() const noexcept -> const IRC::UUID {
     return uuid_;
 }
 
@@ -35,6 +34,3 @@ auto Message::GetNickname() const noexcept -> const std::optional<std::string>
     return std::nullopt;
 }
 
-auto Message::GetClient() const noexcept -> std::shared_ptr<IClient> {
-    return client_;
-}

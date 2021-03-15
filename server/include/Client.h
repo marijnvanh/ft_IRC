@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "IClient.h"
 #include "IIOHandler.h"
+#include "IServer.h"
 
 
 class Client : public virtual IClient
@@ -31,6 +32,7 @@ class Client : public virtual IClient
 
         io_handler_ = std::move(other.io_handler_);
         outgoing_msg_queue_ = std::move(other.outgoing_msg_queue_);
+        uuid_ = other.uuid_;
     };
 
     Client (Client& other) = delete;
@@ -43,7 +45,7 @@ class Client : public virtual IClient
         AlreadyRegistered(const char *msg) : std::runtime_error(msg) {}
     };
 
-    private:
+    protected:
     std::queue<std::string> outgoing_msg_queue_;
     std::unique_ptr<IRC::IIOHandler> io_handler_;
     IRC::UUID uuid_;

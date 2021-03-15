@@ -2,13 +2,16 @@
 #define SERVER_DATA_HPP
 
 #include "ClientDatabase.h"
+#include "LocalServer.h"
 #include <memory>
 
 struct ServerData
 {
-    ServerData() : client_database_(std::make_shared<ClientDatabase>()) {};
+    ServerData()
+    {};
 
-    std::shared_ptr<ClientDatabase> client_database_;
+    ClientDatabase client_database_;
+    LocalServer local_server_;
 };
 
 #endif

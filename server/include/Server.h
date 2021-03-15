@@ -8,21 +8,25 @@
 
 #include "Client.h"
 #include "IServer.h"
-#include "IIOHandler.h"
 
 class Server : public IServer, Client
 {
     public:
 
     Server() = delete;
-    Server(Client &&old_client) : Client(std::move(old_client)) {};
-    ~Server() {};
+    Server(Client &&old_client);
+    ~Server();
+
+    auto AddClient(IClient* client) -> void override;
+    auto RemoveClient(IRC::UUID uuid) -> void override;
 
     Server (Server& other) = delete;
     Server &operator =(Server& other) = delete;
     Server &operator= (Server&& other) = delete;
 
     private:
+
+    std::unordered_map<IRC::UUID, IClient*> clients_;
 };
 
 #endif
