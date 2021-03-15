@@ -9,6 +9,7 @@
 #include "IOController.h"
 #include "ServerData.h"
 #include "IMessageDispatcher.h"
+#include "Logger.h"
 
 #define PORT "5000" //TODO remove this
 
@@ -35,9 +36,11 @@ class IRCServer
     auto RunOnce() -> void;
 
     private:
+
     std::unique_ptr<ServerData> server_data_;
     std::unique_ptr<IMessageDispatcher> message_dispatcher_;
     TCP::IOController tcp_io_controller_;
+    Logger logger;
 };
 
 #endif
