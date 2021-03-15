@@ -41,14 +41,9 @@ auto IRCServer::RunOnce() -> void
         {
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));
-<<<<<<< HEAD
-            server_data_->client_database_.AddClient(std::move(client));
-            std::cout << "New client on FD: " << socket->GetFD() << std::endl;
-=======
 
             server_data_->client_database_.AddClient(std::move(client));
             logger.Log(LogLevel::DEBUG, "New client on FD: ", socket->GetFD());
->>>>>>> develop
         });
 
     server_data_->client_database_.PollClients(
