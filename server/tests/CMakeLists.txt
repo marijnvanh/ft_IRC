@@ -23,6 +23,11 @@ ClientDatabase_test.cpp
 ../src/ClientDatabase.cpp
 ../src/Client.cpp
 )
+package_add_test( ChannelDatabase_test
+ChannelDatabase_test.cpp
+../src/ChannelDatabase.cpp
+../src/Channel.cpp
+)
 package_add_test( PASSHandler_test
 ./HandlerTests/PASSHandler_test.cpp
 ../src/MessageHandlers/PASSHandler.cpp
