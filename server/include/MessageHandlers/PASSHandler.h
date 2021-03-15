@@ -7,6 +7,6 @@
 #include "IClientDatabase.h"
 #include "IMessage.h"
 
-auto PASSHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void;
+auto PASSHandler(IClientDatabase *client_database, IMessage &message) -> void;
 
 #endif

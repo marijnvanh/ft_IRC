@@ -20,21 +20,17 @@ class NICKFromUserTests : public ::testing::Test
     MockMessage message1;
     std::vector<std::string> params;
 
-    std::shared_ptr<MockClientDatabase> mock_client_database_shared;
-    MockClientDatabase *mock_client_database;
+    MockClientDatabase mock_client_database;
 
     void SetUp() override
     {
-        mock_client_database_shared = std::make_shared<MockClientDatabase>();
-        mock_client_database = mock_client_database_shared.get();
-
         EXPECT_CALL(mock_client1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid1));
         EXPECT_CALL(message1, GetClientUUID())
             .WillRepeatedly(Return(uuid1));
         EXPECT_CALL(message1, GetParams())
             .WillRepeatedly(ReturnRef(params));
-        EXPECT_CALL(*mock_client_database, GetClient(uuid1))
+        EXPECT_CALL(mock_client_database, GetClient(uuid1))
             .WillRepeatedly(Return(std::optional<IClient*>(&mock_client1)));
     }
 };
@@ -52,15 +48,11 @@ class NICKFromServerTests : public ::testing::Test
     MockMessage message2;
     std::vector<std::string> params2;
 
-    std::shared_ptr<MockClientDatabase> mock_client_database_shared;
-    MockClientDatabase *mock_client_database;
+    MockClientDatabase mock_client_database;
 
     void SetUp() override
     {
         server_client1.SetType(IClient::Type::kServer);
-
-        mock_client_database_shared = std::make_shared<MockClientDatabase>();
-        mock_client_database = mock_client_database_shared.get();
 
         EXPECT_CALL(message1, GetClientUUID())
             .WillRepeatedly(Return(uuid1));
@@ -70,9 +62,9 @@ class NICKFromServerTests : public ::testing::Test
             .WillRepeatedly(Return(uuid2));
         EXPECT_CALL(message2, GetParams())
             .WillRepeatedly(ReturnRef(params2));
-        EXPECT_CALL(*mock_client_database, GetClient(uuid1))
+        EXPECT_CALL(mock_client_database, GetClient(uuid1))
             .WillRepeatedly(Return(std::optional<IClient*>(&user_client1)));
-        EXPECT_CALL(*mock_client_database, GetClient(uuid2))
+        EXPECT_CALL(mock_client_database, GetClient(uuid2))
             .WillRepeatedly(Return(std::optional<IClient*>(&server_client1)));
 
     }
@@ -83,10 +75,10 @@ TEST_F(NICKFromUserTests, SuccessTest)
 {
     params.push_back("new_nickname");
 
-    EXPECT_CALL(*mock_client_database, GetClient("new_nickname"))
+    EXPECT_CALL(mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::nullopt));
 
-    NICKHandler(mock_client_database_shared, message1);
+    NICKHandler(&mock_client_database, message1);
 
     ASSERT_EQ(mock_client1.GetNickname(), "new_nickname");
 }
@@ -95,7 +87,7 @@ TEST_F(NICKFromUserTests, NoNickNameGiven)
 {
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(mock_client_database_shared, message1);
+    NICKHandler(&mock_client_database, message1);
 }
 
 TEST_F(NICKFromUserTests, ClientNickCollision)
@@ -106,7 +98,7 @@ TEST_F(NICKFromUserTests, ClientNickCollision)
 
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(mock_client_database_shared, message1);
+    NICKHandler(&mock_client_database, message1);
 }
 
 TEST_F(NICKFromServerTests, SuccessTest)
@@ -117,15 +109,15 @@ TEST_F(NICKFromServerTests, SuccessTest)
         .WillOnce(Return(std::optional<std::string>("old_nickname")));
 
     /* Set ClientDatabase expectations */
-    EXPECT_CALL(*mock_client_database, GetClient("new_nickname"))
+    EXPECT_CALL(mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::nullopt));
-    EXPECT_CALL(*mock_client_database, GetClient("old_nickname"))
+    EXPECT_CALL(mock_client_database, GetClient("old_nickname"))
         .WillOnce(Return(&user_client1));
 
     /* Init client with old_nickname */
     user_client1.SetNickname("old_nickname");
 
-    NICKHandler(mock_client_database_shared, message2);
+    NICKHandler(&mock_client_database, message2);
 
     ASSERT_EQ(user_client1.GetNickname(), "new_nickname");
 }
@@ -139,5 +131,5 @@ TEST_F(NICKFromServerTests, NoOrigin)
 
     EXPECT_CALL(server_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(mock_client_database_shared, message2);
+    NICKHandler(&mock_client_database, message2);
 }

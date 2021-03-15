@@ -20,19 +20,15 @@ class PASSTests : public ::testing::Test
     MockMessage message1;
     std::vector<std::string> params;
 
-    std::shared_ptr<MockClientDatabase> mock_client_database_shared;
-    MockClientDatabase *mock_client_database;
+    MockClientDatabase mock_client_database;
 
     void SetUp() override
     {
-        mock_client_database_shared = std::make_shared<MockClientDatabase>();
-        mock_client_database = mock_client_database_shared.get();
-
         EXPECT_CALL(message1, GetClientUUID())
             .WillRepeatedly(Return(uuid1));
         EXPECT_CALL(message1, GetParams())
             .WillRepeatedly(ReturnRef(params));
-        EXPECT_CALL(*mock_client_database, GetClient(uuid1))
+        EXPECT_CALL(mock_client_database, GetClient(uuid1))
             .WillRepeatedly(Return(std::optional<IClient*>(&mock_client1)));
     }
 };
@@ -40,7 +36,7 @@ class PASSTests : public ::testing::Test
 TEST_F(PASSTests, SuccessTest)
 {
     params.push_back("test1");
-    PASSHandler(mock_client_database_shared, message1);
+    PASSHandler(&mock_client_database, message1);
 
     ASSERT_EQ(mock_client1.GetPassword(), "test1");
 }
@@ -49,7 +45,7 @@ TEST_F(PASSTests, InvalidParams)
 {
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    PASSHandler(mock_client_database_shared, message1);
+    PASSHandler(&mock_client_database, message1);
 }
 
 TEST_F(PASSTests, AlreadyRegisteredClient)
@@ -58,5 +54,5 @@ TEST_F(PASSTests, AlreadyRegisteredClient)
 
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    PASSHandler(mock_client_database_shared, message1);
+    PASSHandler(&mock_client_database, message1);
 }

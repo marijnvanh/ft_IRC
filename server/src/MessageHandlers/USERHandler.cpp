@@ -6,13 +6,13 @@
 #define REALNAME_PARAM 3
 
 //TODO
-static auto HandleUSERFromServer(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+static auto HandleUSERFromServer(IClientDatabase *client_database, IMessage &message) -> void
 {
     (void)message;
     (void)client_database;
 }
 
-static auto HandleUSERFromUser(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+static auto HandleUSERFromUser(IClientDatabase *client_database, IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 
@@ -35,7 +35,7 @@ static auto HandleUSERFromUser(std::shared_ptr<IClientDatabase> client_database,
     }
 }
 
-auto USERHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+auto USERHandler(IClientDatabase *client_database, IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 

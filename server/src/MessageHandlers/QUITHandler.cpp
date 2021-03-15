@@ -17,7 +17,7 @@ static auto GetQuitMessage(IMessage &message) -> std::string
         return params.front();
 }
 
-static auto DisconnectLocalUser(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+static auto DisconnectLocalUser(IClientDatabase *client_database, IMessage &message) -> void
 {
     auto quit_message = GetQuitMessage(message);
     // auto local_user = std::dynamic_pointer_cast<ILocalUser>(client);
@@ -26,7 +26,7 @@ static auto DisconnectLocalUser(std::shared_ptr<IClientDatabase> client_database
     client_database->RemoveUser(message.GetClientUUID());
 }
 
-static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_database,
+static auto DisconnectRemoteUser(IClientDatabase *client_database,
     IClient* remote_user,
     IMessage &message) -> void
 {
@@ -54,7 +54,7 @@ static auto DisconnectRemoteUser(std::shared_ptr<IClientDatabase> client_databas
     }
 }
 
-auto QUITHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+auto QUITHandler(IClientDatabase *client_database, IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 

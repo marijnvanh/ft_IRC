@@ -3,7 +3,7 @@
 
 #define NICKNAME_PARAM 0
 
-auto KILLHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 

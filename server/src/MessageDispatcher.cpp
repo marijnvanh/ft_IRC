@@ -6,26 +6,26 @@
 #include "MessageHandlers/KILLHandler.h"
 #include "MessageHandlers/QUITHandler.h"
 
-MessageDispatcher::MessageDispatcher(std::shared_ptr<ServerData> server_data) 
+MessageDispatcher::MessageDispatcher(ServerData* server_data) 
     : server_data_(server_data)
 {
     handlers_.insert(std::make_pair("ping", [](auto server_data, auto message) {
-            PingPongHandler(server_data->client_database_, message);
+            PingPongHandler(&server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("PASS", [](auto server_data, auto message) {
-            PASSHandler(server_data->client_database_, message);
+            PASSHandler(&server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
-            NICKHandler(server_data->client_database_, message);
+            NICKHandler(&server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("USER", [](auto server_data, auto message) {
-            USERHandler(server_data->client_database_, message);
+            USERHandler(&server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("KILL", [](auto server_data, auto message) {
-            KILLHandler(server_data->client_database_, message);
+            KILLHandler(&server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("QUIT", [](auto server_data, auto message) {
-            QUITHandler(server_data->client_database_, message);
+            QUITHandler(&server_data->client_database_, message);
         }));
 }
 

@@ -2,7 +2,7 @@
 #include "Numerics.h"
 
 //TODO handle server side message
-static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_database,
+static auto HandleNICKFromServer(IClientDatabase *client_database,
     IClient* server, IMessage &message,
     const std::string &new_nickname) -> void
 {
@@ -33,7 +33,7 @@ static auto HandleNICKFromServer(std::shared_ptr<IClientDatabase> client_databas
     }
 }
 
-static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
+static auto HandleNICKFromUser(IClientDatabase *client_database,
     IClient* client, const std::string &nickname) -> void
 {
     auto client_with_nickname = client_database->GetClient(nickname);
@@ -63,7 +63,7 @@ static auto HandleNICKFromUser(std::shared_ptr<IClientDatabase> client_database,
     }
 }
 
-auto NICKHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void
+auto NICKHandler(IClientDatabase *client_database, IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 
