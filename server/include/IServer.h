@@ -14,6 +14,9 @@ class IServer : public virtual IClient
     };
     virtual ~IServer() {};
 
+    virtual auto AddClient(IClient* client) -> void = 0;
+    virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
+
     private:
 };
 

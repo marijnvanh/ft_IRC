@@ -8,12 +8,11 @@
 class MockMessage : public IMessage {
     public:
 
-    MOCK_METHOD(const IRC::UUID, GetUUID, (), (const, noexcept));
+    MOCK_METHOD(const IRC::UUID, GetClientUUID, (), (const, noexcept));
     MOCK_METHOD(const std::string &, GetCommand, (), (const, noexcept));
     MOCK_METHOD(const std::vector<std::string> &, GetParams, (), (const, noexcept));
     MOCK_METHOD(const std::optional<std::string>, GetServername, (), (const, noexcept));
     MOCK_METHOD(const std::optional<std::string>, GetNickname, (), (const, noexcept));
-    MOCK_METHOD(std::shared_ptr<IClient>, GetClient, (), (const, noexcept));
 };
 
 #endif

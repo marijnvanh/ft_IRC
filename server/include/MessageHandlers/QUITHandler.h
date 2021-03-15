@@ -7,6 +7,6 @@
 #include "IClientDatabase.h"
 #include "IMessage.h"
 
-auto QUITHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void;
+auto QUITHandler(IClientDatabase *client_database, IMessage &message) -> void;
 
 #endif

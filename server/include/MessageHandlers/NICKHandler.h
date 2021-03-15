@@ -9,6 +9,6 @@
 #include "IMessage.h"
 #include "Mutex.h"
 
-auto NICKHandler(std::shared_ptr<IClientDatabase> client_database, IMessage &message) -> void;
+auto NICKHandler(IClientDatabase *client_database, IMessage &message) -> void;
 
 #endif

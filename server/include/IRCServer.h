@@ -35,10 +35,9 @@ class IRCServer
     auto RunOnce() -> void;
 
     private:
-    TCP::IOController tcp_io_controller_;
-    std::shared_ptr<ServerData> server_data_;
+    std::unique_ptr<ServerData> server_data_;
     std::unique_ptr<IMessageDispatcher> message_dispatcher_;
-    
+    TCP::IOController tcp_io_controller_;
 };
 
 #endif

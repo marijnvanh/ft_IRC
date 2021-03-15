@@ -66,18 +66,18 @@ TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 {
     client_database->AddClient(std::move(unique_client1));
 
-    ASSERT_EQ(client_database->GetClient(uuid1)->GetUUID(), uuid1);
+    ASSERT_EQ((*client_database->GetClient(uuid1))->GetUUID(), uuid1);
 
     client_database->RemoveClient(uuid1);
 
-    ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
 
 TEST_F(ClientDatabaseTests, GetInvalidClientByFakeUUID)
 {
     client_database->AddClient(std::move(unique_client1));
 
-    ASSERT_THROW(client_database->GetClient(uuid2), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid2), std::nullopt);
 }
 
 /* This test adds three clients and expects to receive from all of them.
@@ -106,7 +106,7 @@ TEST_F(ClientDatabaseTests, PollClients)
     };
 
     int callback_count = 0;
-    client_database->PollClients([&callback_count, &expectations](std::shared_ptr<IClient> client, std::string message) {
+    client_database->PollClients([&callback_count, &expectations](IClient* client, std::string message) {
         EXPECT_EQ(expectations[client->GetUUID()], message);
         callback_count += 1;
     });
@@ -122,12 +122,12 @@ TEST_F(ClientDatabaseTests, PollDisconnectedClient)
     EXPECT_CALL(*client1, Receive())
         .WillOnce(Throw(IClient::Disconnected("test")));
 
-    client_database->PollClients([](std::shared_ptr<IClient> client, std::string message) {
+    client_database->PollClients([](IClient* client, std::string message) {
         (void)client;
         (void)message;
     });
 
-    ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
 
 /* This test adds three clients and expects to call SendAll from all of them. */
@@ -154,7 +154,7 @@ TEST_F(ClientDatabaseTests, SendAllWithDisconnectedClient)
 
     client_database->SendAll();
 
-    ASSERT_THROW(client_database->GetClient(uuid1), ClientDatabase::ClientNotFound);
+    ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
 
 TEST_F(ClientDatabaseTests, GetClientByNickname)

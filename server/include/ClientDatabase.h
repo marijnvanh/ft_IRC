@@ -18,18 +18,18 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param new_client 
      */
-    auto AddClient(std::unique_ptr<IClient> new_client) -> void override;
-    auto AddLocalUser(std::shared_ptr<ILocalUser> new_localuser) -> void override;
-    auto AddRemoteUser(std::shared_ptr<IRemoteUser> new_remoteuser) -> void override;
-    auto AddServer(std::shared_ptr<IServer> new_server) -> void override;
+    auto AddClient(std::unique_ptr<IClient> new_client) -> IClient* override;
+    auto AddLocalUser(std::unique_ptr<ILocalUser> new_localuser) -> void override;
+    auto AddRemoteUser(std::unique_ptr<IRemoteUser> new_remoteuser) -> void override;
+    auto AddServer(std::unique_ptr<IServer> new_server) -> void override;
 
     /**
      * @brief Register functions to upgrade a client to a localuser or server 
      * 
      * @param uuid 
      */
-    auto RegisterLocalUser(IRC::UUID uuid) -> void override;
-    auto RegisterServer(IRC::UUID uuid) -> void override;
+    auto RegisterLocalUser(IRC::UUID uuid) -> IClient* override;
+    auto RegisterServer(IRC::UUID uuid) -> IClient* override;
 
     /**
      * @brief Remove client from database
@@ -38,15 +38,15 @@ class ClientDatabase : public IClientDatabase
      * @param uuid 
      */
     auto RemoveClient(IRC::UUID uuid) -> void override;
-    auto RemoveUser(const std::string &nickname) -> void override;
-    auto RemoveServer(const std::string &server_name) -> void override;
+    auto RemoveUser(IRC::UUID uuid) -> void override;
+    auto RemoveServer(IRC::UUID uuid) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message
      * 
      * @param message_handler 
      */
-    auto PollClients(std::function<void(std::shared_ptr<IClient>, std::string)> message_handler) -> void;
+    auto PollClients(std::function<void(IClient*, std::string)> message_handler) -> void;
 
     /**
      * @brief Empty all client send queus
@@ -55,24 +55,27 @@ class ClientDatabase : public IClientDatabase
     auto SendAll() -> void;
 
     /**
-     * @brief Search functions to find IClient/IServer objects
+     * @brief Get client
      * 
-     * @exception ClientNotFound if client uuid is not in the database //TODO remove
-     * @return std::shared_ptr<IClient> 
+     * @param uuid 
      */
-    auto GetClient(IRC::UUID uuid) -> std::shared_ptr<IClient> override; //TODO change to optional
+    auto GetClient(IRC::UUID uuid) -> std::optional<IClient*> override;
     
     // Get Client by nickname currently returns both Registered and UnRegistered users
     // This might not be what we want because of Nick collisions on UnRegistered users
-    auto GetClient(const std::string &nickname) -> std::optional<std::shared_ptr<IClient>> override;
-    auto GetServer(std::string &server_name) -> std::optional<std::shared_ptr<IServer>> override;
+    auto GetClient(const std::string &nickname) -> std::optional<IClient*> override;
+    auto GetServer(std::string &server_name) -> std::optional<IServer*> override;
 
     private:
 
-    std::unordered_map<IRC::UUID, std::shared_ptr<IClient>> clients_;
-    std::unordered_map<std::string, std::shared_ptr<ILocalUser>> local_users_;
-    std::unordered_map<std::string, std::shared_ptr<IRemoteUser>> remote_users_;
-    std::unordered_map<std::string, std::shared_ptr<IServer>> servers_;
+    auto HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
+        std::function<void(IClient*, std::string)> &message_handler) -> void;
+    auto HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients) -> void;
+
+    std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> clients_;
+    std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> local_users_;
+    std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> remote_users_;
+    std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> servers_;
 };
 
 #endif

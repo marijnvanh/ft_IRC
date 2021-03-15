@@ -8,6 +8,9 @@
 
 class MockServer : public IServer, public MockClient {
     public:
+
+    MOCK_METHOD(void, AddClient, (IClient*), ());
+    MOCK_METHOD(void, RemoveClient, (IRC::UUID), ());
 };
 
 #endif
