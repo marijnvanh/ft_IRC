@@ -57,11 +57,20 @@ TEST_F(ChannelDatabaseTests, DeleteEmptyChannels)
 	auto channel2 = channel_database->GetChannel(channel_name2);
     ASSERT_EQ((*channel2)->GetName(), channel_name2);
 
-	// Functional
-	(*channel2)->AddUser(std::make_shared<MockUser>());
+	// Act
+	MockUser* user1 = new MockUser();
+
+	IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
+	EXPECT_CALL(*user1, GetUUID()).WillRepeatedly(ReturnRef(uuid1));
+
+	(*channel2)->AddUser(user1);
+
     channel_database->DeleteEmptyChannels();
 
 	// Assert
     ASSERT_EQ(channel_database->GetChannel(channel_name), std::nullopt);
     ASSERT_EQ(*channel_database->GetChannel(channel_name2), channel2);
+
+	// Cleanup
+	delete user1;
 }

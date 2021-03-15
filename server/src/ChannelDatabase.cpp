@@ -28,37 +28,31 @@ auto ChannelDatabase::DeleteEmptyChannels() -> void
 
 auto ChannelDatabase::CreateChannel(std::string channel_name,
 	ChannelType type = ChannelType::kLocal,
-	ChannelMode mode = ChannelMode::None) -> std::shared_ptr<IChannel>
+	ChannelMode mode = ChannelMode::None) -> IChannel*
 {
-	auto new_channel = std::make_shared<Channel>(channel_name, type, mode);
+	auto new_channel = std::make_unique<Channel>(channel_name, type, mode);
 
-	this->AddChannel(new_channel);
-
-	return (new_channel);
+	return this->AddChannel(std::move(new_channel));
 }
 
-auto ChannelDatabase::AddChannel(std::shared_ptr<IChannel> new_channel) -> void
+auto ChannelDatabase::AddChannel(std::unique_ptr<IChannel> new_channel) -> IChannel*
 {
     auto channel_name = new_channel->GetName();
-
-    auto ret = channels_.insert(std::make_pair(channel_name, new_channel));
+    auto ret = channels_.insert(std::make_pair(channel_name, std::move(new_channel)));
 
     if (ret.second == false)
 	{
         throw DuplicateChannel();
+		return NULL; // For some reason, not returning something throws a compile-time error.
 	}
+	return ret.first->second.get();
 }
 
-auto ChannelDatabase::GetChannel(std::string channel_name) -> std::optional<std::shared_ptr<IChannel>>
+auto ChannelDatabase::GetChannel(std::string channel_name) -> std::optional<IChannel*>
 {
-    for (auto it = channels_.begin(), next_it = it; it != channels_.end(); it = next_it)
-    {
-        ++next_it;
-        if (it->second->GetName() == channel_name)
-		{
-            return std::optional<std::shared_ptr<IChannel>>(it->second);
-		}
-    }
+	auto channel = channels_.find(channel_name);
+	if (channel != channels_.end())
+		return std::optional<IChannel*>(channel->second.get());
 
     return std::nullopt;
 }

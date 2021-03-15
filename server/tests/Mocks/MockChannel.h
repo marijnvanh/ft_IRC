@@ -13,7 +13,7 @@ class MockChannel : public virtual IChannel {
     MOCK_METHOD(void, PushToRemote, (std::string irc_message), ());
 
     MOCK_METHOD(void, RemoveUser, (std::string irc_message), ());
-	MOCK_METHOD(void, AddUser, (std::shared_ptr<IUser> new_user), ());
+	MOCK_METHOD(void, AddUser, (IUser* new_user), ());
 
     MOCK_METHOD(uint32_t, CountUsers, (), ());
 };

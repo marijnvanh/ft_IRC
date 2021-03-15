@@ -8,6 +8,7 @@
 
 class MockUser : public virtual IUser, public MockClient {
     public:
+    	MOCK_METHOD(const IRC::UUID&, GetUUID, (), (const, noexcept));
 };
 
 #endif

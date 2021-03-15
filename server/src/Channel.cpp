@@ -40,17 +40,17 @@ auto Channel::RemoveUser(IRC::UUID uuid) -> void
     remote_users_.erase(uuid);
 }
 
-auto Channel::AddUser(std::shared_ptr<IUser> new_user) -> void
+auto Channel::AddUser(IUser* new_user) -> void
 {
     auto uuid = new_user->GetUUID();
 
 	if (new_user->GetType() == IClient::Type::kLocalUser)
 	{
-    	local_users_.insert(std::make_pair(uuid, std::dynamic_pointer_cast<ILocalUser>(new_user)));
+    	local_users_.insert(std::make_pair(uuid, dynamic_cast<ILocalUser*>(new_user)));
 	}
 	else
 	{
-    	remote_users_.insert(std::make_pair(uuid, std::dynamic_pointer_cast<IRemoteUser>(new_user)));	
+    	remote_users_.insert(std::make_pair(uuid, dynamic_cast<IRemoteUser*>(new_user)));	
 	}
 }
 
