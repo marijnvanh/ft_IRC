@@ -4,6 +4,7 @@
 #include "Server.h"
 #include "MockIOHandler.h"
 #include "MockClient.h"
+#include "MockServer.h"
 #include <memory>
 
 using ::testing::AtLeast;

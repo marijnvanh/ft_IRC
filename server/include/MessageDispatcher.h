@@ -7,18 +7,18 @@
 #include "ServerData.h"
 #include "Message.h"
 
-using MessageHandler = std::function<void(std::shared_ptr<ServerData>, Message)>;
+using MessageHandler = std::function<void(ServerData*, Message)>;
 
 class MessageDispatcher : public IMessageDispatcher
 {
     public:
-    MessageDispatcher(std::shared_ptr<ServerData> server_data);
+    MessageDispatcher(ServerData *server_data);
     ~MessageDispatcher();
 
     auto Dispatch(Message message) -> void override;
 
     private:
-    std::shared_ptr<ServerData> server_data_;
+    ServerData* server_data_;
     std::unordered_map<std::string, MessageHandler> handlers_;
 };
 
