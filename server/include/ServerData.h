@@ -13,6 +13,7 @@ struct ServerData
     ServerData()
     {};
 
+	ChannelDatabase channel_database_;
     ClientDatabase client_database_;
     LocalServer local_server_;
 };

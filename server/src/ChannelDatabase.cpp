@@ -41,10 +41,7 @@ auto ChannelDatabase::AddChannel(std::unique_ptr<IChannel> new_channel) -> IChan
     auto ret = channels_.insert(std::make_pair(channel_name, std::move(new_channel)));
 
     if (ret.second == false)
-	{
-        throw DuplicateChannel();
-		return NULL; // For some reason, not returning something throws a compile-time error.
-	}
+		throw DuplicateChannel();
 	return ret.first->second.get();
 }
 
