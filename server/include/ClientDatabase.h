@@ -3,6 +3,7 @@
 
 #include <string>
 #include "IClientDatabase.h"
+#include "Logger.h"
 
 class ClientDatabase : public IClientDatabase
 {
@@ -64,7 +65,8 @@ class ClientDatabase : public IClientDatabase
     // Get Client by nickname currently returns both Registered and UnRegistered users
     // This might not be what we want because of Nick collisions on UnRegistered users
     auto GetClient(const std::string &nickname) -> std::optional<IClient*> override;
-    auto GetServer(std::string &server_name) -> std::optional<IServer*> override;
+    auto GetServer(const std::string &server_name) -> std::optional<IServer*> override;
+    auto GetUser(const std::string &nickname) -> std::optional<IUser*> override;
 
     private:
 
@@ -76,6 +78,7 @@ class ClientDatabase : public IClientDatabase
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> local_users_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> remote_users_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> servers_;
+    Logger logger;
 };
 
 #endif

@@ -79,7 +79,7 @@ enum
 	// ERR_USERNOTINCHANNEL            = 441,
 	// ERR_NOTONCHANNEL                = 442,
 	// ERR_USERONCHANNEL               = 443,
-	// ERR_NOTREGISTERED               = 451,
+	ERR_NOTREGISTERED               = 451,
 	ERR_NEEDMOREPARAMS              = 461,
 	ERR_ALREADYREGISTERED           = 462,
 	// ERR_YOUREBANNEDCREEP            = 465,

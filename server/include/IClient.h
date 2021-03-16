@@ -6,6 +6,8 @@
 #include <optional>
 #include "UUID.h"
 
+#include <iostream>
+
 class IServer;
 
 class IClient
@@ -30,7 +32,12 @@ class IClient
 
     IClient() : state_(IClient::State::kUnRegistered), type_(IClient::Type::kUnInitialized)
     {};
-    IClient (IClient&& other) = default;
+
+    IClient (IClient&& other) = default; 
+    // {
+    //     (void)other;
+    //     std::cout << "Move constructor called in IClient" << std::endl;
+    // };
 
     /**
      * @brief Push a message on to the send queue (later to be send by SendAll)

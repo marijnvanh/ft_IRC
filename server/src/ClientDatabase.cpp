@@ -5,7 +5,7 @@
 #include "Server.h"
 #include "Client.h"
 
-ClientDatabase::ClientDatabase()
+ClientDatabase::ClientDatabase() : logger("ClientDatabase")
 {}
 
 ClientDatabase::~ClientDatabase()
@@ -21,9 +21,13 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> IClient*
     return ret.first->second.get();
 }
 
+//TODO make this disconnect client or something and deal with all scenario's properly
 auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
 {
     clients_.erase(uuid);
+    local_users_.erase(uuid);
+    remote_users_.erase(uuid);
+    servers_.erase(uuid);
 }
 
 auto ClientDatabase::RemoveUser(IRC::UUID uuid) -> void
@@ -110,10 +114,11 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
         with the new LocalUser object. We move the unique pointer with the LocalUser to
         our list with local_users_ and remove the empty pointer from the clients_ list.
     */
+    logger.Log(LogLevel::DEBUG, "Registering %s", client->GetNickname().c_str());
     auto tmp_unique_client = std::move(stored_client->second);
     tmp_unique_client.reset(new LocalUser(std::move(*client)));
     auto new_local_user = local_users_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
-    RemoveClient(uuid);
+    clients_.erase(uuid);
     return new_local_user.first->second.get();
 }
 
@@ -137,7 +142,7 @@ auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> IClient*
     auto tmp_unique_client = std::move(stored_client->second);
     tmp_unique_client.reset(new Server(std::move(*client)));
     auto new_server = servers_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
-    RemoveClient(uuid);
+    clients_.erase(uuid);
     return new_server.first->second.get();
 }
 
@@ -212,7 +217,7 @@ auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<ICl
 }
 
 //TODO server name ?
-auto ClientDatabase::GetServer(std::string &server_name) -> std::optional<IServer*>
+auto ClientDatabase::GetServer(const std::string &server_name) -> std::optional<IServer*>
 {
     for (auto it = servers_.begin(), next_it = it; it != servers_.end(); it = next_it)
     {
@@ -221,4 +226,24 @@ auto ClientDatabase::GetServer(std::string &server_name) -> std::optional<IServe
             return std::optional<IServer*>(dynamic_cast<IServer*>(it->second.get()));
     }
     return std::nullopt;
+}
+
+//TODO fix this
+auto ClientDatabase::GetUser(const std::string &nickname) -> std::optional<IUser*>
+{
+    auto user = GetClient(nickname);
+
+    for (auto it = local_users_.begin(), next_it = it; it != local_users_.end(); it = next_it)
+    {
+        ++next_it;
+        logger.Log(LogLevel::DEBUG, "Client found %s", it->second->GetNickname().c_str());
+    }
+
+    if (user == std::nullopt)
+    {
+        logger.Log(LogLevel::DEBUG, "Couldn't find client %s", nickname.c_str());
+        return std::nullopt;
+    }
+    logger.Log(LogLevel::DEBUG, "Found client %s", nickname.c_str());
+    return std::optional<IUser*>(dynamic_cast<IUser*>(*user));
 }

@@ -1,6 +1,6 @@
 #include "Server.h"
 
-Server::Server(Client &&old_client) : Client(std::move(old_client))
+Server::Server(Client &&old_client) : IClient(std::move(old_client)), Client(std::move(old_client))
 {
     type_ = IClient::Type::kServer;
 }
