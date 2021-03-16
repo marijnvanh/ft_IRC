@@ -7,7 +7,7 @@ def Build():
     if args.target == "tests":
         options = "-DPACKAGE_TESTS=ON"
     else:
-        options = ""
+        options = "-DPACKAGE_TESTS=OFF"
     if subprocess.call([f"cmake -B build {options}"], shell=True):
         exit(-1)
 

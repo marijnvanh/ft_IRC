@@ -60,3 +60,8 @@ ClientUpgrade_test.cpp
 ../src/Client.cpp
 ../src/Server.cpp
 )
+
+package_add_test( PRIVMSGHandler_test
+./HandlerTests/PRIVMSGHandler_test.cpp
+../src/MessageHandlers/PRIVMSGHandler.cpp
+)

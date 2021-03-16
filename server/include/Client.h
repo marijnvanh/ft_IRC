@@ -30,7 +30,6 @@ class Client : public virtual IClient
     {
         if (other.state_ != kUnRegistered)
             throw AlreadyRegistered("Can't move a client after registration");
-        std::cout << "Move constructor called" << std::endl;
         io_handler_ = std::move(other.io_handler_);
         outgoing_msg_queue_ = std::move(other.outgoing_msg_queue_);
         uuid_ = other.uuid_;

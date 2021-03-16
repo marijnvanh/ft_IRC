@@ -34,10 +34,6 @@ class IClient
     {};
 
     IClient (IClient&& other) = default; 
-    // {
-    //     (void)other;
-    //     std::cout << "Move constructor called in IClient" << std::endl;
-    // };
 
     /**
      * @brief Push a message on to the send queue (later to be send by SendAll)
@@ -79,11 +75,9 @@ class IClient
 
     virtual ~IClient() {};
 
-
     IClient (IClient& other) = delete;
     IClient &operator =(IClient& other) = delete;
     IClient &operator= (IClient&& other) = delete;
-
 
     class Disconnected : public std::runtime_error
     {
