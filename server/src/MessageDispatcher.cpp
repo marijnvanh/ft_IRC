@@ -1,5 +1,5 @@
 #include "MessageDispatcher.h"
-#include "MessageHandlers/PingPongHandler.h"
+#include "MessageHandlers/PINGHandler.h"
 #include "MessageHandlers/PASSHandler.h"
 #include "MessageHandlers/NICKHandler.h"
 #include "MessageHandlers/USERHandler.h"
@@ -9,12 +9,6 @@
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
     : server_data_(server_data)
 {
-    handlers_.insert(std::make_pair("ping", [](auto server_data, auto message) {
-            PingPongHandler(&server_data->client_database_, message);
-        }));
-    handlers_.insert(std::make_pair("PASS", [](auto server_data, auto message) {
-            PASSHandler(&server_data->client_database_, message);
-        }));
     handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
             NICKHandler(&server_data->client_database_, message);
         }));
@@ -27,6 +21,14 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     handlers_.insert(std::make_pair("QUIT", [](auto server_data, auto message) {
             QUITHandler(&server_data->client_database_, message);
         }));
+
+    command_handlers_.insert(std::make_pair("PING",
+        std::make_unique<PINGHandler>(&server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("PASS",
+        std::make_unique<PASSHandler>(&server_data->client_database_))
+    );
+    
 }
 
 MessageDispatcher::~MessageDispatcher()
@@ -35,10 +37,12 @@ MessageDispatcher::~MessageDispatcher()
 auto MessageDispatcher::Dispatch(Message message) -> void
 {
     auto handler = handlers_.find(message.GetCommand());
+    auto command_handler = command_handlers_.find(message.GetCommand());
 
     if (handler != handlers_.end())
         handler->second(server_data_, message);
-    else
+    else if (command_handler != command_handlers_.end())
+        command_handler->second->Handle(message);
+    else    //TODO Handle invalid message
         std::cerr << "Received invalid message" << std::endl;
-    //TODO Handle invalid message
 }
