@@ -17,6 +17,8 @@ using ::testing::_;
 class JOINTests : public ::testing::Test
 {
     public:
+	JOINHandler *handler;
+
 	MockChannel mock_channel1;
     MockLocalUser mock_localuser1;
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
@@ -32,6 +34,8 @@ class JOINTests : public ::testing::Test
 
     void SetUp() override
     {
+		handler = new JOINHandler(&mock_client_database, &mock_channel_database);
+
         channel1_key = "p@ssw0rd";
 		channel1_name = "#channel1";
 
@@ -49,6 +53,11 @@ class JOINTests : public ::testing::Test
         EXPECT_CALL(message1, GetParams())
             .WillRepeatedly(ReturnRef(message_params));
     }
+
+	void TearDown() override
+	{
+		delete(handler);
+	}
 };
 
 TEST_F(JOINTests, SuccessTest)
@@ -61,5 +70,5 @@ TEST_F(JOINTests, SuccessTest)
 
 	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1));
 
-    JOINHandler(&mock_client_database, &mock_channel_database, message1);
+    handler->Handle(message1);
 }

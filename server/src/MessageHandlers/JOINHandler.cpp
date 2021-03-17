@@ -8,6 +8,13 @@
 #define CHANNEL_NAME_PARAM 0
 #define CHANNEL_KEYS_PARAM 1
 
+JOINHandler::JOINHandler(IClientDatabase *client_database, IChannelDatabase *channel_database)
+	: client_database_(client_database), channel_database_(channel_database), logger("JOINHandler")
+{}
+
+JOINHandler::~JOINHandler()
+{}
+
 static auto CreateChannelKeyMap(std::string param_name,
 	std::string param_key) -> const std::map<std::string, std::string>
 {
@@ -76,11 +83,10 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 	}
 }
 
-auto JOINHandler(IClientDatabase *client_database,
-	IChannelDatabase *channel_database, IMessage &message) -> void
+auto JOINHandler::Handle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
-    auto client = *(client_database->GetClient(message.GetClientUUID()));
+    auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
 	// Handle unregistered client.
 	if (client->GetState() == IClient::kUnRegistered)
@@ -105,7 +111,7 @@ auto JOINHandler(IClientDatabase *client_database,
             return ;
         }
         //TODO validate nickname
-        auto remote_client = client_database->GetClient(*remote_client_nickname);
+        auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
             client->Push(std::to_string(ERR_NOSUCHNICK) + *remote_client_nickname + " :Can't find nickname"); //TODO
@@ -116,5 +122,5 @@ auto JOINHandler(IClientDatabase *client_database,
 	
 	// TOOD: JOIN should be broadcast to all connected servers.
 
-	StartJoinParsing(params, client, channel_database);
+	StartJoinParsing(params, client, channel_database_);
 }

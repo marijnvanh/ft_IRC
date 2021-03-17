@@ -22,10 +22,10 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     handlers_.insert(std::make_pair("QUIT", [](auto server_data, auto message) {
             QUITHandler(&server_data->client_database_, message);
         }));
-    handlers_.insert(std::make_pair("JOIN", [](auto server_data, auto message) {
-			JOINHandler(&server_data->client_database_, &server_data->channel_database_, message);
-        }));
 
+    command_handlers_.insert(std::make_pair("JOIN",
+        std::make_unique<JOINHandler>(&server_data->client_database_, &server_data->channel_database_))
+    );
     command_handlers_.insert(std::make_pair("PING",
         std::make_unique<PINGHandler>(&server_data->client_database_))
     );
