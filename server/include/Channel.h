@@ -8,7 +8,7 @@
 class Channel : public IChannel
 {
 public:
-	Channel(std::string name, ChannelType type, ChannelMode mode);
+	Channel(std::string name, std::string key, ChannelType type, ChannelMode mode);
 	~Channel();
 
 	auto PushToAll(std::string irc_message) -> void override;
@@ -19,6 +19,7 @@ public:
     auto RemoveUser(IRC::UUID uuid) -> void override;
 
 	auto CountUsers() -> uint32_t override;
+	auto GetUserListAsString() -> const std::string override;
 
 private:
 	std::unordered_map<IRC::UUID, ILocalUser*> local_users_;

@@ -3,7 +3,8 @@
 #include "Channel.h"
 #include "ChannelDatabase.h"
 
-ChannelDatabase::ChannelDatabase()
+ChannelDatabase::ChannelDatabase() :
+    logger("ChannelDatabase")
 {}
 
 ChannelDatabase::~ChannelDatabase()
@@ -26,11 +27,13 @@ auto ChannelDatabase::DeleteEmptyChannels() -> void
     }	
 }
 
-auto ChannelDatabase::CreateChannel(std::string channel_name,
+auto ChannelDatabase::CreateChannel(const std::string name, const std::string key,
 	ChannelType type = ChannelType::kLocal,
-	ChannelMode mode = ChannelMode::None) -> IChannel*
+	ChannelMode mode = ChannelMode::None) -> std::optional<IChannel*>
 {
-	auto new_channel = std::make_unique<Channel>(channel_name, type, mode);
+	auto new_channel = std::make_unique<Channel>(name, key, type, mode);
+
+    logger.Log(LogLevel::INFO, "New channel <%s> with key <%s> created.", name.c_str(), key.c_str());
 
 	return this->AddChannel(std::move(new_channel));
 }

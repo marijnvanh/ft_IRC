@@ -5,6 +5,7 @@
 #include "MessageHandlers/USERHandler.h"
 #include "MessageHandlers/KILLHandler.h"
 #include "MessageHandlers/QUITHandler.h"
+#include "MessageHandlers/JOINHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
     : server_data_(server_data)
@@ -22,6 +23,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
             QUITHandler(&server_data->client_database_, message);
         }));
 
+    command_handlers_.insert(std::make_pair("JOIN",
+        std::make_unique<JOINHandler>(&server_data->client_database_, &server_data->channel_database_))
+    );
     command_handlers_.insert(std::make_pair("PING",
         std::make_unique<PINGHandler>(&server_data->client_database_))
     );
