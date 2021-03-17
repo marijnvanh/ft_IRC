@@ -8,7 +8,7 @@
 class Channel : public IChannel
 {
 public:
-	Channel(std::string name, ChannelType type, ChannelMode mode);
+	Channel(std::string name, std::string key, ChannelType type, ChannelMode mode);
 	~Channel();
 
 	auto PushToAll(std::string irc_message) -> void override;

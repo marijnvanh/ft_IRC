@@ -39,7 +39,7 @@ enum
 
 	// RPL_CHANNELMODEIS               = 324,
 	// RPL_NOTOPICSET                  = 331,
-	// RPL_TOPIC                       = 332,
+	RPL_TOPIC                       = 332,
 
 	// RPL_USERIP                      = 340,
 	// RPL_INVITING                    = 341,
@@ -65,7 +65,7 @@ enum
      */
 	ERR_NOSUCHNICK                  = 401,
 	// ERR_NOSUCHSERVER                = 402,
-	// ERR_NOSUCHCHANNEL               = 403,
+	ERR_NOSUCHCHANNEL               = 403,
 	// ERR_CANNOTSENDTOCHAN            = 404,
 	// ERR_TOOMANYCHANNELS             = 405,
 	// ERR_WASNOSUCHNICK               = 406,
@@ -79,13 +79,13 @@ enum
 	// ERR_USERNOTINCHANNEL            = 441,
 	// ERR_NOTONCHANNEL                = 442,
 	// ERR_USERONCHANNEL               = 443,
-	// ERR_NOTREGISTERED               = 451,
+	ERR_NOTREGISTERED               = 451,
 	ERR_NEEDMOREPARAMS              = 461,
 	ERR_ALREADYREGISTERED           = 462,
 	// ERR_YOUREBANNEDCREEP            = 465,
 	// ERR_UNKNOWNMODE                 = 472,
 
-	// ERR_BADCHANNELKEY               = 475,
+	ERR_BADCHANNELKEY               = 475,
 	// ERR_BADCHANMASK                 = 476,
 	// ERR_INVITEONLYCHAN              = 473,
 	// ERR_CHANNELISFULL               = 471,

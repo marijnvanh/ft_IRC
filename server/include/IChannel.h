@@ -66,10 +66,12 @@ public:
 
 	virtual auto CountUsers() -> uint32_t = 0;
 
+	virtual auto SetKey(std::string new_key) -> void { key_ = new_key; }
 	virtual auto SetName(std::string new_name) -> void { name_ = new_name; }
 	virtual auto SetMode(ChannelMode new_mode) -> void { mode_ = new_mode; }
 	virtual auto SetType(ChannelType new_type) -> void { type_ = new_type; }
 
+	virtual auto GetKey() const -> std::string { return key_; }
 	virtual auto GetName() const -> std::string { return name_; }
 	virtual auto GetMode() const -> ChannelMode { return mode_; }
 	virtual auto GetType() const -> ChannelType { return type_; }
@@ -80,6 +82,7 @@ public:
 	virtual auto ClearMode(ChannelMode mode) -> void { mode_ = (mode_ & ~mode); }
 
 protected:
+	std::string key_;
 	std::string name_;
 
 	ChannelMode mode_;

@@ -2,11 +2,12 @@
 #include "IClient.h"
 #include "LocalUser.h"
 
-Channel::Channel(std::string name, ChannelType type, ChannelMode mode = ChannelMode::None)
+Channel::Channel(std::string name, std::string key, ChannelType type, ChannelMode mode = ChannelMode::None)
 {
+	key_ = key;
 	name_ = name;
-	type_ = type;
 
+	type_ = type;
 	mode_ = mode;
 }
 

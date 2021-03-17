@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "Logger.h"
 #include "IChannel.h"
 #include "IChannelDatabase.h"
 
@@ -19,11 +20,12 @@ public:
 
     auto RemoveChannel(std::string channel_name) -> void override;
     auto AddChannel(std::unique_ptr<IChannel> new_channel) -> IChannel* override;
-	auto CreateChannel(std::string channel_name, ChannelType type,
-		ChannelMode mode) -> IChannel* override;
+	auto CreateChannel(const std::string name, const std::string key,
+		ChannelType type, ChannelMode mode) -> std::optional<IChannel*> override;
 
     auto GetChannel(const std::string channel_name) -> std::optional<IChannel*> override;
 
+    Logger logger;
 private:
 	std::unordered_map<std::string, std::unique_ptr<IChannel>> channels_;
 

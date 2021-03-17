@@ -7,6 +7,7 @@ auto SetLogSettings() -> void
 {
     Logger::SetLevel("IRCServer", LogLevel::INFO);
     Logger::SetLevel("Client", LogLevel::INFO);
+    Logger::SetLevel("ChannelDatabase", LogLevel::INFO);
 }
 
 #endif
