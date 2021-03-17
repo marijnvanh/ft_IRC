@@ -65,6 +65,7 @@ public:
     virtual auto RemoveUser(IRC::UUID uuid) -> void = 0;
 
 	virtual auto CountUsers() -> uint32_t = 0;
+	virtual auto GetUserListAsString() -> const std::string = 0;
 
 	virtual auto SetKey(std::string new_key) -> void { key_ = new_key; }
 	virtual auto SetName(std::string new_name) -> void { name_ = new_name; }

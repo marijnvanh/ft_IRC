@@ -1,6 +1,8 @@
 #include "Client.h"
 #include <iostream>
 
+#define DELIMITER "\r\n"
+
 Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
     io_handler_(std::move(io_handler)),
     uuid_(IRC::UUIDGenerator::GetInstance().Generate()),
@@ -17,7 +19,7 @@ Client::~Client()
 
 auto Client::Push(std::string irc_message) -> void
 {
-    outgoing_msg_queue_.push(irc_message);
+    outgoing_msg_queue_.push(irc_message + DELIMITER);
 }
 
 auto Client::SendAll() -> void

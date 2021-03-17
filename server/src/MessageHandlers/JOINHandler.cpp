@@ -8,7 +8,8 @@
 #define CHANNEL_NAME_PARAM 0
 #define CHANNEL_KEYS_PARAM 1
 
-static auto CreateChannelKeyMap(std::string param_name, std::string param_key) -> const std::map<std::string, std::string>
+static auto CreateChannelKeyMap(std::string param_name,
+	std::string param_key) -> const std::map<std::string, std::string>
 {
 	auto channel_keys = split(param_key, ",");
 	auto channel_names = split(param_name, ",");
@@ -30,7 +31,8 @@ static auto CreateChannelKeyMap(std::string param_name, std::string param_key) -
 	return (nameKeyMap);
 }
 
-static auto TryAddUserToChannel(IChannel* channel, const std::string key, IUser* user) -> void
+static auto TryAddUserToChannel(IChannel* channel,
+	const std::string key, IUser* user) -> void
 {
 	// TODO: Check channel modes to see if user has enough privilege.
 	if (channel->GetKey() != key)
@@ -39,12 +41,15 @@ static auto TryAddUserToChannel(IChannel* channel, const std::string key, IUser*
 		return;
 	}
 
+	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
 	channel->AddUser(user);
 	
-	user->Push(std::to_string(RPL_TOPIC) + channel->GetTopic());
+	user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());
+	user->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetUserListAsString());
 }
 
-static auto StartJoinParsing(const std::vector<std::string> &params, IClient* client, IChannelDatabase *channel_database)
+static auto StartJoinParsing(const std::vector<std::string> &params,
+	IClient* client, IChannelDatabase *channel_database)
 {
 	auto keys = params.size() >= 2 ? params[CHANNEL_KEYS_PARAM] : std::string();
 	auto channel_pairs = CreateChannelKeyMap(params[CHANNEL_NAME_PARAM], keys);
@@ -108,6 +113,8 @@ auto JOINHandler(IClientDatabase *client_database,
         }
         client = *remote_client;
 	}
+	
+	// TOOD: JOIN should be broadcast to all connected servers.
 
 	StartJoinParsing(params, client, channel_database);
 }

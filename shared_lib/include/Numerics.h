@@ -44,7 +44,7 @@ enum
 	// RPL_USERIP                      = 340,
 	// RPL_INVITING                    = 341,
 	// RPL_VERSION                     = 351,
-	// RPL_NAMREPLY                    = 353,
+	RPL_NAMREPLY                    = 353,
 	// RPL_LINKS                       = 364,
 	// RPL_ENDOFLINKS                  = 365,
 	// RPL_ENDOFNAMES                  = 366,

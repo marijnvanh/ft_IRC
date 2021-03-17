@@ -59,3 +59,30 @@ auto Channel::CountUsers() -> uint32_t
 {
 	return (local_users_.size() + remote_users_.size());
 }
+
+auto Channel::GetUserListAsString() -> const std::string
+{
+	std::string result;
+
+	for (auto it = local_users_.cbegin(); it != local_users_.cend();)
+	{
+		result += it->second->GetNickname();
+		if (++it != local_users_.cend() || remote_users_.size() > 0)
+		{
+			result += ',';
+		}
+	}
+
+	for (auto it = remote_users_.cbegin(); it != remote_users_.cend();)
+	{
+		result += it->second->GetNickname();
+		++it;
+
+		if (it != remote_users_.cend())
+		{
+			result += ',';
+		}
+	}
+
+	return (result);
+}

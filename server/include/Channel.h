@@ -19,6 +19,7 @@ public:
     auto RemoveUser(IRC::UUID uuid) -> void override;
 
 	auto CountUsers() -> uint32_t override;
+	auto GetUserListAsString() -> const std::string override;
 
 private:
 	std::unordered_map<IRC::UUID, ILocalUser*> local_users_;
