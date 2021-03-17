@@ -1,3 +1,5 @@
+#include <map>
+
 #include "Numerics.h"
 #include "Utilities.h"
 #include "ChannelDatabase.h"
@@ -5,6 +7,28 @@
 
 #define CHANNEL_NAME_PARAM 0
 #define CHANNEL_KEYS_PARAM 1
+
+static auto CreateChannelKeyMap(std::string param_name, std::string param_key) -> const std::map<std::string, std::string>
+{
+	auto channel_keys = split(param_key, ",");
+	auto channel_names = split(param_name, ",");
+
+	std::map<std::string, std::string> nameKeyMap;
+
+	for (size_t i = 0; i < channel_names.size(); ++i)
+	{
+		if (channel_keys.size() > i)
+		{
+			nameKeyMap[channel_names[i]] = channel_keys[i];
+		}
+		else
+		{
+			nameKeyMap[channel_names[i]] = std::string();
+		}		
+	}
+
+	return (nameKeyMap);
+}
 
 static auto TryAddUserToChannel(IChannel* channel, const std::string key, IUser* user) -> void
 {
@@ -15,16 +39,38 @@ static auto TryAddUserToChannel(IChannel* channel, const std::string key, IUser*
 		return;
 	}
 
-	channel->AddUser(dynamic_cast<IUser*>(user));
+	channel->AddUser(user);
 	
-	user->Push(std::to_string(RPL_TOPIC));
+	user->Push(std::to_string(RPL_TOPIC) + channel->GetTopic());
 }
 
-/*         ERR_BANNEDFROMCHAN
-           ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
-           ERR_CHANNELISFULL               ERR_BADCHANMASK
-           ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
-           RPL_TOPIC*/
+static auto StartJoinParsing(const std::vector<std::string> &params, IClient* client, IChannelDatabase *channel_database)
+{
+	auto keys = params.size() >= 2 ? params[CHANNEL_KEYS_PARAM] : std::string();
+	auto channel_pairs = CreateChannelKeyMap(params[CHANNEL_NAME_PARAM], keys);
+
+	auto it = channel_pairs.begin();
+	for (; it != channel_pairs.end(); ++it)
+	{
+		// TODO: The length and prefix check should probably be part of the parser(?)
+		if (it->first.at(0) != '#' || it->first.size() >= 50)
+		{
+			client->Push(std::to_string(ERR_NOSUCHCHANNEL));
+			continue;
+		}
+
+		auto current_channel = channel_database->GetChannel(it->first);
+
+		if (!current_channel)
+		{
+			current_channel = channel_database->CreateChannel(it->first, it->second, ChannelType::kLocal, ChannelMode::None);
+		}
+
+		// Assuming current_channel will never be null here. Should we do a safety null check?
+		TryAddUserToChannel(*current_channel, it->second, dynamic_cast<IUser*>(client));
+	}
+}
+
 auto JOINHandler(IClientDatabase *client_database,
 	IChannelDatabase *channel_database, IMessage &message) -> void
 {
@@ -44,40 +90,24 @@ auto JOINHandler(IClientDatabase *client_database,
 		return;
 	}
 
-	// TODO: Handle server message.
-
-	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
-	
-	std::vector<std::string> channel_keys;
-	if (params.size() >= 2)
+	// Handle server message.
+	if (client->GetType() == IClient::kServer)
 	{
-		channel_keys = split(params[CHANNEL_KEYS_PARAM], ",");
+        auto remote_client_nickname = message.GetNickname();
+        if (remote_client_nickname == std::nullopt)
+        {
+            client->Push(std::to_string(ERR_NONICKNAMEGIVEN) + ":No nickname given"); //TODO
+            return ;
+        }
+        //TODO validate nickname
+        auto remote_client = client_database->GetClient(*remote_client_nickname);
+        if (remote_client == std::nullopt)
+        {
+            client->Push(std::to_string(ERR_NOSUCHNICK) + *remote_client_nickname + " :Can't find nickname"); //TODO
+            return ;
+        }
+        client = *remote_client;
 	}
 
-	// TODO: F*ck me, this is ugly.
-	auto it = channel_names.begin();
-	for (; it != channel_names.end(); ++it)
-	{
-		if (it->at(0) != '#' && it->at(0) != '&')
-		{
-			client->Push(std::to_string(ERR_NOSUCHCHANNEL));
-			continue;
-		}
-
-		std::string key;
-		if (channel_keys.size() > (unsigned)(it - channel_names.begin()))
-		{
-			key.assign(channel_keys[it - channel_names.begin()]);
-		}
-
-		auto current_channel = channel_database->GetChannel(*it);
-
-		if (!current_channel)
-		{
-			current_channel = channel_database->CreateChannel(*it, key, ChannelType::kLocal, ChannelMode::None);
-		}
-
-		// Assuming current_channel will never be null here. Should we do a safety null check?
-		TryAddUserToChannel(*current_channel, key, dynamic_cast<IUser*>(client));
-	}
+	StartJoinParsing(params, client, channel_database);
 }
