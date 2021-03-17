@@ -16,7 +16,7 @@ public:
 	auto PushToRemote(std::string irc_message) -> void override;
 
     auto AddUser(IUser* new_user) -> void override;
-    auto RemoveUser(IRC::UUID uuid) -> void override;
+    auto RemoveUser(IRC::UUID uuid) -> bool override;
 
 	auto CountUsers() -> uint32_t override;
 	auto GetUserListAsString() -> const std::string override;

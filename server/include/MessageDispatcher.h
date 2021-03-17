@@ -7,7 +7,6 @@
 #include "MessageHandlers/ICommandHandler.h"
 #include "IMessageDispatcher.h"
 #include "ServerData.h"
-#include "Message.h"
 
 using MessageHandler = std::function<void(ServerData*, Message)>;
 
