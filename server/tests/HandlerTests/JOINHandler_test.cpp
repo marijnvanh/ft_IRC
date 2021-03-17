@@ -59,5 +59,7 @@ TEST_F(JOINTests, SuccessTest)
 	EXPECT_CALL(mock_channel_database, CreateChannel(channel1_name, channel1_key, IChannel::kLocal, ChannelMode::None))
 		.WillOnce(Return(std::optional<IChannel*>(&mock_channel1)));
 
+	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1));
+
     JOINHandler(&mock_client_database, &mock_channel_database, message1);
 }
