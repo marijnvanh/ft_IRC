@@ -35,24 +35,27 @@ class PASSTests : public ::testing::Test
 
 TEST_F(PASSTests, SuccessTest)
 {
+    PASSHandler PASS_handler(&mock_client_database);
     params.push_back("test1");
-    PASSHandler(&mock_client_database, message1);
+    PASS_handler.Handle(message1);
 
     ASSERT_EQ(mock_client1.GetPassword(), "test1");
 }
 
 TEST_F(PASSTests, InvalidParams)
 {
+    PASSHandler PASS_handler(&mock_client_database);
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    PASSHandler(&mock_client_database, message1);
+    PASS_handler.Handle(message1);
 }
 
 TEST_F(PASSTests, AlreadyRegisteredClient)
 {
+    PASSHandler PASS_handler(&mock_client_database);
     mock_client1.SetState(IClient::State::kRegistered);
 
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    PASSHandler(&mock_client_database, message1);
+    PASS_handler.Handle(message1);
 }
