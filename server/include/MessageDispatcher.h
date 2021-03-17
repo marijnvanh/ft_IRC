@@ -2,7 +2,9 @@
 #define MESSAGE_DISPATCHER_HPP
 
 #include <unordered_map>
+#include <memory>
 
+#include "MessageHandlers/ICommandHandler.h"
 #include "IMessageDispatcher.h"
 #include "ServerData.h"
 #include "Message.h"
@@ -20,6 +22,7 @@ class MessageDispatcher : public IMessageDispatcher
     private:
     ServerData* server_data_;
     std::unordered_map<std::string, MessageHandler> handlers_;
+    std::unordered_map<std::string, std::unique_ptr<ICommandHandler>> command_handlers_;
 };
 
 #endif
