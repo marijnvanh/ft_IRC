@@ -12,46 +12,46 @@
 
    PRIVMSG is used to send private messages between users.  <receiver>
    is the nickname of the receiver of the message.  <receiver> can also
-   be a list of names or channels separated with commas.
-
-   Numeric Replies:
-
-           ERR_NORECIPIENT                 ERR_NOTEXTTOSEND
-           ERR_CANNOTSENDTOCHAN            ERR_NOTOPLEVEL
-           ERR_NOSUCHNICK
-           RPL_AWAY
+   be a list of names of channels separated with commas.
 
    Examples:
 
 :Angel PRIVMSG Wiz :Hello are you receiving this message ?
                                 ; Message from Angel to Wiz.
 
-PRIVMSG Angel :yes I'm receiving it !receiving it !'u>(768u+1n) .br ;
+PRIVMSG Angel :yes I'm receiving it ;
                                 Message to Angel.
+
+:Angel PRIVMSG #channel1 :Hello anyone there ?
+                                ; Message from Angel to #channel1.
 */
 
-//TODO fix it
-static auto SendMessages(IClient *sender, IClientDatabase *client_database, std::vector<std::string> receivers, std::string message_content) -> void
+static auto PRIVMSGToUser(IClient *sender, IClientDatabase *client_database, std::string &receiver, std::string message_content) -> void
 {
-    for (std::string receiver : receivers)
+    auto client = client_database->GetUser(receiver);
+    if (client == std::nullopt)
+        sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
+    else
     {
-        //TODO validate nickname / channel (receiver)
-        if (true) // if nickname
-        {
-            auto client = client_database->GetUser(receiver);
-            if (client == std::nullopt)
-                sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
-            else
-            {
-                auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  ":" + message_content;
-                (*client)->Push(response);
-            }
-        }
-        else // handle channels
-        {}
-
+        auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  ":" + message_content;
+        (*client)->Push(response);
     }
 }
+
+
+//    ERR_CANNOTSENDTOCHAN            
+//    RPL_AWAY
+// static auto PRIVMSGToChannel(IClient *sender, IClientDatabase *client_database, std::string &receiver, std::string message_content) -> void
+// {
+//     // auto client = client_database->GetUser(receiver);
+//     // if (client == std::nullopt)
+//     //     sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
+//     // else
+//     // {
+//     //     auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  ":" + message_content;
+//     //     (*client)->Push(response);
+//     // }
+// }
 
 static auto HandlePrivmsg(IClient *sender, IClientDatabase *client_database, IMessage &message) -> void
 {
@@ -69,7 +69,15 @@ static auto HandlePrivmsg(IClient *sender, IClientDatabase *client_database, IMe
 
     auto receivers = split(params[LIST_OF_RECEIVERS], ",");
 
-    SendMessages(sender, client_database, receivers, params[MESSAGE_CONTENT]);
+    for (std::string receiver : receivers)
+    {
+        //TODO validate nickname / channel (receiver)
+        if (receiver[0] == '#') // if nickname
+            ;//PRIVMSGToChannel(sender, client_database, receiver, params[MESSAGE_CONTENT]);
+        else // handle channels
+            PRIVMSGToUser(sender, client_database, receiver, params[MESSAGE_CONTENT]);
+
+    }
 }
 
 auto PRIVMSGHandler(IClientDatabase *client_database, IMessage &message) -> void
