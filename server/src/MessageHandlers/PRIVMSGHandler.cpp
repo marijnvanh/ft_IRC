@@ -26,34 +26,47 @@ PRIVMSG Angel :yes I'm receiving it ;
                                 ; Message from Angel to #channel1.
 */
 
-static auto PRIVMSGToUser(IClient *sender, IClientDatabase *client_database, std::string &receiver, std::string message_content) -> void
+PRIVMSGHandler::PRIVMSGHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
+    client_database_(client_database),
+    channel_database_(channel_database),
+    logger("PRIVMSGHandler")
+{}
+
+PRIVMSGHandler::~PRIVMSGHandler()
+{}
+
+auto PRIVMSGHandler::Handle(IMessage &message) -> void
 {
-    auto client = client_database->GetUser(receiver);
-    if (client == std::nullopt)
-        sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
-    else
+    auto client = *(client_database_->GetClient(message.GetClientUUID()));
+
+    if (client->GetState() == IClient::State::kUnRegistered)
     {
-        auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  ":" + message_content;
-        (*client)->Push(response);
+        client->Push(std::to_string(ERR_NOTREGISTERED) + ":You have not registered"); //TODO
+        return ;
     }
+    
+    if (client->GetType() == IClient::Type::kServer)
+    {
+        auto remote_client_nickname = message.GetNickname();
+    
+        if (remote_client_nickname == std::nullopt)
+        {
+            client->Push(std::to_string(ERR_NONICKNAMEGIVEN) + ":No nickname given"); //TODO
+            return ;
+        }
+        //TODO validate nickname
+        auto remote_client = client_database_->GetClient(*remote_client_nickname);
+        if (remote_client == std::nullopt)
+        {
+            client->Push(std::to_string(ERR_NOSUCHNICK) + *remote_client_nickname + " :Can't find nickname"); //TODO
+            return ;
+        }
+        client = *remote_client;
+    }
+    HandlePrivmsg(client, message);
 }
 
-
-//    ERR_CANNOTSENDTOCHAN            
-//    RPL_AWAY
-// static auto PRIVMSGToChannel(IClient *sender, IClientDatabase *client_database, std::string &receiver, std::string message_content) -> void
-// {
-//     // auto client = client_database->GetUser(receiver);
-//     // if (client == std::nullopt)
-//     //     sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
-//     // else
-//     // {
-//     //     auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  ":" + message_content;
-//     //     (*client)->Push(response);
-//     // }
-// }
-
-static auto HandlePrivmsg(IClient *sender, IClientDatabase *client_database, IMessage &message) -> void
+auto PRIVMSGHandler::HandlePrivmsg(IClient *sender, IMessage &message) -> void
 {
     auto params = message.GetParams();
     if (params.size() < 2)
@@ -72,42 +85,43 @@ static auto HandlePrivmsg(IClient *sender, IClientDatabase *client_database, IMe
     for (std::string receiver : receivers)
     {
         //TODO validate nickname / channel (receiver)
-        if (receiver[0] == '#') // if nickname
-            ;//PRIVMSGToChannel(sender, client_database, receiver, params[MESSAGE_CONTENT]);
-        else // handle channels
-            PRIVMSGToUser(sender, client_database, receiver, params[MESSAGE_CONTENT]);
-
+        if (receiver[0] == '#')
+            PRIVMSGToChannel(sender, receiver, params[MESSAGE_CONTENT]);
+        else
+            PRIVMSGToUser(sender, receiver, params[MESSAGE_CONTENT]);
     }
 }
 
-auto PRIVMSGHandler(IClientDatabase *client_database, IMessage &message) -> void
+auto PRIVMSGHandler::PRIVMSGToUser(IClient *sender, std::string &receiver, std::string message_content) -> void
 {
-    auto client = *(client_database->GetClient(message.GetClientUUID()));
-
-    if (client->GetState() == IClient::State::kUnRegistered)
+    auto client = client_database_->GetUser(receiver);
+    if (client == std::nullopt)
+        sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
+    else
     {
-        client->Push(std::to_string(ERR_NOTREGISTERED) + ":You have not registered"); //TODO
+        auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  " :" + message_content;
+        (*client)->Push(response);
+    }
+}
+
+
+
+//    ERR_CANNOTSENDTOCHAN            
+//    RPL_AWAY
+auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, std::string &receiver, std::string message_content) -> void
+{
+    auto channel = channel_database_->GetChannel(receiver);
+
+    //TODO check where to send error
+    if (channel == std::nullopt)
+    {
+        sender->Push(std::to_string(ERR_NOSUCHCHANNEL) + receiver + ":No such channel"); //TODO
         return ;
     }
-    
-    if (client->GetType() == IClient::Type::kServer)
+    else
     {
-        auto remote_client_nickname = message.GetNickname();
-    
-        if (remote_client_nickname == std::nullopt)
-        {
-            client->Push(std::to_string(ERR_NONICKNAMEGIVEN) + ":No nickname given"); //TODO
-            return ;
-        }
-        //TODO validate nickname
-        auto remote_client = client_database->GetClient(*remote_client_nickname);
-        if (remote_client == std::nullopt)
-        {
-            client->Push(std::to_string(ERR_NOSUCHNICK) + *remote_client_nickname + " :Can't find nickname"); //TODO
-            return ;
-        }
-        client = *remote_client;
+        auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  " :" + message_content;
+        (*channel)->PushToLocal(response); //TODO except current user?
+        //TODO send msg to all servers connected to this server except from the user it came from
     }
-
-    HandlePrivmsg(client, client_database, message);
 }

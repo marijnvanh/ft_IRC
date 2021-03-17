@@ -2,6 +2,7 @@
 #include "gmock/gmock.h"
 #include "MockMessage.h"
 #include "MockClientDatabase.h"
+#include "ChannelDatabase.h"
 #include "MockLocalUser.h"
 #include "PRIVMSGHandler.h"
 
@@ -24,6 +25,7 @@ class PRIVMSGTests : public ::testing::Test
     std::vector<std::string> message_params;
 
     MockClientDatabase mock_client_database;
+    ChannelDatabase mock_channel_database; //TODO make mock
 
     void SetUp() override
     {
@@ -44,10 +46,11 @@ class PRIVMSGTests : public ::testing::Test
 
 TEST_F(PRIVMSGTests, SuccessTest)
 {
+    PRIVMSGHandler PRIVMSG_handler(&mock_client_database, &mock_channel_database);
     message_params.push_back(localuser_name2);
     message_params.push_back("message content");
 
     EXPECT_CALL(mock_localuser2, Push(": PRIVMSG nickname2:message content")); //TODO fix this
 
-    PRIVMSGHandler(&mock_client_database, message1);
+    PRIVMSG_handler.Handle(message1);
 }

@@ -22,15 +22,15 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     handlers_.insert(std::make_pair("QUIT", [](auto server_data, auto message) {
             QUITHandler(&server_data->client_database_, message);
         }));
-    handlers_.insert(std::make_pair("PRIVMSG", [](auto server_data, auto message) {
-            PRIVMSGHandler(&server_data->client_database_, message);
-        }));
 
     command_handlers_.insert(std::make_pair("PING",
         std::make_unique<PINGHandler>(&server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("PASS",
         std::make_unique<PASSHandler>(&server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("PRIVMSG",
+        std::make_unique<PRIVMSGHandler>(&server_data->client_database_, &server_data->channel_database_))
     );
     
 }
