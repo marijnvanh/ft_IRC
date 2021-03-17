@@ -61,25 +61,23 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 	auto keys = params.size() >= 2 ? params[CHANNEL_KEYS_PARAM] : std::string();
 	auto channel_pairs = CreateChannelKeyMap(params[CHANNEL_NAME_PARAM], keys);
 
-	auto it = channel_pairs.begin();
-	for (; it != channel_pairs.end(); ++it)
+	for (auto kvp : channel_pairs)
 	{
 		// TODO: The length and prefix check should probably be part of the parser(?)
-		if (it->first.at(0) != '#' || it->first.size() >= 50)
+		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
 			client->Push(std::to_string(ERR_NOSUCHCHANNEL));
 			continue;
 		}
 
-		auto current_channel = channel_database->GetChannel(it->first);
+		auto current_channel = channel_database->GetChannel(kvp.first);
 
 		if (!current_channel)
 		{
-			current_channel = channel_database->CreateChannel(it->first, it->second, ChannelType::kLocal, ChannelMode::None);
+			current_channel = channel_database->CreateChannel(kvp.first, kvp.second, ChannelType::kLocal, ChannelMode::None);
 		}
 
-		// Assuming current_channel will never be null here. Should we do a safety null check?
-		TryAddUserToChannel(*current_channel, it->second, dynamic_cast<IUser*>(client));
+		TryAddUserToChannel(*current_channel, kvp.second, dynamic_cast<IUser*>(client));
 	}
 }
 
