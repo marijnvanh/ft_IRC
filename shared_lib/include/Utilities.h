@@ -1,6 +1,8 @@
 #ifndef __UTILITIES_H__
 #define __UTILITIES_H__
 
+#include <iostream>
+
 #include <string>
 #include <vector>
 
@@ -22,7 +24,7 @@ std::vector<std::string> split(const std::string& str, const std::string& delimi
 			pos = str.length();
 
         std::string token = str.substr(prev, pos - prev);
-        tokens.push_back(token);
+		tokens.push_back(token);
 
         prev = pos + 1;
     }

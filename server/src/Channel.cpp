@@ -2,11 +2,12 @@
 #include "IClient.h"
 #include "LocalUser.h"
 
-Channel::Channel(std::string name, ChannelType type, ChannelMode mode = ChannelMode::None)
+Channel::Channel(std::string name, std::string key, ChannelType type, ChannelMode mode = ChannelMode::None)
 {
+	key_ = key;
 	name_ = name;
-	type_ = type;
 
+	type_ = type;
 	mode_ = mode;
 }
 
@@ -57,4 +58,31 @@ auto Channel::AddUser(IUser* new_user) -> void
 auto Channel::CountUsers() -> uint32_t
 {
 	return (local_users_.size() + remote_users_.size());
+}
+
+auto Channel::GetUserListAsString() -> const std::string
+{
+	std::string result;
+
+	for (auto it = local_users_.cbegin(); it != local_users_.cend();)
+	{
+		result += it->second->GetNickname();
+		if (++it != local_users_.cend() || remote_users_.size() > 0)
+		{
+			result += ',';
+		}
+	}
+
+	for (auto it = remote_users_.cbegin(); it != remote_users_.cend();)
+	{
+		result += it->second->GetNickname();
+		++it;
+
+		if (it != remote_users_.cend())
+		{
+			result += ',';
+		}
+	}
+
+	return (result);
 }

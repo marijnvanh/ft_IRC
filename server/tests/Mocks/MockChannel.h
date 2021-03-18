@@ -16,6 +16,7 @@ class MockChannel : public virtual IChannel {
 	MOCK_METHOD(void, AddUser, (IUser* new_user), ());
 
     MOCK_METHOD(uint32_t, CountUsers, (), ());
+	MOCK_METHOD(const std::string, GetUserListAsString, (), ());
 };
 
 #endif // MOCK_CHANNEL_H__

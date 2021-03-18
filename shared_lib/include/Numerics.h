@@ -39,12 +39,12 @@ enum
 
 	// RPL_CHANNELMODEIS               = 324,
 	// RPL_NOTOPICSET                  = 331,
-	// RPL_TOPIC                       = 332,
+	RPL_TOPIC                       = 332,
 
 	// RPL_USERIP                      = 340,
 	// RPL_INVITING                    = 341,
 	// RPL_VERSION                     = 351,
-	// RPL_NAMREPLY                    = 353,
+	RPL_NAMREPLY                    = 353,
 	// RPL_LINKS                       = 364,
 	// RPL_ENDOFLINKS                  = 365,
 	// RPL_ENDOFNAMES                  = 366,
@@ -85,7 +85,7 @@ enum
 	// ERR_YOUREBANNEDCREEP            = 465,
 	// ERR_UNKNOWNMODE                 = 472,
 
-	// ERR_BADCHANNELKEY               = 475,
+	ERR_BADCHANNELKEY               = 475,
 	// ERR_BADCHANMASK                 = 476,
 	// ERR_INVITEONLYCHAN              = 473,
 	// ERR_CHANNELISFULL               = 471,

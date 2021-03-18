@@ -30,11 +30,11 @@ TEST_F(ClientTests, SendAllWithMultipleMessagesInQueue)
     client->Push("test2");
     client->Push("test3");
     
-    EXPECT_CALL(*io_handler, Send("test1"))
+    EXPECT_CALL(*io_handler, Send("test1\r\n"))
         .Times(1);
-    EXPECT_CALL(*io_handler, Send("test2"))
+    EXPECT_CALL(*io_handler, Send("test2\r\n"))
         .Times(1);
-    EXPECT_CALL(*io_handler, Send("test3"))
+    EXPECT_CALL(*io_handler, Send("test3\r\n"))
         .Times(1);
     client->SendAll();
 
@@ -48,14 +48,14 @@ TEST_F(ClientTests, SendAllFailedToSendException)
 {
     client->Push("test");
 
-    EXPECT_CALL(*io_handler, Send("test"))
+    EXPECT_CALL(*io_handler, Send("test\r\n"))
         .Times(1)
         .WillOnce(Throw(IRC::IIOHandler::FailedToSend("test")));
 
     client->SendAll();
 
     /* Make sure that the message is re-send */
-    EXPECT_CALL(*io_handler, Send("test"))
+    EXPECT_CALL(*io_handler, Send("test\r\n"))
         .Times(1);
     client->SendAll();
 }
@@ -64,9 +64,9 @@ TEST_F(ClientTests, SendAllClosedIOHandlerException)
 {
     client->Push("test");
 
-    EXPECT_CALL(*io_handler, Send("test"))
+    EXPECT_CALL(*io_handler, Send("test\r\n"))
         .Times(1)
-        .WillOnce(Throw(IRC::IIOHandler::Closed("test")));
+        .WillOnce(Throw(IRC::IIOHandler::Closed("test\r\n")));
 
     ASSERT_THROW(client->SendAll(), IClient::Disconnected);
 }
@@ -75,9 +75,9 @@ TEST_F(ClientTests, ReceiveMessage)
 {
     EXPECT_CALL(*io_handler, Receive())
         .Times(1)
-        .WillOnce(Return(std::optional<std::string>("test")));
+        .WillOnce(Return(std::optional<std::string>("test\r\n")));
 
-    ASSERT_EQ(client->Receive(), "test");
+    ASSERT_EQ(client->Receive(), "test\r\n");
 }
 
 TEST_F(ClientTests, NothingToReceive)
@@ -93,7 +93,7 @@ TEST_F(ClientTests, ReceiveClosedIOHandlerException)
 {
     EXPECT_CALL(*io_handler, Receive())
         .Times(1)
-        .WillOnce(Throw(IRC::IIOHandler::Closed("test")));
+        .WillOnce(Throw(IRC::IIOHandler::Closed("test\r\n")));
 
     ASSERT_THROW(client->Receive(), IClient::Disconnected);
 }

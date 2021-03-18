@@ -33,7 +33,7 @@ TEST_F(ChannelDatabaseTests, CreateAndRemoveChannel)
 {
 	std::string channel_name = "TestChannel1";
 
-    channel_database->CreateChannel(channel_name, ChannelType::kLocal, ChannelMode::None);
+    channel_database->CreateChannel(channel_name, std::string(), ChannelType::kLocal, ChannelMode::None);
 
 	auto channel = channel_database->GetChannel(channel_name);
     ASSERT_EQ((*channel)->GetName(), channel_name);
@@ -49,11 +49,11 @@ TEST_F(ChannelDatabaseTests, DeleteEmptyChannels)
 	std::string channel_name = "TestChannel1";
 	std::string channel_name2 = "TestChannel2";
 
-    channel_database->CreateChannel(channel_name, ChannelType::kLocal, ChannelMode::None);
+    channel_database->CreateChannel(channel_name, std::string(), ChannelType::kLocal, ChannelMode::None);
 	auto channel1 = channel_database->GetChannel(channel_name);
     ASSERT_EQ((*channel1)->GetName(), channel_name);
 
-    channel_database->CreateChannel(channel_name2, ChannelType::kLocal, ChannelMode::None);
+    channel_database->CreateChannel(channel_name2, std::string(), ChannelType::kLocal, ChannelMode::None);
 	auto channel2 = channel_database->GetChannel(channel_name2);
     ASSERT_EQ((*channel2)->GetName(), channel_name2);
 
