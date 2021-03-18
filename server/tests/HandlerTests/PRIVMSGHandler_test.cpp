@@ -2,8 +2,9 @@
 #include "gmock/gmock.h"
 #include "MockMessage.h"
 #include "MockClientDatabase.h"
-#include "ChannelDatabase.h"
 #include "MockLocalUser.h"
+#include "MockChannelDatabase.h"
+#include "MockChannel.h"
 #include "PRIVMSGHandler.h"
 
 using ::testing::AtLeast;
@@ -25,11 +26,14 @@ class PRIVMSGTests : public ::testing::Test
     std::vector<std::string> message_params;
 
     MockClientDatabase mock_client_database;
-    ChannelDatabase mock_channel_database; //TODO make mock
+    MockChannelDatabase mock_channel_database;
+    MockChannel mock_channel;
+    std::string mock_channel_name;
 
     void SetUp() override
     {
         localuser_name2 = "nickname2";
+        mock_channel_name = "#channel1";
 
         EXPECT_CALL(mock_localuser1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid1));
@@ -44,13 +48,27 @@ class PRIVMSGTests : public ::testing::Test
     }
 };
 
-TEST_F(PRIVMSGTests, SuccessTest)
+TEST_F(PRIVMSGTests, SendMessageToUser)
 {
     PRIVMSGHandler PRIVMSG_handler(&mock_client_database, &mock_channel_database);
     message_params.push_back(localuser_name2);
     message_params.push_back("message content");
 
     EXPECT_CALL(mock_localuser2, Push(": PRIVMSG nickname2 :message content")); //TODO fix this
+
+    PRIVMSG_handler.Handle(message1);
+}
+
+TEST_F(PRIVMSGTests, SendMessageToChannel)
+{
+    PRIVMSGHandler PRIVMSG_handler(&mock_client_database, &mock_channel_database);
+    message_params.push_back(mock_channel_name);
+    message_params.push_back("message content");
+
+    EXPECT_CALL(mock_channel_database, GetChannel(mock_channel_name))
+        .WillOnce(Return(std::optional<IChannel*>(&mock_channel)));
+
+    EXPECT_CALL(mock_channel, PushToLocal(_));
 
     PRIVMSG_handler.Handle(message1);
 }

@@ -19,7 +19,7 @@ class PRIVMSGHandler : public ICommandHandler
     IChannelDatabase *channel_database_;
     Logger logger;
 
-    auto HandlePrivmsg(IClient *sender, IMessage &message) -> void;
+    auto StartParamChecks(IClient *sender, IMessage &message) -> void;
     auto PRIVMSGToUser(IClient *sender, std::string &receiver, std::string message_content) -> void;
     auto PRIVMSGToChannel(IClient *sender, std::string &receiver, std::string message_content) -> void;
 };

@@ -2,10 +2,9 @@
 #include "Numerics.h"
 #include "Utilities.h"
 
-#include <iostream>
-
 #define LIST_OF_RECEIVERS 0
 #define MESSAGE_CONTENT 1
+
 /*
       Command: PRIVMSG
    Parameters: <receiver>{,<receiver>} <text to be sent>
@@ -63,10 +62,10 @@ auto PRIVMSGHandler::Handle(IMessage &message) -> void
         }
         client = *remote_client;
     }
-    HandlePrivmsg(client, message);
+    StartParamChecks(client, message);
 }
 
-auto PRIVMSGHandler::HandlePrivmsg(IClient *sender, IMessage &message) -> void
+auto PRIVMSGHandler::StartParamChecks(IClient *sender, IMessage &message) -> void
 {
     auto params = message.GetParams();
     if (params.size() < 2)
