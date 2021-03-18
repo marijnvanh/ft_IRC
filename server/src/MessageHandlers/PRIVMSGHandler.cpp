@@ -104,15 +104,12 @@ auto PRIVMSGHandler::PRIVMSGToUser(IClient *sender, std::string &receiver, std::
     }
 }
 
-
-
-//    ERR_CANNOTSENDTOCHAN            
-//    RPL_AWAY
+//TODO ERR_CANNOTSENDTOCHAN
+//TODO RPL_AWAY
 auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, std::string &receiver, std::string message_content) -> void
 {
     auto channel = channel_database_->GetChannel(receiver);
 
-    //TODO check where to send error
     if (channel == std::nullopt)
     {
         sender->Push(std::to_string(ERR_NOSUCHCHANNEL) + receiver + ":No such channel"); //TODO

@@ -50,7 +50,7 @@ TEST_F(PRIVMSGTests, SuccessTest)
     message_params.push_back(localuser_name2);
     message_params.push_back("message content");
 
-    EXPECT_CALL(mock_localuser2, Push(": PRIVMSG nickname2:message content")); //TODO fix this
+    EXPECT_CALL(mock_localuser2, Push(": PRIVMSG nickname2 :message content")); //TODO fix this
 
     PRIVMSG_handler.Handle(message1);
 }
