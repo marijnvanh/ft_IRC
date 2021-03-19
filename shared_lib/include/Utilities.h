@@ -33,4 +33,6 @@ inline std::vector<std::string> split(const std::string& str, const std::string&
     return (tokens);
 }
 
+auto GetErrorMessage(int error, std::string param = "") -> std::string;
+
 #endif

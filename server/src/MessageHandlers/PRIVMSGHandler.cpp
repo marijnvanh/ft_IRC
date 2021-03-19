@@ -40,7 +40,7 @@ auto PRIVMSGHandler::Handle(IMessage &message) -> void
 
     if (client->GetState() == IClient::State::kUnRegistered)
     {
-        client->Push(std::to_string(ERR_NOTREGISTERED) + ":You have not registered"); //TODO
+        client->Push(GetErrorMessage(ERR_NOTREGISTERED));
         return ;
     }
     
@@ -50,14 +50,14 @@ auto PRIVMSGHandler::Handle(IMessage &message) -> void
     
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push(std::to_string(ERR_NONICKNAMEGIVEN) + ":No nickname given"); //TODO
+            client->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN)); //TODO
             return ;
         }
         //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push(std::to_string(ERR_NOSUCHNICK) + *remote_client_nickname + " :Can't find nickname"); //TODO
+            client->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
             return ;
         }
         client = *remote_client;
@@ -70,12 +70,12 @@ auto PRIVMSGHandler::StartParamChecks(IClient *sender, IMessage &message) -> voi
     auto params = message.GetParams();
     if (params.size() < 2)
     {
-        sender->Push(std::to_string(ERR_NEEDMOREPARAMS) + "PRIVMSG :Not enough parameters"); //TODO
+        sender->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "PRIVMSG"));
         return ;
     }
     if (params[MESSAGE_CONTENT] == "") 
     {
-        sender->Push(std::to_string(ERR_NOTEXTTOSEND) + ":No text to send"); //TODO
+        sender->Push(GetErrorMessage(ERR_NOTEXTTOSEND));
         return ;
     }
 
@@ -95,7 +95,7 @@ auto PRIVMSGHandler::PRIVMSGToUser(IClient *sender, std::string &receiver, std::
 {
     auto client = client_database_->GetUser(receiver);
     if (client == std::nullopt)
-        sender->Push(std::to_string(ERR_NOSUCHNICK) + receiver + " :No such nick/channel"); //TODO
+        sender->Push(GetErrorMessage(ERR_NOSUCHNICK, receiver));
     else
     {
         auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  " :" + message_content;
@@ -111,7 +111,7 @@ auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, std::string &receiver, st
 
     if (channel == std::nullopt)
     {
-        sender->Push(std::to_string(ERR_NOSUCHCHANNEL) + receiver + ":No such channel"); //TODO
+        sender->Push(GetErrorMessage(ERR_NOSUCHCHANNEL, receiver));
         return ;
     }
     else
