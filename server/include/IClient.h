@@ -30,7 +30,8 @@ class IClient
 
     IClient() : state_(IClient::State::kUnRegistered), type_(IClient::Type::kUnInitialized)
     {};
-    IClient (IClient&& other) = default;
+
+    IClient (IClient&& other) = default; 
 
     /**
      * @brief Push a message on to the send queue (later to be send by SendAll)
@@ -72,11 +73,9 @@ class IClient
 
     virtual ~IClient() {};
 
-
     IClient (IClient& other) = delete;
     IClient &operator =(IClient& other) = delete;
     IClient &operator= (IClient&& other) = delete;
-
 
     class Disconnected : public std::runtime_error
     {

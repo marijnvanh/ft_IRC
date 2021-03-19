@@ -12,7 +12,7 @@
  * @param str The string to split using the given delimiters.
  * @param delimiters A string containing the delimiters to split on.
  */
-std::vector<std::string> split(const std::string& str, const std::string& delimiters)
+inline std::vector<std::string> split(const std::string& str, const std::string& delimiters)
 {
     size_t prev = 0, pos = 0;
     std::vector<std::string> tokens;

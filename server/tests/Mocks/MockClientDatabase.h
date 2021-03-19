@@ -19,7 +19,8 @@ class MockClientDatabase : public IClientDatabase {
     MOCK_METHOD(std::optional<IClient*>, GetClient, (const std::string &nickname), ());
     MOCK_METHOD(IClient*, RegisterLocalUser, (IRC::UUID uuid), ());
     MOCK_METHOD(IClient*, RegisterServer, (IRC::UUID uuid), ());
-    MOCK_METHOD(std::optional<IServer*>, GetServer, (std::string &server_name), ());
+    MOCK_METHOD(std::optional<IServer*>, GetServer, (const std::string &server_name), ());
+    MOCK_METHOD(std::optional<IUser*>, GetUser, (const std::string &nickname), ());
 
 };
 

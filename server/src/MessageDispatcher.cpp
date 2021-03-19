@@ -5,6 +5,7 @@
 #include "MessageHandlers/USERHandler.h"
 #include "MessageHandlers/KILLHandler.h"
 #include "MessageHandlers/QUITHandler.h"
+#include "MessageHandlers/PRIVMSGHandler.h"
 #include "MessageHandlers/JOINHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
@@ -31,6 +32,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     );
     command_handlers_.insert(std::make_pair("PASS",
         std::make_unique<PASSHandler>(&server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("PRIVMSG",
+        std::make_unique<PRIVMSGHandler>(&server_data->client_database_, &server_data->channel_database_))
     );
     
 }
