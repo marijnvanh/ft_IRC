@@ -47,7 +47,7 @@ enum
 	RPL_NAMREPLY                    = 353,
 	// RPL_LINKS                       = 364,
 	// RPL_ENDOFLINKS                  = 365,
-	// RPL_ENDOFNAMES                  = 366,
+	RPL_ENDOFNAMES                  = 366,
 
 	// RPL_INFO                        = 371,
 	// RPL_ENDOFINFO                   = 374,

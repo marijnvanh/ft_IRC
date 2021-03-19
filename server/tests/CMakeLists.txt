@@ -68,6 +68,9 @@ ClientUpgrade_test.cpp
 package_add_test( PRIVMSGHandler_test
 ./HandlerTests/PRIVMSGHandler_test.cpp
 ../src/MessageHandlers/PRIVMSGHandler.cpp
-../src/ChannelDatabase.cpp
-../src/Channel.cpp
+)
+
+package_add_test( NAMESHandler_test
+./HandlerTests/NAMESHandler_test.cpp
+../src/MessageHandlers/NAMESHandler.cpp
 )
