@@ -11,8 +11,6 @@
 #include "IIOHandler.h"
 #include "IServer.h"
 
-#include <iostream>
-
 class Client : public virtual IClient
 {
     public:

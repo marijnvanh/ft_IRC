@@ -6,8 +6,6 @@
 #include <optional>
 #include "UUID.h"
 
-#include <iostream>
-
 class IServer;
 
 class IClient

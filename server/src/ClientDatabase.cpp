@@ -228,22 +228,21 @@ auto ClientDatabase::GetServer(const std::string &server_name) -> std::optional<
     return std::nullopt;
 }
 
-//TODO fix this
 auto ClientDatabase::GetUser(const std::string &nickname) -> std::optional<IUser*>
 {
     auto user = GetClient(nickname);
-
-    for (auto it = local_users_.begin(), next_it = it; it != local_users_.end(); it = next_it)
-    {
-        ++next_it;
-        logger.Log(LogLevel::DEBUG, "Client found %s", it->second->GetNickname().c_str());
-    }
 
     if (user == std::nullopt)
     {
         logger.Log(LogLevel::DEBUG, "Couldn't find client %s", nickname.c_str());
         return std::nullopt;
     }
+    if ((*user)->GetType() != IClient::kLocalUser && (*user)->GetType() != IClient::kRemoteUser)
+    {
+        logger.Log(LogLevel::DEBUG, "Client with nickname: %s not a user", nickname.c_str());
+        return std::nullopt;
+    }
+
     logger.Log(LogLevel::DEBUG, "Found client %s", nickname.c_str());
     return std::optional<IUser*>(dynamic_cast<IUser*>(*user));
 }
