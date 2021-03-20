@@ -21,7 +21,7 @@ static auto StartPartParsing(std::vector<std::string> params,
 
 	if (params.size() > 1)
 	{
-		part_message.assign(params[PART_MESSAGE_PARAM]);
+		part_message.assign(":" + params[PART_MESSAGE_PARAM]);
 	}
 
 	for (auto channel_name : channel_names)
