@@ -17,7 +17,7 @@ def Build():
 def Run(target):
 
     if target == "server":
-        if subprocess.call(["./bin/irc_server localhost"], shell=True):
+        if subprocess.call(["./bin/irc_server"], shell=True):
             exit(-1)
     elif target == "client":
         if subprocess.call(["./bin/irc_client localhost"], shell=True):

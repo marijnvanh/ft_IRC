@@ -9,16 +9,15 @@ using namespace IRC;
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
-        exit(1);
-
-    std::string server_address(argv[1]);
-
     try
 	{
-        IRCServer server;
+		std::string config_path("");
+		if (argc >= 2)
+			config_path.assign(argv[1]);
 
-		server.Start(std::move(server_address));
+        IRCServer server(config_path);
+
+		server.Start();
 
 		while (1)
         {

@@ -48,8 +48,8 @@ static auto TryAddUserToChannel(IChannel* channel,
 		return;
 	}
 
-	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
 	channel->AddUser(user);
+	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
 	
 	user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());
 	user->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString());

@@ -7,22 +7,25 @@
 #include "MessageDispatcher.h"
 #include "LogSettings.h"
 
-IRCServer::IRCServer() :
+IRCServer::IRCServer(std::string config_path) :
     server_data_(std::make_unique<ServerData>()),
     message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_.get())),
     logger("IRCServer")
 {
+	server_data_->server_config_.TryParseFrom(config_path);
+
     SetLogSettings();
 }
 
 IRCServer::~IRCServer()
 {}
 
-auto IRCServer::Start(std::string address) -> void
+auto IRCServer::Start() -> void
 {
     logger.Log(LogLevel::INFO, "Attempting to start server...");
 
-    TCP::AddressInfo address_info(address, PORT);
+    TCP::AddressInfo address_info(server_data_->server_config_.GetAddress(),
+		server_data_->server_config_.GetPort());
 
     auto server_socket = std::make_shared<TCP::Socket>();
     server_socket->Listen(address_info);
