@@ -23,6 +23,8 @@ public:
 
     virtual auto GetChannel(const std::string channel_name) -> std::optional<IChannel*> = 0;
 
+	virtual auto ForEachChannel(std::function<void(IChannel*)> action) -> void = 0;
+
     class DuplicateChannel : public std::runtime_error
     {
     public:

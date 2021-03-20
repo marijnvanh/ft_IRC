@@ -73,7 +73,7 @@ auto Channel::GetUserListAsString() -> const std::string
 		result += it->second->GetNickname();
 		if (++it != local_users_.cend() || remote_users_.size() > 0)
 		{
-			result += ',';
+			result += ' ';
 		}
 	}
 
@@ -84,7 +84,7 @@ auto Channel::GetUserListAsString() -> const std::string
 
 		if (it != remote_users_.cend())
 		{
-			result += ',';
+			result += ' ';
 		}
 	}
 

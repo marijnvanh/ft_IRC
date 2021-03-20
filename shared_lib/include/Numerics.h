@@ -47,7 +47,7 @@ enum
 	RPL_NAMREPLY                    = 353,
 	// RPL_LINKS                       = 364,
 	// RPL_ENDOFLINKS                  = 365,
-	// RPL_ENDOFNAMES                  = 366,
+	RPL_ENDOFNAMES                  = 366,
 
 	// RPL_INFO                        = 371,
 	// RPL_ENDOFINFO                   = 374,
@@ -69,7 +69,7 @@ enum
 	// ERR_CANNOTSENDTOCHAN            = 404,
 	// ERR_TOOMANYCHANNELS             = 405,
 	// ERR_WASNOSUCHNICK               = 406,
-	// ERR_NOTEXTTOSEND                = 412,
+	ERR_NOTEXTTOSEND                = 412,
 	// ERR_UNKNOWNCOMMAND              = 421,
 	// ERR_NOMOTD                      = 422,
 	ERR_NONICKNAMEGIVEN             = 431,

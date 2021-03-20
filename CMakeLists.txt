@@ -8,9 +8,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -fsanitize=address -g -pthread")
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
 add_subdirectory(shared_lib)
 add_subdirectory(server)
 add_subdirectory(client)
+add_subdirectory(extern/json)
 
 option(NIX "Use nix for dependencies" OFF)
 option(PACKAGE_TESTS "Build tests" OFF)

@@ -56,3 +56,11 @@ auto ChannelDatabase::GetChannel(std::string channel_name) -> std::optional<ICha
 
     return std::nullopt;
 }
+
+auto ChannelDatabase::ForEachChannel(std::function<void(IChannel*)> action) -> void
+{
+    for (auto it = channels_.begin(); it != channels_.end(); it++)
+    {
+        action(it->second.get());
+    }	
+}
