@@ -5,8 +5,10 @@
 
 using json = nlohmann::json;
 
-ServerConfig::ServerConfig() : server_port_(DEFAULT_SERVER_PORT), server_address_(DEFAULT_SERVER_ADDRESS)
+ServerConfig::ServerConfig()
 {
+	this->server_port_ = DEFAULT_SERVER_PORT;
+	this->server_address_ = DEFAULT_SERVER_ADDRESS;
 }
 
 ServerConfig::ServerConfig(std::string file_path)
