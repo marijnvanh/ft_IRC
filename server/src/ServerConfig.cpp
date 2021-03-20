@@ -1,7 +1,9 @@
 #include <fstream>
+#include <iostream>
 
 #include "ServerConfig.h"
-#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
 
 ServerConfig::ServerConfig() : server_port_(DEFAULT_SERVER_PORT), server_address_(DEFAULT_SERVER_ADDRESS)
 {
@@ -9,17 +11,48 @@ ServerConfig::ServerConfig() : server_port_(DEFAULT_SERVER_PORT), server_address
 
 ServerConfig::ServerConfig(std::string file_path)
 {
-	this->ParseFrom(file_path);
+	this->TryParseFrom(file_path);
 }
 
-auto ServerConfig::ParseFrom(std::string file_path) -> void
+auto ServerConfig::ParseServerData(json jf) -> void
 {
-	using json = nlohmann::json;
-	// TODO: Parse server data.
-	// TODO: Parse hosting data.
+	if (jf.contains("server-data"))
+	{
+		this->server_id_ = jf["server-data"]["id"];
+		this->server_name_ = jf["server-data"]["name"];
+		this->server_network_ = jf["server-data"]["network"];
+		this->server_description_ = jf["server-data"]["description"];
+	}
+}
 
-	// TODO: Parse logging leve data?
+auto ServerConfig::ParseHostingData(json jf) -> void
+{
+	if (jf.contains("hosting-data"))
+	{
+		this->server_port_ = jf["hosting-data"]["port"];
+		this->server_address_ = jf["hosting-data"]["address"];
+	}
+}
+
+auto ServerConfig::TryParseFrom(std::string file_path) -> bool
+{
+	if (file_path.empty())
+	{
+		return (false);
+	}
 	
 	std::ifstream ifs(file_path);
+	if (!ifs.is_open())
+	{
+		return (false);
+	}
+
 	json jf = json::parse(ifs);
+
+	ParseServerData(jf);
+	ParseHostingData(jf);
+
+	// TODO: Parse logging level data?
+
+	return (true);
 }

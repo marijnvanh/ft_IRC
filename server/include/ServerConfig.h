@@ -3,7 +3,9 @@
 
 #include <string>
 
-#define DEFAULT_SERVER_PORT 5000
+#include "nlohmann/json.hpp"
+
+#define DEFAULT_SERVER_PORT "5000"
 #define DEFAULT_SERVER_ADDRESS "0.0.0.0"
 
 struct ServerConfig
@@ -14,17 +16,21 @@ public:
 	ServerConfig();
 	ServerConfig(std::string file_path);
 
-	auto ParseFrom(std::string file_path) -> void;
+	auto TryParseFrom(std::string file_path) -> bool;
 
 	auto GetId() -> const std::string { return (server_id_); }
 	auto GetName() -> const std::string { return (server_name_); }
 	auto GetNetwork() -> const std::string { return (server_network_); }
 	auto GetDescription() -> const std::string { return (server_description_); }
 
-	auto GetPort() -> uint32_t { return (server_port_); }
+	auto GetPort() -> std::string { return (server_port_); }
 	auto GetAddress() -> std::string { return (server_address_); }
 
 private:
+
+	auto ParseServerData(nlohmann::json jf) -> void;
+	auto ParseHostingData(nlohmann::json jf) -> void;
+
     /**
      * @brief ID of the server, 3 characters long.
 	 * 1st char should be a number, 2nd and 3rd should be either number or letter.
@@ -50,7 +56,7 @@ private:
     /**
      * @brief Port the server socket should bind to (defaults to DEFAULT_SERVER_PORT).
      */
-	uint32_t server_port_;
+	std::string server_port_;
 	
     /**
      * @brief Address the server socket should bind to (defaults to DEFAULT_SERVER_ADDRESS).

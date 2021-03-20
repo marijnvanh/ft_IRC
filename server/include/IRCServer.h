@@ -11,23 +11,19 @@
 #include "IMessageDispatcher.h"
 #include "Logger.h"
 
-#define PORT "5000" //TODO remove this
-
 using namespace IRC;
 
 class IRCServer
 {
     public:
 
-    IRCServer();
+    IRCServer(std::string config_path);
     ~IRCServer();
 
     /**
      * @brief Init listener socket and io controller
-     * 
-     * @param address 
      */
-    auto Start(std::string address) -> void;
+    auto Start() -> void;
 
     /**
      * @brief Run server loop once
