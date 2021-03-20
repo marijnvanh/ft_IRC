@@ -4,6 +4,7 @@
 #include "MessageHandlers/PARTHandler.h"
 
 #define CHANNEL_NAME_PARAM 0
+#define PART_MESSAGE_PARAM 1
 
 PARTHandler::PARTHandler(IClientDatabase *client_database, IChannelDatabase *channel_database)
 	: client_database_(client_database), channel_database_(channel_database), logger("PARTHandler")
@@ -12,10 +13,16 @@ PARTHandler::PARTHandler(IClientDatabase *client_database, IChannelDatabase *cha
 PARTHandler::~PARTHandler()
 {}
 
-static auto StartPartParsing(const std::string& unsplit_channel_names,
+static auto StartPartParsing(std::vector<std::string> params,
 	IClient* client, IChannelDatabase *channel_database)
 {
-	auto channel_names = split(unsplit_channel_names, ",");
+	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
+	std::string part_message("");
+
+	if (params.size() > 1)
+	{
+		part_message.assign(params[PART_MESSAGE_PARAM]);
+	}
 
 	for (auto channel_name : channel_names)
 	{
@@ -29,8 +36,7 @@ static auto StartPartParsing(const std::string& unsplit_channel_names,
 
 		if ((*channel)->RemoveUser(client->GetUUID()))
 		{
-			client->Push("successfully left channel " + channel_name);
-			(*channel)->PushToLocal(":" + client->GetNickname() + " :Left channel <" + channel_name + ">");
+			(*channel)->PushToLocal(":" + client->GetNickname() + " PART " + channel_name + " " + part_message);
 
 			// TODO: Send message to all connected server instances.
 		}
@@ -59,5 +65,5 @@ auto PARTHandler::Handle(IMessage &message) -> void
 		return;
 	}
 
-	StartPartParsing(params[CHANNEL_NAME_PARAM], client, channel_database_);
+	StartPartParsing(params, client, channel_database_);
 }
