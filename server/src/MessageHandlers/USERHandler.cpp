@@ -12,7 +12,7 @@ static auto HandleUSERFromServer(IClientDatabase *client_database, IMessage &mes
     (void)client_database;
 }
 
-static auto HandleUSERFromUser(IClientDatabase *client_database, IMessage &message) -> void
+static auto HandleUSERFromUser(IServerConfig *server_config, IClientDatabase *client_database, IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 
@@ -29,13 +29,18 @@ static auto HandleUSERFromUser(IClientDatabase *client_database, IMessage &messa
     client->SetRealname(new_realname);
     
     try {
-        client_database->RegisterLocalUser(client->GetUUID());
+        client = client_database->RegisterLocalUser(client->GetUUID());
+        auto welcome_message = ":" + server_config->GetName() + " 001 " + 
+            client->GetNickname() + " :Welcome to " + server_config->GetDescription();
+        client->Push(welcome_message);
     } catch (IClientDatabase::UnableToRegister &ex) {
         ;
     }
 }
 
-auto USERHandler(IClientDatabase *client_database, IMessage &message) -> void
+auto USERHandler(IServerConfig *server_config,
+    IClientDatabase *client_database,
+    IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 
@@ -49,5 +54,5 @@ auto USERHandler(IClientDatabase *client_database, IMessage &message) -> void
     if (client->GetType() == IClient::Type::kServer)
         HandleUSERFromServer(client_database, message);
     else
-        HandleUSERFromUser(client_database, message);
+        HandleUSERFromUser(server_config, client_database, message);
 }

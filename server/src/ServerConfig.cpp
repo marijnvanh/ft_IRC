@@ -5,15 +5,13 @@
 
 using json = nlohmann::json;
 
-ServerConfig::ServerConfig()
+ServerConfig::ServerConfig(const std::string &file_path) : config_file_(file_path)
 {
-	this->server_port_ = DEFAULT_SERVER_PORT;
-	this->server_address_ = DEFAULT_SERVER_ADDRESS;
-}
-
-ServerConfig::ServerConfig(std::string file_path)
-{
-	this->TryParseFrom(file_path);
+	if (this->TryParseFrom(file_path) == false)
+	{
+		this->server_port_ = DEFAULT_SERVER_PORT;
+		this->server_address_ = DEFAULT_SERVER_ADDRESS;
+	}
 }
 
 auto ServerConfig::ParseServerData(json jf) -> void

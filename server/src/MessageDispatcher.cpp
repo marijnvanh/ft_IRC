@@ -13,10 +13,10 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     : server_data_(server_data)
 {
     handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
-            NICKHandler(&server_data->client_database_, message);
+            NICKHandler(&server_data->server_config_, &server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("USER", [](auto server_data, auto message) {
-            USERHandler(&server_data->client_database_, message);
+            USERHandler(&server_data->server_config_, &server_data->client_database_, message);
         }));
     handlers_.insert(std::make_pair("KILL", [](auto server_data, auto message) {
             KILLHandler(&server_data->client_database_, message);

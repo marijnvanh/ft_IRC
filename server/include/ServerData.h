@@ -10,7 +10,7 @@
 
 struct ServerData
 {
-    ServerData()
+    ServerData(const std::string &config_file) : server_config_(config_file)
     {};
 
     LocalServer local_server_;

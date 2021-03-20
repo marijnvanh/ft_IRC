@@ -17,7 +17,7 @@ class IRCServer
 {
     public:
 
-    IRCServer(std::string config_path);
+    IRCServer(const std::string &config_path);
     ~IRCServer();
 
     /**
