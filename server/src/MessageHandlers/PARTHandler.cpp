@@ -17,7 +17,7 @@ static auto StartPartParsing(std::vector<std::string> params,
 	IClient* client, IChannelDatabase *channel_database)
 {
 	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
-	std::string part_message("");
+	std::string part_message(":" + client->GetNickname() + " left");
 
 	if (params.size() > 1)
 	{
@@ -30,7 +30,7 @@ static auto StartPartParsing(std::vector<std::string> params,
 
 		if (!channel)
 		{
-			client->Push(std::to_string(ERR_NOSUCHCHANNEL) + " :" + channel_name);
+			client->Push(GetErrorMessage(ERR_NOSUCHCHANNEL, channel_name));
 			continue;
 		}
 
@@ -42,7 +42,7 @@ static auto StartPartParsing(std::vector<std::string> params,
 		}
 		else
 		{
-			client->Push(std::to_string(ERR_NOTONCHANNEL) + " :" + channel_name);			
+			client->Push(GetErrorMessage(ERR_NOTONCHANNEL, channel_name));			
 		}		
 	}
 }
@@ -55,13 +55,13 @@ auto PARTHandler::Handle(IMessage &message) -> void
 	// Handle unregistered client.
 	if (client->GetState() == IClient::kUnRegistered)
 	{
-		client->Push(std::to_string(ERR_NOTREGISTERED));
+		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
 		return;
 	}	
 	// Handle not enough parameters.
 	if (params.size() == 0)
 	{
-		client->Push(std::to_string(ERR_NEEDMOREPARAMS));
+		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
 		return;
 	}
 
