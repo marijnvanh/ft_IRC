@@ -5,7 +5,7 @@
 #include "gmock/gmock.h"
 #include "IServerConfig.h"
 
-class MockServerConfig : public virtual IServerConfig {
+class MockServerConfig : public IServerConfig {
     public:
 
 };
