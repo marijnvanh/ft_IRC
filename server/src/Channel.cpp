@@ -55,6 +55,21 @@ auto Channel::AddUser(IUser* new_user) -> void
 	}
 }
 
+auto Channel::HasUser(IRC::UUID uuid) -> bool
+{
+	if (local_users_.find(uuid) != local_users_.end())
+	{
+		return (true);
+	}
+
+	if (remote_users_.find(uuid) != remote_users_.end())
+	{
+		return (true);
+	}
+
+	return (false);
+}
+
 auto Channel::CountUsers() -> uint32_t
 {
 	return (local_users_.size() + remote_users_.size());
