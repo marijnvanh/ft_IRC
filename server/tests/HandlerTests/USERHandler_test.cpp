@@ -4,6 +4,7 @@
 #include "MockClient.h"
 #include "MockMessage.h"
 #include "MockClientDatabase.h"
+#include "MockServerConfig.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -21,6 +22,7 @@ class USERFromUserTests : public ::testing::Test
     std::vector<std::string> message_params;
 
     MockClientDatabase mock_client_database;
+    MockServerConfig mock_server_config;
 
     void SetUp() override
     {
@@ -44,7 +46,9 @@ TEST_F(USERFromUserTests, SuccessTest)
     message_params.push_back("unused");
     message_params.push_back("realname");
 
-    USERHandler(&mock_client_database, message1);
+    EXPECT_CALL(mock_client_database, RegisterLocalUser(uuid1))
+        .WillOnce(Return(&mock_client1));
+    USERHandler(&mock_server_config, &mock_client_database, message1);
 
     ASSERT_EQ(mock_client1.GetUsername(), "username");
     ASSERT_EQ(mock_client1.GetRealname(), "realname");

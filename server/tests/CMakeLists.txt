@@ -3,7 +3,7 @@ macro(package_add_test TESTNAME)
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mocks)
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
     target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include/MessageHandlers)
-    target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib)
+    target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib nlohmann_json::nlohmann_json)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${PROJECT_DIR}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"

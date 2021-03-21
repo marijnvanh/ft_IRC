@@ -14,12 +14,12 @@ struct ServerConfig : public IServerConfig
 
 public:
 	
-	ServerConfig();
-	ServerConfig(std::string file_path);
+	ServerConfig(const std::string &file_path);
 
 	auto TryParseFrom(std::string file_path) -> bool;
 
 private:
+	std::string config_file_;
 
 	auto ParseServerData(nlohmann::json jf) -> void;
 	auto ParseHostingData(nlohmann::json jf) -> void;

@@ -7,8 +7,8 @@
 #include "MessageDispatcher.h"
 #include "LogSettings.h"
 
-IRCServer::IRCServer(std::string config_path) :
-    server_data_(std::make_unique<ServerData>()),
+IRCServer::IRCServer(const std::string &config_path) :
+    server_data_(std::make_unique<ServerData>(config_path)),
     message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_.get())),
     logger("IRCServer")
 {

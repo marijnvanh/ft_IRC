@@ -33,7 +33,7 @@ static auto HandleNICKFromServer(IClientDatabase *client_database,
     }
 }
 
-static auto HandleNICKFromUser(IClientDatabase *client_database,
+static auto HandleNICKFromUser(IServerConfig *server_config, IClientDatabase *client_database,
     IClient* client, const std::string &nickname) -> void
 {
     auto client_with_nickname = client_database->GetClient(nickname);
@@ -56,14 +56,19 @@ static auto HandleNICKFromUser(IClientDatabase *client_database,
     else if (client->GetState() == IClient::State::kUnRegistered)
     {
         try {
-            client_database->RegisterLocalUser(client->GetUUID());
+            client = client_database->RegisterLocalUser(client->GetUUID());
+            auto welcome_message = ":" + server_config->GetName() + " 001 " + 
+                client->GetNickname() + " :Welcome to " + server_config->GetDescription();
+            client->Push(welcome_message);
         } catch (IClientDatabase::UnableToRegister &ex) {
             ;
         }
     }
 }
 
-auto NICKHandler(IClientDatabase *client_database, IMessage &message) -> void
+auto NICKHandler(IServerConfig *server_config,
+    IClientDatabase *client_database,
+    IMessage &message) -> void
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 
@@ -80,5 +85,5 @@ auto NICKHandler(IClientDatabase *client_database, IMessage &message) -> void
     if (client->GetType() == IClient::Type::kServer)
         HandleNICKFromServer(client_database, client, message, nickname);
     else
-        HandleNICKFromUser(client_database, client, nickname);
+        HandleNICKFromUser(server_config, client_database, client, nickname);
 }
