@@ -15,6 +15,7 @@ class MockChannel : public virtual IChannel {
     MOCK_METHOD(void, RemoveUser, (IRC::UUID uuid), ());
 	MOCK_METHOD(void, AddUser, (IUser* new_user), ());
 
+    MOCK_METHOD(bool, HasUser, (IRC::UUID uuid), ());
     MOCK_METHOD(uint32_t, CountUsers, (), ());
 	MOCK_METHOD(const std::string, GetUserListAsString, (), ());
 };
