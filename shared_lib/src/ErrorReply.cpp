@@ -10,7 +10,8 @@ std::unordered_map<int, std::string> error_map = {
         {ERR_NEEDMOREPARAMS, ":Not enough parameters"},
         {ERR_NOTEXTTOSEND, ":No text to send"},
         {ERR_NOSUCHCHANNEL, ":No such channel"},
-		{ERR_NOTONCHANNEL, ":Not in the channel"}
+		{ERR_NOTONCHANNEL, ":Not in the channel"},
+		{ERR_BADCHANNELKEY, ":Cannot join channel (+k)"}
 };
 
 auto GetErrorMessage(int error, std::string param) -> std::string

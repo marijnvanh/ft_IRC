@@ -4,6 +4,7 @@
 #include "MockClient.h"
 #include "MockMessage.h"
 #include "MockClientDatabase.h"
+#include "MockServerConfig.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -21,6 +22,7 @@ class NICKFromUserTests : public ::testing::Test
     std::vector<std::string> params;
 
     MockClientDatabase mock_client_database;
+    MockServerConfig mock_server_config;
 
     void SetUp() override
     {
@@ -49,6 +51,7 @@ class NICKFromServerTests : public ::testing::Test
     std::vector<std::string> params2;
 
     MockClientDatabase mock_client_database;
+    MockServerConfig mock_server_config;
 
     void SetUp() override
     {
@@ -77,8 +80,10 @@ TEST_F(NICKFromUserTests, SuccessTest)
 
     EXPECT_CALL(mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::nullopt));
+    EXPECT_CALL(mock_client_database, RegisterLocalUser(uuid1))
+        .WillOnce(Return(&mock_client1));
 
-    NICKHandler(&mock_client_database, message1);
+    NICKHandler(&mock_server_config, &mock_client_database, message1);
 
     ASSERT_EQ(mock_client1.GetNickname(), "new_nickname");
 }
@@ -87,7 +92,7 @@ TEST_F(NICKFromUserTests, NoNickNameGiven)
 {
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(&mock_client_database, message1);
+    NICKHandler(&mock_server_config, &mock_client_database, message1);
 }
 
 TEST_F(NICKFromUserTests, ClientNickCollision)
@@ -98,7 +103,7 @@ TEST_F(NICKFromUserTests, ClientNickCollision)
 
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(&mock_client_database, message1);
+    NICKHandler(&mock_server_config, &mock_client_database, message1);
 }
 
 TEST_F(NICKFromServerTests, SuccessTest)
@@ -117,7 +122,7 @@ TEST_F(NICKFromServerTests, SuccessTest)
     /* Init client with old_nickname */
     user_client1.SetNickname("old_nickname");
 
-    NICKHandler(&mock_client_database, message2);
+    NICKHandler(&mock_server_config, &mock_client_database, message2);
 
     ASSERT_EQ(user_client1.GetNickname(), "new_nickname");
 }
@@ -131,5 +136,5 @@ TEST_F(NICKFromServerTests, NoOrigin)
 
     EXPECT_CALL(server_client1, Push(_)); //TODO add exact invalid msg
 
-    NICKHandler(&mock_client_database, message2);
+    NICKHandler(&mock_server_config, &mock_client_database, message2);
 }

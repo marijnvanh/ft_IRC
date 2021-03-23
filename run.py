@@ -14,10 +14,10 @@ def Build():
     if subprocess.call(["make -C build"], shell=True):
         exit(-1)
 
-def Run(target):
+def Run(target, config_file):
 
     if target == "server":
-        if subprocess.call(["./bin/irc_server"], shell=True):
+        if subprocess.call([f"./bin/irc_server {config_file}"], shell=True):
             exit(-1)
     elif target == "client":
         if subprocess.call(["./bin/irc_client localhost"], shell=True):
@@ -39,9 +39,11 @@ if __name__ == "__main__":
         help='Options: server, client, tests.')
     arg_parser.add_argument('-n', '--name_test', default=None,
         help='Name of specific test')
+    arg_parser.add_argument('-c', '--config_file', default="./config.json",
+        help='Config file')
     args = arg_parser.parse_args()
 
     if args.method != 'run':
         Build()
     if args.method != 'build':
-        Run(args.target)
+        Run(args.target, args.config_file)

@@ -3,7 +3,8 @@
 
 #include "IClientDatabase.h"
 #include "IMessage.h"
+#include "IServerConfig.h"
 
-auto USERHandler(IClientDatabase *client_database, IMessage &message) -> void;
+auto USERHandler(IServerConfig *server_config, IClientDatabase *client_database, IMessage &message) -> void;
 
 #endif

@@ -44,7 +44,14 @@ static auto TryAddUserToChannel(IChannel* channel,
 	// TODO: Check channel modes to see if user has enough privilege.
 	if (channel->GetKey() != key)
 	{
-		user->Push(std::to_string(ERR_BADCHANNELKEY));
+		user->Push(GetErrorMessage(ERR_BADCHANNELKEY, channel->GetName()));
+		return;
+	}
+
+	// Disallow users from joining the same channel twice.
+	// Undefined behaviour, since a user should never attempt this.
+	if (channel->HasUser(user->GetUUID()))
+	{
 		return;
 	}
 
@@ -68,7 +75,7 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 		// TODO: The length and prefix check should probably be part of the parser(?)
 		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
-			client->Push(std::to_string(ERR_NOSUCHCHANNEL));
+			client->Push(GetErrorMessage(ERR_NOSUCHCHANNEL, kvp.first));
 			continue;
 		}
 
@@ -91,13 +98,13 @@ auto JOINHandler::Handle(IMessage &message) -> void
 	// Handle unregistered client.
 	if (client->GetState() == IClient::kUnRegistered)
 	{
-		client->Push(std::to_string(ERR_NOTREGISTERED));
+		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
 		return;
 	}	
 	// Handle not enough parameters.
 	if (params.size() == 0)
 	{
-		client->Push(std::to_string(ERR_NEEDMOREPARAMS));
+		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
 		return;
 	}
 
@@ -107,14 +114,14 @@ auto JOINHandler::Handle(IMessage &message) -> void
         auto remote_client_nickname = message.GetNickname();
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push(std::to_string(ERR_NONICKNAMEGIVEN) + ":No nickname given"); //TODO
+            client->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
             return ;
         }
         //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push(std::to_string(ERR_NOSUCHNICK) + *remote_client_nickname + " :Can't find nickname"); //TODO
+            client->Push(GetErrorMessage(ERR_NOSUCHNICK));
             return ;
         }
         client = *remote_client;

@@ -69,6 +69,7 @@ public:
      */
     virtual auto RemoveUser(IRC::UUID uuid) -> bool = 0;
 
+	virtual auto HasUser(IRC::UUID uuid) -> bool = 0;
 	virtual auto CountUsers() -> uint32_t = 0;
 	virtual auto GetUserListAsString() -> const std::string = 0;
 
