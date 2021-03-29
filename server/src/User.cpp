@@ -20,4 +20,5 @@ auto User::RemoveUserFromAllChannels() -> void
 	{
         it->second->RemoveUser(GetUUID());
 	}
+    channels_.clear();
 }
