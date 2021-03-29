@@ -21,24 +21,47 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> IClient*
     return ret.first->second.get();
 }
 
-//TODO make this disconnect client or something and deal with all scenario's properly
-auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
 {
-    clients_.erase(uuid);
-    local_users_.erase(uuid);
-    remote_users_.erase(uuid);
-    servers_.erase(uuid);
+    auto client = GetClient(uuid);
+    if (!client)
+    {
+        logger.Log(LogLevel::ERROR, "No client to delete"); // Should never happen
+        return;
+    }
+    
+    if ((*client)->GetState() == IClient::State::kUnRegistered)
+    {
+        logger.Log(LogLevel::INFO, "Client with nickname: %s being disconnected", (*client)->GetNickname().c_str());
+        clients_.erase(uuid);
+        return ;
+    }
+
+    if ((*client)->GetType() == IClient::Type::kLocalUser || (*client)->GetType() == IClient::Type::kRemoteUser)
+    {
+        DisconnectUser(dynamic_cast<IUser *>(*client));
+        return ;
+    }
+
+    if ((*client)->GetType() == IClient::Type::kServer)
+    {
+        DisconnectServer(dynamic_cast<IServer *>(*client));
+        return ;
+    }
 }
 
-auto ClientDatabase::RemoveUser(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectUser(IUser *user) -> void
 {
-    local_users_.erase(uuid);
-    remote_users_.erase(uuid);
+    auto user_uuid = user->GetUUID();
+    logger.Log(LogLevel::INFO, "User with nickname: %s being disconnected", user->GetNickname().c_str());
+    user->RemoveUserFromAllChannels();
+    local_users_.erase(user_uuid);
+    remote_users_.erase(user_uuid);
 }
 
-auto ClientDatabase::RemoveServer(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectServer(IServer *server) -> void
 {
-    servers_.erase(uuid);
+    servers_.erase(server->GetUUID());
 }
 
 auto ClientDatabase::HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
@@ -57,8 +80,8 @@ auto ClientDatabase::HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IC
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle disconnection
-            RemoveClient(it->first);
+            //TODO Handle quit message sending
+            DisconnectClient(it->first);
         }
     }
 }
@@ -67,7 +90,6 @@ auto ClientDatabase::PollClients(std::function<void(IClient*, std::string)> mess
 {
     HandlePoll(clients_, message_handler);
     HandlePoll(local_users_, message_handler);
-    HandlePoll(remote_users_, message_handler);
     HandlePoll(servers_, message_handler);
 }
 
@@ -81,8 +103,8 @@ auto ClientDatabase::HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle disconnection
-            RemoveClient(it->first);
+            //TODO Handle quit message sending
+            DisconnectClient(it->first);
         }
     }
 }
