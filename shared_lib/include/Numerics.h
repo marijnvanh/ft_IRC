@@ -12,6 +12,8 @@ enum
      * 
      */
 
+	RPL_UMODEIS						= 221,
+
 	// RPL_LUSERCLIENT                 = 251,
 	// RPL_LUSEROP                     = 252,
 	// RPL_LUSERUNKNOWN                = 253,
@@ -37,7 +39,7 @@ enum
 	// RPL_LIST                        = 322,
 	// RPL_LISTEND                     = 323,
 
-	// RPL_CHANNELMODEIS               = 324,
+	RPL_CHANNELMODEIS               = 324,
 	// RPL_NOTOPICSET                  = 331,
 	RPL_TOPIC                       = 332,
 
@@ -77,7 +79,7 @@ enum
 	ERR_NICKNAMEINUSE               = 433,
 	ERR_NICKCOLLISION				= 436,
 	// ERR_USERNOTINCHANNEL            = 441,
-	// ERR_NOTONCHANNEL                = 442,
+	ERR_NOTONCHANNEL                = 442,
 	// ERR_USERONCHANNEL               = 443,
 	ERR_NOTREGISTERED               = 451,
 	ERR_NEEDMOREPARAMS              = 461,
@@ -95,12 +97,13 @@ enum
 
 	ERR_NOPRIVILEGES                = 481,
     
-	// ERR_CHANOPRIVSNEEDED            = 482,
-	ERR_CANTKILLSERVER				= 483
+	ERR_CHANOPRIVSNEEDED            = 482,
+	ERR_CANTKILLSERVER				= 483,
 	// ERR_RESTRICTED                  = 484,
 
 	// ERR_NOOPERHOST                  = 491,
-	// ERR_USERSDONTMATCH              = 502,
+	ERR_UMODEUNKNOWNFLAG			= 501,
+	ERR_USERSDONTMATCH              = 502
 };
 
 #endif

@@ -2,22 +2,18 @@
 #include "IClient.h"
 #include "LocalUser.h"
 
-Channel::Channel(std::string name, std::string key, ChannelType type, ChannelMode mode = ChannelMode::None)
+Channel::Channel(std::string name, std::string key, ChannelType type)
 {
 	key_ = key;
 	name_ = name;
 
 	type_ = type;
-	mode_ = mode;
+
+	// Auto-set password mode if key is enabled.
+	this->SetMode('k', !key_.empty());
 }
 
 Channel::~Channel() { }
-
-auto Channel::PushToAll(std::string irc_message) -> void
-{
-	this->PushToLocal(irc_message);
-	this->PushToRemote(irc_message);
-}
 
 auto Channel::PushToLocal(std::string irc_message) -> void
 {
@@ -25,20 +21,6 @@ auto Channel::PushToLocal(std::string irc_message) -> void
     {
 		it->second->Push(irc_message);
 	}
-}
-
-auto Channel::PushToRemote(std::string irc_message) -> void
-{
-    for (auto it = remote_users_.cbegin(); it != remote_users_.cend(); ++it)
-    {
-		it->second->Push(irc_message);
-	}
-}
-
-auto Channel::RemoveUser(IRC::UUID uuid) -> void
-{
-    local_users_.erase(uuid);
-    remote_users_.erase(uuid);
 }
 
 auto Channel::AddUser(IUser* new_user) -> void
@@ -68,6 +50,14 @@ auto Channel::HasUser(IRC::UUID uuid) -> bool
 	}
 
 	return (false);
+}
+
+auto Channel::RemoveUser(IRC::UUID uuid) -> void
+{
+    local_users_.erase(uuid);
+    remote_users_.erase(uuid);
+
+	this->RemoveOperator(uuid);
 }
 
 auto Channel::CountUsers() -> uint32_t
@@ -100,4 +90,44 @@ auto Channel::GetUserListAsString() -> const std::string
 	}
 
 	return (result);
+}
+
+auto Channel::AddOperator(IRC::UUID uuid) -> bool
+{
+	for (auto it = operators_.cbegin(); it != operators_.cend(); ++it)
+	{
+		if (*it == uuid)
+		{
+			return (false);
+		}
+	}
+
+	operators_.push_back(uuid);
+	return (true);
+}
+
+auto Channel::HasOperator(IRC::UUID uuid) -> bool
+{
+	for (auto it = operators_.cbegin(); it != operators_.cend(); ++it)
+	{
+		if (*it == uuid)
+		{
+			return (true);
+		}
+	}
+	return (false);
+}
+
+auto Channel::RemoveOperator(IRC::UUID uuid) -> bool
+{
+	for (auto it = operators_.cbegin(); it != operators_.cend(); ++it)
+	{
+		if (*it == uuid)
+		{
+			operators_.erase(it);
+			return (true);
+		}
+	}
+
+	return (false);
 }

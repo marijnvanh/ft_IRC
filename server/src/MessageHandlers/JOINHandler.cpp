@@ -42,7 +42,7 @@ static auto TryAddUserToChannel(IChannel* channel,
 	const std::string key, IUser* user) -> void
 {
 	// TODO: Check channel modes to see if user has enough privilege.
-	if (channel->GetKey() != key)
+	if (channel->HasMode('k') && channel->GetKey() != key)
 	{
 		user->Push(GetErrorMessage(ERR_BADCHANNELKEY, channel->GetName()));
 		return;
@@ -56,6 +56,7 @@ static auto TryAddUserToChannel(IChannel* channel,
 	}
 
 	channel->AddUser(user);
+	channel->AddOperator(user->GetUUID());
 	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
 	
 	user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());
@@ -83,7 +84,7 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 
 		if (!current_channel)
 		{
-			current_channel = channel_database->CreateChannel(kvp.first, kvp.second, ChannelType::kLocal, ChannelMode::None);
+			current_channel = channel_database->CreateChannel(kvp.first, kvp.second, ChannelType::kLocal);
 		}
 
 		TryAddUserToChannel(*current_channel, kvp.second, dynamic_cast<IUser*>(client));

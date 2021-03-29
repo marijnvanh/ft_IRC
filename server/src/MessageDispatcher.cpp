@@ -8,6 +8,7 @@
 #include "MessageHandlers/PRIVMSGHandler.h"
 #include "MessageHandlers/JOINHandler.h"
 #include "MessageHandlers/NAMESHandler.h"
+#include "MessageHandlers/MODEHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
     : server_data_(server_data)
@@ -39,6 +40,12 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     );
     command_handlers_.insert(std::make_pair("NAMES",
         std::make_unique<NAMESHandler>(&server_data->client_database_, &server_data->channel_database_))
+    );
+    command_handlers_.insert(std::make_pair("MODE",
+        std::make_unique<MODEHandler>(
+			&server_data->server_config_,
+			&server_data->client_database_,
+			&server_data->channel_database_))
     );
     
 }

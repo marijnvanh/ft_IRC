@@ -4,13 +4,17 @@
 #include <unordered_map>
 
 std::unordered_map<int, std::string> error_map = {
-        {ERR_NOTREGISTERED, ":You have not registered"},
-        {ERR_NONICKNAMEGIVEN, ":No nickname given"},
-        {ERR_NOSUCHNICK, ":No such nick/channel"},
-        {ERR_NEEDMOREPARAMS, ":Not enough parameters"},
-        {ERR_NOTEXTTOSEND, ":No text to send"},
-        {ERR_NOSUCHCHANNEL, ":No such channel"},
-		{ERR_BADCHANNELKEY, ":Cannot join channel (+k)"}
+        {ERR_NOTREGISTERED, "You have not registered"},
+        {ERR_NONICKNAMEGIVEN, "No nickname given"},
+        {ERR_NOSUCHNICK, "No such nick/channel"},
+        {ERR_NEEDMOREPARAMS, "Not enough parameters"},
+        {ERR_NOTEXTTOSEND, "No text to send"},
+        {ERR_NOSUCHCHANNEL, "No such channel"},
+		{ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
+		{ERR_UMODEUNKNOWNFLAG, "Unknown MODE flag"},
+		{ERR_USERSDONTMATCH, "Cannot change mode for other users"},
+		{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
+		{ERR_NOTONCHANNEL, "You're not on that channel"}
 };
 
 auto GetErrorMessage(int error, std::string param) -> std::string
@@ -21,7 +25,7 @@ auto GetErrorMessage(int error, std::string param) -> std::string
         return "Unknown Error";
     
     if (param != "")
-        return std::to_string(error) + " " + param + " " + error_pair->second;
+        return std::to_string(error) + " " + param + " :" + error_pair->second;
     else
-        return std::to_string(error) + " " + error_pair->second;
+        return std::to_string(error) + " :" + error_pair->second;
 }
