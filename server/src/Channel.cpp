@@ -23,6 +23,16 @@ auto Channel::PushToLocal(std::string irc_message) -> void
 	}
 }
 
+auto Channel::RemoveUser(IRC::UUID uuid) -> bool
+{
+	size_t result = 0;
+    
+	result += local_users_.erase(uuid);
+    result += remote_users_.erase(uuid);
+
+	return (result > 0);
+}
+
 auto Channel::AddUser(IUser* new_user) -> void
 {
     auto uuid = new_user->GetUUID();
@@ -50,14 +60,6 @@ auto Channel::HasUser(IRC::UUID uuid) -> bool
 	}
 
 	return (false);
-}
-
-auto Channel::RemoveUser(IRC::UUID uuid) -> void
-{
-    local_users_.erase(uuid);
-    remote_users_.erase(uuid);
-
-	this->RemoveOperator(uuid);
 }
 
 auto Channel::CountUsers() -> uint32_t
