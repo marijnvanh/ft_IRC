@@ -62,7 +62,12 @@ public:
     virtual auto PushToRemote(std::string irc_message) -> void = 0;
 
     virtual auto AddUser(IUser* new_user) -> void = 0;
-    virtual auto RemoveUser(IRC::UUID uuid) -> void = 0;
+	/**
+     * @brief Attempts to remove a user from the channel with the given UUID key.
+     * 
+     * @returns Whether or not a user was actually removed.
+     */
+    virtual auto RemoveUser(IRC::UUID uuid) -> bool = 0;
 
 	virtual auto HasUser(IRC::UUID uuid) -> bool = 0;
 	virtual auto CountUsers() -> uint32_t = 0;

@@ -12,7 +12,7 @@ class MockChannel : public virtual IChannel {
     MOCK_METHOD(void, PushToLocal, (std::string irc_message), ());
     MOCK_METHOD(void, PushToRemote, (std::string irc_message), ());
 
-    MOCK_METHOD(void, RemoveUser, (IRC::UUID uuid), ());
+    MOCK_METHOD(bool, RemoveUser, (IRC::UUID uuid), ());
 	MOCK_METHOD(void, AddUser, (IUser* new_user), ());
 
     MOCK_METHOD(bool, HasUser, (IRC::UUID uuid), ());

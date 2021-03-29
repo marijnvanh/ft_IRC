@@ -1,16 +1,16 @@
-#ifndef JOIN_HANDLER_HPP
-#define JOIN_HANDLER_HPP
+#ifndef PART_HANDLER_HPP
+#define PART_HANDLER_HPP
 
 #include "Logger.h"
 #include "ICommandHandler.h"
 #include "IClientDatabase.h"
 #include "IChannelDatabase.h"
 
-class JOINHandler : public ICommandHandler
+class PARTHandler : public ICommandHandler
 {
     public:
-    JOINHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
-    ~JOINHandler();
+    PARTHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
+    ~PARTHandler();
 
     auto Handle(IMessage &message) -> void override;
 

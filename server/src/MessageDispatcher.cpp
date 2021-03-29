@@ -7,6 +7,7 @@
 #include "MessageHandlers/QUITHandler.h"
 #include "MessageHandlers/PRIVMSGHandler.h"
 #include "MessageHandlers/JOINHandler.h"
+#include "MessageHandlers/PARTHandler.h"
 #include "MessageHandlers/NAMESHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
@@ -25,6 +26,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
             QUITHandler(&server_data->client_database_, message);
         }));
 
+    command_handlers_.insert(std::make_pair("PART",
+        std::make_unique<PARTHandler>(&server_data->client_database_, &server_data->channel_database_))
+    );
     command_handlers_.insert(std::make_pair("JOIN",
         std::make_unique<JOINHandler>(&server_data->client_database_, &server_data->channel_database_))
     );
