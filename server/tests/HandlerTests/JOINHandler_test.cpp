@@ -65,10 +65,11 @@ TEST_F(JOINTests, SuccessTest)
     message_params.push_back(channel1_name);
     message_params.push_back(channel1_key);
 
-	EXPECT_CALL(mock_channel_database, CreateChannel(channel1_name, channel1_key, IChannel::kLocal, ChannelMode::None))
+	EXPECT_CALL(mock_channel_database, CreateChannel(channel1_name, channel1_key, IChannel::kLocal))
 		.WillOnce(Return(std::optional<IChannel*>(&mock_channel1)));
 
 	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1));
+	EXPECT_CALL(mock_channel1, AddOperator(uuid1));
 
     handler->Handle(message1);
 }
