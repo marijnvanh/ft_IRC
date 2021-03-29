@@ -2,7 +2,7 @@
 #define __IOCONTROLLER_H__
 
 #include "AddressInfo.h"
-#include "Socket.h"
+#include "ISocket.h"
 
 #include <map>
 #include <memory>
@@ -31,20 +31,20 @@ namespace IRC::TCP
 		 * 
 		 * @param socket A shared_ptr object of the socket to add.
 		 */
-		auto AddSocket(std::shared_ptr<Socket> socket) -> void;
+		auto AddSocket(std::shared_ptr<ISocket> socket) -> void;
 		/**
 		 * @brief Removes the socket to the list of known sockets, this does not call the Close method on the Socket object.
 		 * 
 		 * @param socket A shared_ptr object of the socket to remove.
 		 */
-		auto RemoveSocket(std::shared_ptr<Socket> socket) -> void;
+		auto RemoveSocket(std::shared_ptr<ISocket> socket) -> void;
 
 		/**
 		 * @brief Attempts to accept new connections from all known listener sockets.
 		 * 
 		 * @param newSocketCallback A callback which is populated with the newly added socket for non-generic processing.
 		 */
-        auto AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void;
+        auto AcceptNewConnections(const std::function<void(std::shared_ptr<ISocket>)>& newSocketCallback) -> void;
 
 		auto GetSocketsCount() -> int { return this->sockets_.size(); }
 
@@ -55,7 +55,7 @@ namespace IRC::TCP
         };
 
     private:
-        std::map<int, std::shared_ptr<Socket>> sockets_;
+        std::map<int, std::shared_ptr<ISocket>> sockets_;
 
         int max_fd_;
         fd_set master_fd_list_;

@@ -5,6 +5,7 @@
 #include <string>
 #include <fcntl.h>
 #include <unistd.h>
+#include "Socket.h"
 
 #define PORT "5000"
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
         std::cout << "Resolve error: " << ex.what() << std::endl;
         exit(-1);
     }
-    catch (TCP::Socket::Error &ex)
+    catch (TCP::ISocket::Error &ex)
     {
         std::cout << "Socket error: " << ex.what() << std::endl;
         exit(-1);

@@ -6,6 +6,7 @@
 #include "TCPIOHandler.h"
 #include "MessageDispatcher.h"
 #include "LogSettings.h"
+#include "Socket.h"
 
 IRCServer::IRCServer(const std::string &config_path) :
     server_data_(std::make_unique<ServerData>(config_path)),
@@ -40,7 +41,7 @@ auto IRCServer::RunOnce() -> void
     tcp_io_controller_.RunOnce();
 
     tcp_io_controller_.AcceptNewConnections(
-        [this](std::shared_ptr<TCP::Socket> socket)
+        [this](std::shared_ptr<TCP::ISocket> socket)
         {
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));

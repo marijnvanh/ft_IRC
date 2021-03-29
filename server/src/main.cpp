@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         std::cout << "Resolve error: " << ex.what() << std::endl;
         exit(-1);
     }
-    catch (TCP::Socket::Error &ex)
+    catch (TCP::ISocket::Error &ex)
     {
         std::cout << "Socket error: " << ex.what() << std::endl;
         exit(-1);
