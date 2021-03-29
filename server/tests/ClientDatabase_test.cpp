@@ -28,6 +28,7 @@ class ClientDatabaseTests : public ::testing::Test
 
     std::unique_ptr<MockLocalUser> unique_local_user1;
     MockLocalUser *local_user1;
+    IRC::UUID uuid_local_user1 = IRC::UUIDGenerator::GetInstance().Generate();
 
 
     std::shared_ptr<ClientDatabase> client_database;
@@ -35,7 +36,6 @@ class ClientDatabaseTests : public ::testing::Test
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
     IRC::UUID uuid2 = IRC::UUIDGenerator::GetInstance().Generate();
     IRC::UUID uuid3 = IRC::UUIDGenerator::GetInstance().Generate();
-    IRC::UUID uuid4 = IRC::UUIDGenerator::GetInstance().Generate();
 
     void SetUp() override
     {
@@ -58,7 +58,7 @@ class ClientDatabaseTests : public ::testing::Test
         EXPECT_CALL(*client3, GetUUID())
             .WillRepeatedly(ReturnRef(uuid3));
         EXPECT_CALL(*local_user1, GetUUID())
-            .WillRepeatedly(ReturnRef(uuid4));
+            .WillRepeatedly(ReturnRef(uuid_local_user1));
     }
 };
 
@@ -68,7 +68,7 @@ TEST_F(ClientDatabaseTests, AddAndRemoveClient)
 
     ASSERT_EQ((*client_database->GetClient(uuid1))->GetUUID(), uuid1);
 
-    client_database->RemoveClient(uuid1);
+    client_database->DisconnectClient(uuid1);
 
     ASSERT_EQ(client_database->GetClient(uuid1), std::nullopt);
 }
@@ -201,4 +201,27 @@ TEST_F(ClientDatabaseTests, GetRegisteredAndUnregisteredClient)
     
     auto local_user = client_database->GetClient(localuser_nickname);
     ASSERT_EQ((*local_user)->GetNickname(), localuser_nickname);
+}
+
+/* GetClient by nickname should return both Registered and UnRegistered client */
+TEST_F(ClientDatabaseTests, DisconnectUser)
+{
+    std::string client_nickname("nickname1");
+    std::string localuser_nickname("nickname2");
+    
+    unique_client1->SetNickname(client_nickname);
+    local_user1->SetNickname(localuser_nickname);
+    client_database->AddClient(std::move(unique_client1));
+    client_database->AddLocalUser(std::move(unique_local_user1));
+
+    auto local_user = client_database->GetClient(uuid_local_user1);
+    ASSERT_EQ((*local_user)->GetNickname(), localuser_nickname);
+
+    EXPECT_CALL(*local_user1, RemoveUserFromAllChannels())
+        .Times(1);
+
+    client_database->DisconnectClient(local_user1->GetUUID());
+
+    local_user = client_database->GetClient(uuid_local_user1);
+    ASSERT_EQ(local_user, std::nullopt);
 }

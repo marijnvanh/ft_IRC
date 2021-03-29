@@ -38,9 +38,9 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param uuid 
      */
-    auto RemoveClient(IRC::UUID uuid) -> void override;
-    auto RemoveUser(IRC::UUID uuid) -> void override;
-    auto RemoveServer(IRC::UUID uuid) -> void override;
+    auto DisconnectClient(IRC::UUID uuid) -> void override;
+    auto DisconnectUser(IUser *user) -> void override;
+    auto DisconnectServer(IServer *server) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message

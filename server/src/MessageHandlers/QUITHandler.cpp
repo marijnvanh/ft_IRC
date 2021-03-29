@@ -23,7 +23,7 @@ static auto DisconnectLocalUser(IClientDatabase *client_database, IMessage &mess
     // auto local_user = std::dynamic_pointer_cast<ILocalUser>(client);
     //TODO send quit message to all local Users in all the channels from local_user.GetChannels()
     //TODO remove from IServer it is connected to
-    client_database->RemoveUser(message.GetClientUUID());
+    client_database->DisconnectClient(message.GetClientUUID());
 }
 
 static auto DisconnectRemoteUser(IClientDatabase *client_database,
@@ -45,7 +45,7 @@ static auto DisconnectRemoteUser(IClientDatabase *client_database,
     {
         //TODO send quit message to all local Users in all the channels from user.GetChannels()
         //TODO remove from IServer it is connected to
-        client_database->RemoveUser((*remote_client)->GetUUID());
+        client_database->DisconnectClient((*remote_client)->GetUUID());
     }
     else
     {
@@ -60,7 +60,7 @@ auto QUITHandler(IClientDatabase *client_database, IMessage &message) -> void
 
     if (client->GetState() == IClient::State::kUnRegistered)
     {
-        client_database->RemoveClient(client->GetUUID());
+        client_database->DisconnectClient(client->GetUUID());
     }
     else if (client->GetType() == IClient::Type::kLocalUser)
     {

@@ -7,6 +7,8 @@
 
 #include "IUser.h"
 
+class IUser;
+
 enum ChannelMode : uint32_t
 {
 	None				= 1 << 0,
