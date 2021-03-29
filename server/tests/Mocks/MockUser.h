@@ -9,6 +9,7 @@
 class MockUser : public virtual IUser, public MockClient {
     public:
     MOCK_METHOD(void, AddChannel, (IChannel*), ());
+    MOCK_METHOD(void, RemoveChannel, (const std::string &channel_name), ());
     MOCK_METHOD(void, RemoveUserFromAllChannels, (), ());
 };
 

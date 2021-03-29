@@ -14,6 +14,7 @@ class User : public virtual IUser
     virtual ~User();
 
     auto AddChannel(IChannel *channel) -> void override;
+    auto RemoveChannel(const std::string &channel_name) -> void override;
     auto RemoveUserFromAllChannels() -> void override;
 
     private:
