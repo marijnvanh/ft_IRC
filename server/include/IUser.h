@@ -2,6 +2,9 @@
 #define __IUSER_H__
 
 #include "IClient.h"
+#include "IChannel.h"
+
+class IChannel;
 
 class IUser : public virtual IClient 
 {
@@ -12,6 +15,9 @@ class IUser : public virtual IClient
         state_ = IClient::State::kRegistered;
     };
     virtual ~IUser() {};
+    virtual auto AddChannel(IChannel *channel) -> void = 0;
+    virtual auto RemoveChannel(const std::string &channel_name) -> void = 0;
+    virtual auto RemoveUserFromAllChannels() -> void = 0;
 
     private:
 };
