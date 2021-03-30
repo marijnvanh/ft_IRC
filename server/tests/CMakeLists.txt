@@ -22,6 +22,7 @@ package_add_test( ClientDatabase_test
 ClientDatabase_test.cpp
 ../src/ClientDatabase.cpp
 ../src/Client.cpp
+../src/LocalServer.cpp
 ../src/Server.cpp
 ../src/User.cpp
 )
@@ -46,10 +47,11 @@ package_add_test( JOINHandler_test
 ./HandlerTests/JOINHandler_test.cpp
 ../src/MessageHandlers/JOINHandler.cpp
 )
-package_add_test( Server_test
-Server_test.cpp
+package_add_test( LocalServer_test
+LocalServer_test.cpp
 ../src/Client.cpp
 ../src/Server.cpp
+../src/LocalServer.cpp
 )
 package_add_test( User_test
 User_test.cpp
@@ -64,6 +66,7 @@ package_add_test( ClientUpgrade_test
 ClientUpgrade_test.cpp
 ../src/ClientDatabase.cpp
 ../src/Client.cpp
+../src/LocalServer.cpp
 ../src/Server.cpp
 ../src/User.cpp
 )
@@ -76,4 +79,9 @@ package_add_test( PRIVMSGHandler_test
 package_add_test( NAMESHandler_test
 ./HandlerTests/NAMESHandler_test.cpp
 ../src/MessageHandlers/NAMESHandler.cpp
+)
+package_add_test( RemoteUser_test
+RemoteUser_test.cpp
+../src/User.cpp
+../src/RemoteUser.cpp
 )

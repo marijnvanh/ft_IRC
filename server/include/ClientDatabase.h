@@ -30,7 +30,7 @@ class ClientDatabase : public IClientDatabase
      * @param uuid 
      */
     auto RegisterLocalUser(IRC::UUID uuid) -> IClient* override;
-    auto RegisterServer(IRC::UUID uuid) -> IClient* override;
+    auto RegisterLocalServer(std::string server_name, IRC::UUID uuid) -> IClient* override;
 
     /**
      * @brief Remove client from database
@@ -66,6 +66,7 @@ class ClientDatabase : public IClientDatabase
     // This might not be what we want because of Nick collisions on UnRegistered users
     auto GetClient(const std::string &nickname) -> std::optional<IClient*> override;
     auto GetServer(const std::string &server_name) -> std::optional<IServer*> override;
+    auto GetServer(IRC::UUID uuid) -> std::optional<IServer*> override;
     auto GetUser(const std::string &nickname) -> std::optional<IUser*> override;
 
     private:

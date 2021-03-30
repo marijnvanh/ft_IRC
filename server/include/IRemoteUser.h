@@ -13,8 +13,6 @@ class IRemoteUser : public virtual IUser
     };
     virtual ~IRemoteUser() {};
 
-    virtual auto GetServer() -> IServer* = 0;
-
     private:
 };
 

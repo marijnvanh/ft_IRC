@@ -4,14 +4,21 @@
 #include <unordered_map>
 
 std::unordered_map<int, std::string> error_map = {
-        {ERR_NOTREGISTERED, ":You have not registered"},
-        {ERR_NONICKNAMEGIVEN, ":No nickname given"},
         {ERR_NOSUCHNICK, ":No such nick/channel"},
-        {ERR_NEEDMOREPARAMS, ":Not enough parameters"},
-        {ERR_NOTEXTTOSEND, ":No text to send"},
+        {ERR_NOSUCHSERVER, ":No such server"},
         {ERR_NOSUCHCHANNEL, ":No such channel"},
+        {ERR_NOTEXTTOSEND, ":No test to send"},
+        {ERR_NONICKNAMEGIVEN, ":No nickname given"},
+        {ERR_ERRONEUSNICKNAME, ":Erroneus nickname"},
+        {ERR_NICKNAMEINUSE, ":Nickname is already in use"},
+        {ERR_NICKCOLLISION, ":Nickname collision KILL"},
 		{ERR_NOTONCHANNEL, ":Not in the channel"},
-		{ERR_BADCHANNELKEY, ":Cannot join channel (+k)"}
+        {ERR_NOTREGISTERED, ":You have not registered"},
+        {ERR_NEEDMOREPARAMS, ":Not enough parameters"},
+        {ERR_ALREADYREGISTERED, ":You may not reregister"},
+		{ERR_BADCHANNELKEY, ":Cannot join channel (+k)"},
+		{ERR_NOPRIVILEGES, ":Permission Denied- You're not an IRC operator"},
+		{ERR_CANTKILLSERVER, ":You cant kill a server!"}
 };
 
 auto GetErrorMessage(int error, std::string param) -> std::string
