@@ -95,6 +95,25 @@ auto MODEHandler::Handle(IMessage &message) -> void
         client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
         return ;
     }
+    
+    if (client->GetType() == IClient::Type::kServer)
+    {
+        auto remote_client_nickname = message.GetNickname();
+    
+        if (remote_client_nickname == std::nullopt)
+        {
+            client->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            return ;
+        }
+        //TODO validate nickname
+        auto remote_client = client_database_->GetClient(*remote_client_nickname);
+        if (remote_client == std::nullopt)
+        {
+            client->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            return ;
+        }
+        client = *remote_client;
+    }
 
 	if (params[TARGET_IDENTIFIER].at(0) == '#')
 	{
@@ -123,6 +142,11 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 
 	auto mode = params[MODE_CHANGES];
 	auto set = mode.at(0) == '+';
+	if (mode[0] != '+' && mode[0] != '-')
+	{
+		user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
+		return ;
+	}
 
 	for (size_t i = 1; i < mode.size(); ++i)
 	{
@@ -132,17 +156,21 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 		
 		if (mode[i] == 's' || mode[i] == 'w' || mode[i] == 'i')
 		{
-			user->SetMode(mode[i], set); break;
+			user->SetMode(static_cast<UserMode>(mode[i] - 65), set);
 			continue ;
 		}
+		if (mode[i] == '+' || mode[i] == '-')
+		{
+			set = mode[i] == '+';
+		}
 		user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
+		break ;
 	}
 
 	user->Push(":" + user->GetNickname() + " MODE " + user->GetNickname() +
 		" :" + FormatMode(user->GetMode()));
 }
 
-// TODO: This is very ugly, can we make this better?
 auto MODEHandler::HandleMODEChannel(IUser *user,
 		std::vector<std::string> params) -> void
 {
@@ -173,6 +201,11 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 
 	auto mode = params[MODE_CHANGES];
 	auto set = mode.at(0) == '+';
+	if (mode[0] != '+' && mode[0] != '-')
+	{
+		user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
+		return ;
+	}
 
 	for (size_t i = 1; i < mode.size(); ++i)
 	{
@@ -188,11 +221,19 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 		{
 			HandleChannelOperatorSet(user, *channel, client_database_, params, set);
 		}
+		else if (mode[i] == '+' || mode[i] == '-')
+		{
+			set = mode[i] == '+';
+		}
 		else
 		{
 			user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
+			return ;
 		}
 	}
+
+	(*channel)->PushToLocal(":" + user->GetNickname() + " MODE " + (*channel)->GetName() +
+		" " + params[MODE_CHANGES] + " " + params[CHANNEL_TARGET_IDENTIFIER]);
 }
 
 

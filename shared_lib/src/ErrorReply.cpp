@@ -10,11 +10,11 @@ std::unordered_map<int, std::string> error_map = {
         {ERR_NEEDMOREPARAMS, "Not enough parameters"},
         {ERR_NOTEXTTOSEND, "No text to send"},
         {ERR_NOSUCHCHANNEL, "No such channel"},
-		    {ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
-		    {ERR_UMODEUNKNOWNFLAG, "Unknown MODE flag"},
-		    {ERR_USERSDONTMATCH, "Cannot change mode for other users"},
-		    {ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
-		    {ERR_NOTONCHANNEL, "You're not on that channel"}
+		{ERR_BADCHANNELKEY, "Cannot join channel (+k)"},
+		{ERR_UMODEUNKNOWNFLAG, "Unknown MODE flag by us"},
+		{ERR_USERSDONTMATCH, "Cannot change mode for other users"},
+		{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
+		{ERR_NOTONCHANNEL, "You're not on that channel"}
 };
 
 auto GetErrorMessage(int error, std::string param) -> std::string

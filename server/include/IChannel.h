@@ -66,8 +66,8 @@ public:
 	/**
 	 * @brief Mode specific functionality. Sets the given mode.
 	 */
-	virtual auto SetMode(char mode_key, bool value) -> void
-		{ mode_[mode_key - 65] = value; }
+	virtual auto SetMode(ChannelMode mode_key, bool value) -> void
+		{ mode_[mode_key] = value; }
 
 	/**
 	 * @brief Mode specific functionality. Gets the the constant mode object.
@@ -79,7 +79,7 @@ public:
 	 * 
 	 * @returns Whether or not the given mod is set or unset.
 	 */
-	virtual auto HasMode(char mode_key) const -> bool { return mode_[mode_key]; }
+	virtual auto HasMode(ChannelMode mode_key) const -> bool { return mode_[mode_key]; }
 
 protected:
 	std::string key_;

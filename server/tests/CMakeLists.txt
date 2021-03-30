@@ -45,6 +45,10 @@ package_add_test( JOINHandler_test
 ./HandlerTests/JOINHandler_test.cpp
 ../src/MessageHandlers/JOINHandler.cpp
 )
+package_add_test( MODEHandler_test
+./HandlerTests/MODEHandler_test.cpp
+../src/MessageHandlers/MODEHandler.cpp
+)
 package_add_test( Server_test
     Server_test.cpp
     ../src/Client.cpp

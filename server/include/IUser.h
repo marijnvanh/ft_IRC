@@ -30,8 +30,8 @@ class IUser : public virtual IClient
 	/**
 	 * @brief Mode specific functionality. Sets the given mode.
 	 */
-	virtual auto SetMode(char mode_key, bool value) -> void
-		{ mode_[mode_key - 65] = value; }
+	virtual auto SetMode(UserMode mode_key, bool value) -> void
+		{ mode_[mode_key] = value; }
 
 	/**
 	 * @brief Mode specific functionality. Gets the the constant mode object.

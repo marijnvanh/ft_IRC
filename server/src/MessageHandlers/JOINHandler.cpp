@@ -42,7 +42,7 @@ static auto TryAddUserToChannel(IChannel* channel,
 	const std::string key, IUser* user) -> void
 {
 	// TODO: Check channel modes to see if user has enough privilege.
-	if (channel->HasMode('k') && channel->GetKey() != key)
+	if (channel->HasMode(ChannelMode::CM_KEY) && channel->GetKey() != key)
 	{
 		user->Push(GetErrorMessage(ERR_BADCHANNELKEY, channel->GetName()));
 		return;

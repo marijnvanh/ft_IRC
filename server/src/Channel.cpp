@@ -10,7 +10,7 @@ Channel::Channel(std::string name, std::string key, ChannelType type)
 	type_ = type;
 
 	// Auto-set password mode if key is enabled.
-	this->SetMode('k', !key_.empty());
+	this->SetMode(ChannelMode::CM_KEY, !key_.empty());
 }
 
 Channel::~Channel() { }
