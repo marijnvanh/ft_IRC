@@ -28,7 +28,12 @@ class IClient
         kRegistered
     };
 
-    IClient() : state_(IClient::State::kUnRegistered), type_(IClient::Type::kUnInitialized)
+    IClient() :
+        state_(IClient::State::kUnRegistered),
+        type_(IClient::Type::kUnInitialized),
+        uuid_(IRC::UUIDGenerator::GetInstance().Generate()),
+        local_server_(NULL),
+        remote_server_(NULL)
     {};
 
     IClient (IClient&& other) = default; 
@@ -56,8 +61,8 @@ class IClient
      */
     virtual auto SendAll() -> void = 0;
     
-    virtual auto GetUUID() const -> const IRC::UUID& = 0;
 
+    virtual auto GetUUID() const -> const IRC::UUID& { return uuid_; };
     virtual auto GetState() const -> IClient::State { return state_; }
     virtual auto SetState(IClient::State state) -> void { state_ = state; }
     virtual auto GetPassword() const -> const std::string& { return password_; }
@@ -70,6 +75,7 @@ class IClient
     virtual auto SetUsername(std::string username) -> void { username_ = username; }
     virtual auto GetRealname() const -> const std::string& { return realname_; }
     virtual auto SetRealname(std::string realname) -> void { realname_ = realname; }
+    virtual auto GetServer() const -> IServer* { return local_server_; };
 
     virtual ~IClient() {};
 
@@ -86,11 +92,14 @@ class IClient
     protected:
 
     State state_;
+    Type type_;
+    IRC::UUID uuid_;
     std::string password_;
     std::string nickname_;
     std::string username_;
     std::string realname_;
-    Type type_;
+    IServer* local_server_; /* The server which is directly connected to us */
+    IServer* remote_server_; /* The server that has the local user */
 };
 
 #endif

@@ -1,32 +1,21 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#include <string>
-#include <stdexcept>
-#include <optional>
-#include <queue>
-
-#include "Client.h"
 #include "IServer.h"
 
-class Server : public IServer, Client
+class Server : public virtual IServer
 {
     public:
-
-    Server() = delete;
-    Server(Client &&old_client);
-    ~Server();
+    Server(std::string server_name);
+    virtual ~Server();
 
     auto AddClient(IClient* client) -> void override;
     auto RemoveClient(IRC::UUID uuid) -> void override;
-
-    Server (Server& other) = delete;
-    Server &operator =(Server& other) = delete;
-    Server &operator= (Server&& other) = delete;
+    auto GetServerName() const -> const std::string& override { return server_name_; };
 
     private:
-
     std::unordered_map<IRC::UUID, IClient*> clients_;
+    std::string server_name_;
 };
 
 #endif

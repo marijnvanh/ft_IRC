@@ -6,17 +6,23 @@
 #include "IRemoteUser.h"
 #include "IServer.h"
 
-class RemoteUser : public IRemoteUser, Client, User
+class RemoteUser : public IRemoteUser, User
 {
     public:
 
     RemoteUser() = delete;
-    RemoteUser(Client &&old_client, IServer* server);
+    RemoteUser(IServer *local_server, IServer *remote_server, std::string nickname, std::string username);
     ~RemoteUser();
 
-    auto GetServer() -> IServer* override;
+    auto Push(std::string irc_message) -> void override;
+
+    /* Fake IClient functionality */
+    auto SendAll() -> void override;
+    auto Receive() -> std::optional<std::string> override;
+
     private:
-    IServer* server_;
+
+    Logger logger;
 };
 
 #endif
