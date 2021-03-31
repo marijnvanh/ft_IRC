@@ -5,18 +5,18 @@
 #include <memory>
 
 #include "IIOHandler.h"
-#include "Socket.h"
+#include "ISocket.h"
 
 namespace IRC
 {
     class TCPIOHandler : public IRC::IIOHandler
     {
     private:
-        std::shared_ptr<TCP::Socket> socket_;
+        std::shared_ptr<TCP::ISocket> socket_;
         std::string splice_buffer_;
 
     public:
-        TCPIOHandler(std::shared_ptr<TCP::Socket> socket);
+        TCPIOHandler(std::shared_ptr<TCP::ISocket> socket);
         ~TCPIOHandler();
 
         auto Send(const std::string data) -> void;

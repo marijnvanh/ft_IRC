@@ -1,9 +1,11 @@
-#include "IOController.h"
 #include <sys/select.h>
 #include <sys/time.h>
 #include <string.h>
 #include <memory>
 #include <vector>
+
+#include "IOController.h"
+#include "Socket.h"
 
 using namespace IRC;
 
@@ -25,6 +27,9 @@ auto TCP::IOController::RunOnce() -> void
 
 	ValidateSockets();
 
+	if (sockets_.size() == 0)
+		return ;
+
 	// This needs to happen AFTER validation, because sockets CAN BE REMOVED during said validation.
     FD_ZERO(&read_fds);
     FD_ZERO(&write_fds);
@@ -41,7 +46,7 @@ auto TCP::IOController::RunOnce() -> void
 	this->UpdateSocketStates(&read_fds);
 }
 
-auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<Socket>)>& newSocketCallback) -> void
+auto TCP::IOController::AcceptNewConnections(const std::function<void(std::shared_ptr<ISocket>)>& newSocketCallback) -> void
 {
 	for (auto const &listener_socket:sockets_)
 	{
@@ -58,7 +63,7 @@ auto TCP::IOController::AcceptNewConnections(const std::function<void(std::share
 
 				newSocketCallback(new_socket);
 			}
-			catch (TCP::Socket::Error &ex)
+			catch (TCP::ISocket::Error &ex)
 			{
 				std::cerr << "Could not accept new connection: " << ex.what() << std::endl;
 				return ; 
@@ -67,7 +72,7 @@ auto TCP::IOController::AcceptNewConnections(const std::function<void(std::share
 	}
 }
 
-auto TCP::IOController::AddSocket(std::shared_ptr<Socket> socket) -> void
+auto TCP::IOController::AddSocket(std::shared_ptr<ISocket> socket) -> void
 {
 	if (socket->GetFD() > max_fd_)
 	{
@@ -78,7 +83,7 @@ auto TCP::IOController::AddSocket(std::shared_ptr<Socket> socket) -> void
 	sockets_.insert(std::make_pair(socket->GetFD(), socket));
 }
 
-auto TCP::IOController::RemoveSocket(std::shared_ptr<Socket> socket) -> void
+auto TCP::IOController::RemoveSocket(std::shared_ptr<ISocket> socket) -> void
 {
 	FD_CLR(socket->GetFD(), &master_fd_list_);
 

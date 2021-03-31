@@ -2,6 +2,7 @@
 #include "gmock/gmock.h"
 #include "IOController.h"
 #include "Socket.h"
+#include "MockSocket.h"
 
 using namespace IRC;
 
@@ -9,12 +10,13 @@ class IOControllerTests : public ::testing::Test
 {
 public:
     std::shared_ptr<TCP::IOController> io_controller;
-	std::shared_ptr<TCP::Socket> socket;
+	std::shared_ptr<MockSocket> socket;
 
     void SetUp() override
     {
-		socket = std::make_shared<TCP::Socket>();
+		socket = std::make_shared<MockSocket>();
         io_controller = std::make_shared<TCP::IOController>();
+		socket->SetFD(0);
     }
     void TearDown() override
     {

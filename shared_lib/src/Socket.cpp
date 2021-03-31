@@ -16,12 +16,8 @@ using namespace IRC;
 #define NOSIGPIPE_FLAG MSG_NOSIGNAL
 #endif
 
-TCP::Socket::Socket() : socket_fd_(kUnInitialized),
-						type_(kUnknown),
-                        state_(kUnInitialized),
-                        address_size_(kUnInitialized)
-{
-}
+TCP::Socket::Socket() : address_size_(kUnInitialized)
+{}
 
 TCP::Socket::~Socket()
 {

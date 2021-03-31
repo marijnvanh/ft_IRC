@@ -2,6 +2,7 @@
 #define __SOCKET_H__
 
 #include "AddressInfo.h"
+#include "ISocket.h"
 
 #include <memory>
 
@@ -11,27 +12,9 @@
 
 namespace IRC::TCP
 {
-    enum SocketState
-    {
-        kUnInitialized = -1,
-        kConnected,
-        kDisconnected,
-		kReadyToRead
-    };
-
-	enum SocketType
-	{
-		kUnknown = -1,
-		kClientSocket = 0,
-		kListenerSocket = 1
-	};
-
-    class Socket
+    class Socket : public ISocket
     {
     private:
-        int socket_fd_;
-		SocketType type_;
-        SocketState state_;
         socklen_t address_size_;
         struct sockaddr_storage address_;
 
@@ -45,39 +28,13 @@ namespace IRC::TCP
 
         auto Listen(AddressInfo &address_info,
                     int backlog = DEFAULT_BACKLOG,
-                    bool block = NON_BLOCKING) -> void;
+                    bool block = NON_BLOCKING) -> void override;
+        auto Connect(AddressInfo &address_info, bool block = BLOCKING) -> void override;
+		auto Close() -> void override;
+        auto Recv() -> std::string override;
+        auto Accept(int listener_fd) -> void override;
+        auto Send(const std::string &data) -> void override;
 
-        auto Connect(AddressInfo &address_info, bool block = BLOCKING) -> void;
-		auto Close() -> void;
-
-        auto Recv() -> std::string;
-        auto Accept(int listener_fd) -> void;
-        auto Send(const std::string &data) -> void;
-
-        auto GetFD() const -> int { return socket_fd_; };
-
-		auto GetType() const -> int { return type_; };
-
-        auto GetState() const -> int { return state_; };
-		auto SetState(SocketState state) -> void { this->state_ = state; }
-
-        class Error : public std::runtime_error
-        {
-        public:
-            Error(const char *msg) : std::runtime_error(msg) {}
-        };
-
-        class WouldBlock : public Error
-        {
-            public:
-            WouldBlock() : Error("Socket would block") {}
-        };
-
-        class Closed : public Error
-        {
-            public:
-            Closed() : Error("Socket closed") {}
-        };
         friend auto operator<<(std::ostream& os, const Socket& socket) -> std::ostream &;
 
         Socket (Socket& other) = delete;
