@@ -85,3 +85,9 @@ RemoteUser_test.cpp
 ../src/User.cpp
 ../src/RemoteUser.cpp
 )
+package_add_test( SERVERHandler_test
+./HandlerTests/SERVERHandler_test.cpp
+../src/MessageHandlers/SERVERHandler.cpp
+../src/RemoteServer.cpp
+../src/Server.cpp
+)
