@@ -246,7 +246,7 @@ auto ClientDatabase::GetServer(IRC::UUID uuid) -> std::optional<IServer*>
 {
     auto server = GetClient(uuid);
 
-    if (server)
+    if (server && (*server)->GetType() == IClient::Type::kServer)
         return std::optional<IServer*>(dynamic_cast<IServer*>((*server)));
     else
         return std::nullopt;

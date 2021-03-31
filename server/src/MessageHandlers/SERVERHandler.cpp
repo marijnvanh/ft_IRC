@@ -25,7 +25,7 @@ auto SERVERHandler::Handle(IMessage &message) -> void
 		client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
 		return;
 	}	
-	if (params.size() != 3)
+	if (params.size() < 3)
 	{
 		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
 		return;
