@@ -57,6 +57,7 @@ static auto TryAddUserToChannel(IChannel* channel,
 
 	channel->AddUser(user);
 	channel->AddOperator(user->GetUUID());
+	user->AddChannel(channel);
 	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
 	
 	user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());

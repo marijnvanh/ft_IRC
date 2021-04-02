@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "Client.h"
-#include "Server.h"
+#include "LocalServer.h"
 #include "MockIOHandler.h"
 #include "MockClient.h"
 #include "MockServer.h"
@@ -12,7 +12,7 @@ using ::testing::Throw;
 using ::testing::Return;
 using ::testing::_;
 
-class ServerTests : public ::testing::Test
+class LocalServerTests : public ::testing::Test
 {
     public:
     std::unique_ptr<MockIOHandler> unique_io_handler;
@@ -28,7 +28,7 @@ class ServerTests : public ::testing::Test
 };
 
 //TODO when we implement server stuff
-TEST_F(ServerTests, Todo)
+TEST_F(LocalServerTests, Todo)
 {
-    Server server(std::move(*client.get()));
+    LocalServer server("ServerName", std::move(*client.get()));
 }

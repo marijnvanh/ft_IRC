@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "Socket.h"
-#include "AddressInfo.h"
 #include "IOController.h"
 #include "ServerData.h"
 #include "IMessageDispatcher.h"

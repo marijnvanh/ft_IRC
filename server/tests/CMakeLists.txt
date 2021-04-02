@@ -22,7 +22,9 @@ package_add_test( ClientDatabase_test
 ClientDatabase_test.cpp
 ../src/ClientDatabase.cpp
 ../src/Client.cpp
+../src/LocalServer.cpp
 ../src/Server.cpp
+../src/User.cpp
 )
 package_add_test( ChannelDatabase_test
 ChannelDatabase_test.cpp
@@ -49,24 +51,28 @@ package_add_test( MODEHandler_test
 ./HandlerTests/MODEHandler_test.cpp
 ../src/MessageHandlers/MODEHandler.cpp
 )
-package_add_test( Server_test
-    Server_test.cpp
-    ../src/Client.cpp
-    ../src/Server.cpp
+package_add_test( LocalServer_test
+LocalServer_test.cpp
+../src/Client.cpp
+../src/Server.cpp
+../src/LocalServer.cpp
 )
 package_add_test( User_test
-    User_test.cpp
-    ../src/Client.cpp
+User_test.cpp
+../src/User.cpp
+../src/Client.cpp
 )
 package_add_test( QUITHandler_test
-    ./HandlerTests/QUITHandler_test.cpp
-    ../src/MessageHandlers/QUITHandler.cpp
+./HandlerTests/QUITHandler_test.cpp
+../src/MessageHandlers/QUITHandler.cpp
 )
 package_add_test( ClientUpgrade_test
 ClientUpgrade_test.cpp
 ../src/ClientDatabase.cpp
 ../src/Client.cpp
+../src/LocalServer.cpp
 ../src/Server.cpp
+../src/User.cpp
 )
 
 package_add_test( PRIVMSGHandler_test
@@ -77,4 +83,15 @@ package_add_test( PRIVMSGHandler_test
 package_add_test( NAMESHandler_test
 ./HandlerTests/NAMESHandler_test.cpp
 ../src/MessageHandlers/NAMESHandler.cpp
+)
+package_add_test( RemoteUser_test
+RemoteUser_test.cpp
+../src/User.cpp
+../src/RemoteUser.cpp
+)
+package_add_test( SERVERHandler_test
+./HandlerTests/SERVERHandler_test.cpp
+../src/MessageHandlers/SERVERHandler.cpp
+../src/RemoteServer.cpp
+../src/Server.cpp
 )

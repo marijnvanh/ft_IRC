@@ -66,7 +66,7 @@ enum
      * 
      */
 	ERR_NOSUCHNICK                  = 401,
-	// ERR_NOSUCHSERVER                = 402,
+	ERR_NOSUCHSERVER                = 402,
 	ERR_NOSUCHCHANNEL               = 403,
 	// ERR_CANNOTSENDTOCHAN            = 404,
 	// ERR_TOOMANYCHANNELS             = 405,

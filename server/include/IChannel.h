@@ -7,7 +7,9 @@
 
 #include "IUser.h"
 
-enum ChannelMode
+class IUser;
+
+enum ChannelMode : uint32_t
 {
 	/** +k: Channel key. */
 	CM_KEY = 'k' - 65,

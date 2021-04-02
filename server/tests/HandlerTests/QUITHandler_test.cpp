@@ -72,12 +72,12 @@ class QUITTests : public ::testing::Test
 
 TEST_F(QUITTests, RemoveUnregisteredClient)
 {
-    EXPECT_CALL(mock_client_database, RemoveClient(base_client1_uuid));
+    EXPECT_CALL(mock_client_database, DisconnectClient(base_client1_uuid));
     QUITHandler(&mock_client_database, base_message1);
 }
 
 TEST_F(QUITTests, RemoveLocalUser)
 {
-    EXPECT_CALL(mock_client_database, RemoveUser(local_user1_uuid));
+    EXPECT_CALL(mock_client_database, DisconnectClient(local_user1_uuid));
     QUITHandler(&mock_client_database, local_user_message1);
 }

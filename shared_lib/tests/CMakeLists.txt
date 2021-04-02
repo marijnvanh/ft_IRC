@@ -1,6 +1,7 @@
 macro(package_add_test TESTNAME)
-    add_executable(${TESTNAME} ${ARGN})
-    target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib)
+add_executable(${TESTNAME} ${ARGN})
+target_include_directories (${TESTNAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Mocks)
+target_link_libraries(${TESTNAME} gtest gmock gtest_main shared_lib)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${PROJECT_DIR}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"

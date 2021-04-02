@@ -14,7 +14,7 @@ Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
 
 Client::~Client()
 {
-    logger.Log(LogLevel::INFO, "Client disconnected");
+    logger.Log(LogLevel::DEBUG, "Client object destroyed");
 }
 
 auto Client::Push(std::string irc_message) -> void

@@ -11,6 +11,7 @@ class MockServer : public IServer, public MockClient {
 
     MOCK_METHOD(void, AddClient, (IClient*), ());
     MOCK_METHOD(void, RemoveClient, (IRC::UUID), ());
+    MOCK_METHOD(const std::string&, GetServerName, (), (const));
 };
 
 #endif

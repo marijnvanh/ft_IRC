@@ -4,6 +4,9 @@
 #include <bitset>
 
 #include "IClient.h"
+#include "IChannel.h"
+
+class IChannel;
 
 enum UserMode
 {
@@ -26,6 +29,9 @@ class IUser : public virtual IClient
         state_ = IClient::State::kRegistered;
     };
     virtual ~IUser() {};
+    virtual auto AddChannel(IChannel *channel) -> void = 0;
+    virtual auto RemoveChannel(const std::string &channel_name) -> void = 0;
+    virtual auto RemoveUserFromAllChannels() -> void = 0;
 
 	/**
 	 * @brief Mode specific functionality. Sets the given mode.

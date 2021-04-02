@@ -3,7 +3,7 @@
 
 using namespace IRC;
 
-TCPIOHandler::TCPIOHandler(std::shared_ptr<TCP::Socket> socket) : socket_(socket)
+TCPIOHandler::TCPIOHandler(std::shared_ptr<TCP::ISocket> socket) : socket_(socket)
 {
 }
 
@@ -18,15 +18,15 @@ auto TCPIOHandler::Send(const std::string data) -> void
     {
         socket_->Send(data);
     }
-    catch (TCP::Socket::WouldBlock &ex)
+    catch (TCP::ISocket::WouldBlock &ex)
     {
         throw IIOHandler::FailedToSend(ex.what());
     }
-    catch (TCP::Socket::Closed &ex)
+    catch (TCP::ISocket::Closed &ex)
     {
         throw IIOHandler::Closed(ex.what());
     }
-    catch (TCP::Socket::Error &ex)
+    catch (TCP::ISocket::Error &ex)
     {
         throw IIOHandler::Closed(ex.what());
     }
@@ -66,15 +66,15 @@ auto TCPIOHandler::Receive() -> std::optional<std::string>
                 return std::nullopt;
         }
     }
-    catch (TCP::Socket::WouldBlock &ex)
+    catch (TCP::ISocket::WouldBlock &ex)
     {
         return std::nullopt;
     }
-    catch (TCP::Socket::Closed &ex)
+    catch (TCP::ISocket::Closed &ex)
     {
         throw IIOHandler::Closed(ex.what());
     }
-    catch (TCP::Socket::Error &ex)
+    catch (TCP::ISocket::Error &ex)
     {
         throw IIOHandler::Closed(ex.what());
     }

@@ -61,7 +61,7 @@ namespace IRC {
     };
 
     struct RawPrefix {
-        // FIXME: currently this does not distinguish between server / client message prefix
+        //TODO FIXME: currently this does not distinguish between server / client message prefix
         // even though the RFC explicitly states the difference (hint: servername has only a *hostname*)
         // Parser is broken in the same way.
         std::string name;

@@ -14,7 +14,14 @@ std::unordered_map<int, std::string> error_map = {
 		{ERR_UMODEUNKNOWNFLAG, "Unknown MODE flag by us"},
 		{ERR_USERSDONTMATCH, "Cannot change mode for other users"},
 		{ERR_CHANOPRIVSNEEDED, "You're not channel operator"},
-		{ERR_NOTONCHANNEL, "You're not on that channel"}
+		{ERR_NOTONCHANNEL, "You're not on that channel"},
+        {ERR_ALREADYREGISTERED, "You may not reregister"},
+        {ERR_ERRONEUSNICKNAME, "Erroneus nickname"},
+        {ERR_NICKNAMEINUSE, "Nickname is already in use"},
+        {ERR_NICKCOLLISION, "Nickname collision KILL"},
+		{ERR_CANTKILLSERVER, "You cant kill a server!"},
+		{ERR_NOPRIVILEGES, "Permission Denied- You're not an IRC operator"},
+        {ERR_NOSUCHSERVER, "No such server"}
 };
 
 auto GetErrorMessage(int error, std::string param) -> std::string

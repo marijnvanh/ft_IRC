@@ -12,6 +12,16 @@ ChannelDatabase::~ChannelDatabase()
 
 auto ChannelDatabase::RemoveChannel(std::string channel_name) -> void
 {
+    auto channel = GetChannel(channel_name);
+    if (channel)
+    {
+        if ((*channel)->CountUsers() != 0)
+            logger.Log(LogLevel::ERROR, "Deleting a channel that is not empty !!!");
+    }
+    else
+    {
+        logger.Log(LogLevel::ERROR, "Trying to delete a channel that does not exist !!!");
+    }
     channels_.erase(channel_name);
 }
 

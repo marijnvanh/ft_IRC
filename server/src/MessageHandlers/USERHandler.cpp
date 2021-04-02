@@ -8,6 +8,9 @@
 //TODO
 static auto HandleUSERFromServer(IClientDatabase *client_database, IMessage &message) -> void
 {
+    //TODO validate user name and realname
+    // auto new_username = message.GetParams()[USERNAME_PARAM];
+    // auto new_realname = message.GetParams()[REALNAME_PARAM];
     (void)message;
     (void)client_database;
 }

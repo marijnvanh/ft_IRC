@@ -79,7 +79,7 @@ TEST_F(ClientUpgradeTests, RegisterServer)
     auto is_server = dynamic_cast<IServer *>(*client);
     ASSERT_EQ(is_server, nullptr);
 
-    client_database->RegisterServer(uuid_client1);
+    client_database->RegisterLocalServer("test", uuid_client1);
 
     client = client_database->GetClient(uuid_client1);
 

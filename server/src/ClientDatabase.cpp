@@ -2,7 +2,7 @@
 #include <optional>
 
 #include "LocalUser.h"
-#include "Server.h"
+#include "LocalServer.h"
 #include "Client.h"
 
 ClientDatabase::ClientDatabase() : logger("ClientDatabase")
@@ -21,24 +21,48 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> IClient*
     return ret.first->second.get();
 }
 
-//TODO make this disconnect client or something and deal with all scenario's properly
-auto ClientDatabase::RemoveClient(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
 {
-    clients_.erase(uuid);
-    local_users_.erase(uuid);
-    remote_users_.erase(uuid);
-    servers_.erase(uuid);
+    auto client = GetClient(uuid);
+    if (!client)
+    {
+        logger.Log(LogLevel::ERROR, "No client to delete"); // Should never happen
+        return;
+    }
+    logger.Log(LogLevel::INFO, "%s is disconnecting", (*client)->GetNickname().c_str());
+    if ((*client)->GetState() == IClient::State::kUnRegistered)
+    {
+        logger.Log(LogLevel::INFO, "Client with nickname: %s being disconnected", (*client)->GetNickname().c_str());
+        clients_.erase(uuid);
+        return ;
+    }
+
+    if ((*client)->GetType() == IClient::Type::kLocalUser || (*client)->GetType() == IClient::Type::kRemoteUser)
+    {
+        DisconnectUser(dynamic_cast<IUser *>(*client));
+        return ;
+    }
+
+    if ((*client)->GetType() == IClient::Type::kServer)
+    {
+        DisconnectServer(dynamic_cast<IServer *>(*client));
+        return ;
+    }
 }
 
-auto ClientDatabase::RemoveUser(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectUser(IUser *user) -> void
 {
-    local_users_.erase(uuid);
-    remote_users_.erase(uuid);
+    auto user_uuid = user->GetUUID();
+    logger.Log(LogLevel::INFO, "User with nickname: %s being disconnected", user->GetNickname().c_str());
+    user->RemoveUserFromAllChannels();
+    local_users_.erase(user_uuid);
+    remote_users_.erase(user_uuid);
 }
 
-auto ClientDatabase::RemoveServer(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectServer(IServer *server) -> void
 {
-    servers_.erase(uuid);
+    logger.Log(LogLevel::INFO, "Server with name: %s being disconnected", server->GetServerName().c_str());
+    servers_.erase(server->GetUUID());
 }
 
 auto ClientDatabase::HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
@@ -57,8 +81,8 @@ auto ClientDatabase::HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IC
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle disconnection
-            RemoveClient(it->first);
+            //TODO Handle quit message sending
+            DisconnectClient(it->first);
         }
     }
 }
@@ -67,7 +91,6 @@ auto ClientDatabase::PollClients(std::function<void(IClient*, std::string)> mess
 {
     HandlePoll(clients_, message_handler);
     HandlePoll(local_users_, message_handler);
-    HandlePoll(remote_users_, message_handler);
     HandlePoll(servers_, message_handler);
 }
 
@@ -81,8 +104,8 @@ auto ClientDatabase::HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle disconnection
-            RemoveClient(it->first);
+            //TODO Handle quit message sending
+            DisconnectClient(it->first);
         }
     }
 }
@@ -91,7 +114,6 @@ auto ClientDatabase::SendAll() -> void
 {
     HandleSendAll(clients_);
     HandleSendAll(local_users_);
-    HandleSendAll(remote_users_);
     HandleSendAll(servers_);
 }
 
@@ -114,7 +136,7 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
         with the new LocalUser object. We move the unique pointer with the LocalUser to
         our list with local_users_ and remove the empty pointer from the clients_ list.
     */
-    logger.Log(LogLevel::DEBUG, "Registering %s", client->GetNickname().c_str());
+    logger.Log(LogLevel::DEBUG, "Registering local user %s", client->GetNickname().c_str());
     auto tmp_unique_client = std::move(stored_client->second);
     tmp_unique_client.reset(new LocalUser(std::move(*client)));
     auto new_local_user = local_users_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
@@ -124,7 +146,7 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
 
 /* Note that this only works with REAL Client objects */
 //TODO add check if server already exists ?
-auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> IClient*
+auto ClientDatabase::RegisterLocalServer(std::string server_name, IRC::UUID uuid) -> IClient*
 {
     auto stored_client = clients_.find(uuid);
     if (stored_client == clients_.end())
@@ -133,14 +155,15 @@ auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> IClient*
     auto client = dynamic_cast<Client *>(stored_client->second.get());
 
     /* The following is quite hacky... my apologies, but here's what's happening:
-        We create a new Server object from the old UnRegistered Client object
+        We create a new LocalServer object from the old UnRegistered Client object
         We exchange the content of the unique pointer that is holding the (now moved) Client object
-        with the new Server object. We move the unique pointer with the Server to
+        with the new LocalServer object. We move the unique pointer with the LocalServer to
         our list with servers_ and remove the empty pointer from the clients_ list.
     */
 
+    logger.Log(LogLevel::DEBUG, "Registering local server %s", server_name.c_str());
     auto tmp_unique_client = std::move(stored_client->second);
-    tmp_unique_client.reset(new Server(std::move(*client)));
+    tmp_unique_client.reset(new LocalServer(server_name, std::move(*client)));
     auto new_server = servers_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
     clients_.erase(uuid);
     return new_server.first->second.get();
@@ -148,6 +171,7 @@ auto ClientDatabase::RegisterServer(IRC::UUID uuid) -> IClient*
 
 auto ClientDatabase::AddLocalUser(std::unique_ptr<ILocalUser> new_localuser) -> void
 {
+    logger.Log(LogLevel::DEBUG, "Added local user %s to database", new_localuser->GetNickname().c_str());
     if (local_users_.find(new_localuser->GetUUID()) != local_users_.end())
         throw ClientDatabase::DuplicateClient();
 
@@ -156,6 +180,7 @@ auto ClientDatabase::AddLocalUser(std::unique_ptr<ILocalUser> new_localuser) -> 
 
 auto ClientDatabase::AddRemoteUser(std::unique_ptr<IRemoteUser> new_remoteuser) -> void
 {
+    logger.Log(LogLevel::DEBUG, "Added remote user %s to database", new_remoteuser->GetNickname().c_str());
     if (remote_users_.find(new_remoteuser->GetUUID()) != remote_users_.end())
         throw ClientDatabase::DuplicateClient();
 
@@ -164,6 +189,7 @@ auto ClientDatabase::AddRemoteUser(std::unique_ptr<IRemoteUser> new_remoteuser) 
 
 auto ClientDatabase::AddServer(std::unique_ptr<IServer> new_server) -> void
 {
+    logger.Log(LogLevel::DEBUG, "Added remote server %s to database", new_server->GetServerName().c_str());
     if (servers_.find(new_server->GetUUID()) != servers_.end())
         throw ClientDatabase::DuplicateClient();
 
@@ -216,14 +242,24 @@ auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<ICl
     return std::nullopt;
 }
 
-//TODO server name ?
+auto ClientDatabase::GetServer(IRC::UUID uuid) -> std::optional<IServer*>
+{
+    auto server = GetClient(uuid);
+
+    if (server && (*server)->GetType() == IClient::Type::kServer)
+        return std::optional<IServer*>(dynamic_cast<IServer*>((*server)));
+    else
+        return std::nullopt;
+}
+
 auto ClientDatabase::GetServer(const std::string &server_name) -> std::optional<IServer*>
 {
     for (auto it = servers_.begin(), next_it = it; it != servers_.end(); it = next_it)
     {
         ++next_it;
-        if (it->second->GetNickname() == server_name)
-            return std::optional<IServer*>(dynamic_cast<IServer*>(it->second.get()));
+        auto server = dynamic_cast<IServer*>(it->second.get());
+        if (server->GetServerName() == server_name)
+            return std::optional<IServer*>(server);
     }
     return std::nullopt;
 }
