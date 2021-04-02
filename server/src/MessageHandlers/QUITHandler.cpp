@@ -1,5 +1,6 @@
 #include "MessageHandlers/QUITHandler.h"
 #include "Numerics.h"
+#include "Utilities.h"
 #include "IServer.h"
 #include "ILocalUser.h"
 #include "IRemoteUser.h"
@@ -33,7 +34,7 @@ static auto DisconnectRemoteUser(IClientDatabase *client_database,
     auto nickname = message.GetNickname();
     if (nickname == std::nullopt)
     {
-        remote_user->Push(std::to_string(ERR_NONICKNAMEGIVEN)); //TODO improve response
+        remote_user->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
         return ;
     }
     //TODO validate nickname    
@@ -49,7 +50,7 @@ static auto DisconnectRemoteUser(IClientDatabase *client_database,
     }
     else
     {
-        remote_user->Push(std::to_string(ERR_NOSUCHNICK)); //TODO improve response
+        remote_user->Push(GetErrorMessage(ERR_NOSUCHNICK));
         return ;
     }
 }

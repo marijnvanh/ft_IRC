@@ -29,7 +29,6 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
         logger.Log(LogLevel::ERROR, "No client to delete"); // Should never happen
         return;
     }
-    logger.Log(LogLevel::INFO, "%s is disconnecting", (*client)->GetNickname().c_str());
     if ((*client)->GetState() == IClient::State::kUnRegistered)
     {
         logger.Log(LogLevel::INFO, "Client with nickname: %s being disconnected", (*client)->GetNickname().c_str());
@@ -62,6 +61,7 @@ auto ClientDatabase::DisconnectUser(IUser *user) -> void
 auto ClientDatabase::DisconnectServer(IServer *server) -> void
 {
     logger.Log(LogLevel::INFO, "Server with name: %s being disconnected", server->GetServerName().c_str());
+    server->Disconnect(this);
     servers_.erase(server->GetUUID());
 }
 
@@ -234,9 +234,6 @@ auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<ICl
     if (client)
         return client;
     client = FindNickname(remote_users_, nickname);
-    if (client)
-        return client;
-    client = FindNickname(servers_, nickname);
     if (client)
         return client;
     return std::nullopt;

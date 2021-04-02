@@ -38,6 +38,8 @@ package_add_test( PASSHandler_test
 package_add_test( NICKHandler_test
 ./HandlerTests/NICKHandler_test.cpp
 ../src/MessageHandlers/NICKHandler.cpp
+../src/RemoteUser.cpp
+../src/User.cpp
 )
 package_add_test( USERHandler_test
 ./HandlerTests/USERHandler_test.cpp

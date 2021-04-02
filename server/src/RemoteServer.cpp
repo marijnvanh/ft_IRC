@@ -6,10 +6,13 @@ RemoteServer::RemoteServer(IServer* local_server, IServer* remote_server, std::s
 {
     local_server_ = local_server;
     remote_server_ = remote_server;
+    remote_server_->AddClient(this);
 }
 
 RemoteServer::~RemoteServer()
-{}
+{
+    remote_server_->RemoveClient(uuid_);
+}
 
 auto RemoteServer::Push(std::string irc_message) -> void
 {

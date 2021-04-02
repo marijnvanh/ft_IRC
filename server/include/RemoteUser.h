@@ -11,7 +11,11 @@ class RemoteUser : public IRemoteUser, User
     public:
 
     RemoteUser() = delete;
-    RemoteUser(IServer *local_server, IServer *remote_server, std::string nickname, std::string username);
+    RemoteUser(IServer *local_server,
+            IServer *remote_server, 
+            const std::string &nickname, 
+            const std::string &username,
+            const std::string &realname);
     ~RemoteUser();
 
     auto Push(std::string irc_message) -> void override;

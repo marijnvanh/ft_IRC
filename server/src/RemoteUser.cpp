@@ -1,12 +1,14 @@
 #include "RemoteUser.h"
 
-RemoteUser::RemoteUser( IServer* local_server, IServer* remote_server, std::string nickname, std::string username) : 
+RemoteUser::RemoteUser( IServer* local_server, IServer *remote_server, 
+    const std::string &nickname, const std::string &username, const std::string &realname) :
     logger("RemoteUser")
 {
     local_server_ = local_server;
     remote_server_ = remote_server;
     nickname_ = nickname;
     username_ = username;
+    realname_ = realname;
     type_ = IClient::Type::kRemoteUser;
     remote_server_->AddClient(this);
 
