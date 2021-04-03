@@ -36,6 +36,9 @@ class IClient
         remote_server_(NULL)
     {};
 
+    virtual ~IClient()
+    {};
+
     IClient (IClient&& other) = default; 
 
     /**
@@ -76,8 +79,6 @@ class IClient
     virtual auto GetRealname() const -> const std::string& { return realname_; }
     virtual auto SetRealname(std::string realname) -> void { realname_ = realname; }
     virtual auto GetServer() const -> IServer* { return local_server_; };
-
-    virtual ~IClient() {};
 
     IClient (IClient& other) = delete;
     IClient &operator =(IClient& other) = delete;

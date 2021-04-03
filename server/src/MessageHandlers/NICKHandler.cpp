@@ -1,22 +1,114 @@
 #include "MessageHandlers/NICKHandler.h"
 #include "Numerics.h"
+#include "Utilities.h"
 
-//TODO handle server side message
-static auto HandleNICKFromServer(IClientDatabase *client_database,
-    IClient* server, IMessage &message,
-    const std::string &new_nickname) -> void
+#include "RemoteUser.h"
+
+/* Valid NICK commands:
+
+NICK from user:
+    NICK <nickname>
+        NICK new_nickname
+
+NICK from server:
+    NICK <nickname>
+        :old_nick NICK new_nick
+
+    NICK <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
+        NICK new_nick 1 username irc.codam.net 34 +i :Christophe Kalt
+    
+    ** We currently ignore host, servertoken and umode.
+*/
+
+#define PARAM_NICKNAME 0
+#define PARAM_USERNAME 2
+#define PARAM_SERVERNAME 3
+#define PARAM_REALNAME 6
+
+NICKHandler::NICKHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+    server_config_(server_config),
+    client_database_(client_database),
+    logger("NICKHandler")
+{}
+
+NICKHandler::~NICKHandler()
+{}
+
+auto NICKHandler::Handle(IMessage &message) -> void
 {
-    (void)server;
-    auto old_nickname = message.GetNickname();
+    auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (old_nickname == std::nullopt)
+    auto params = message.GetParams();
+    if (params.size() == 0)
     {
-        //TODO respond with error, maybe ERR_NONICKNAMEGIVEN ?
-        server->Push(std::to_string(ERR_NONICKNAMEGIVEN));
+        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
         return ;
     }
 
-    auto client_with_same_nickname = client_database->GetClient(new_nickname);
+    if (client->GetType() == IClient::Type::kServer)
+    {
+        if (params.size() <= 2)
+            HandleNicknameChangeFromServer(client, message);
+        else if (params.size() >= 7)
+            HandleNewRemoteUser(client, message);
+        else
+        {
+            client->Push("ERROR: Unexpected amount of params for NICK command");
+            return ;
+        }
+    }
+    else
+        HandleNICKFromUser(client, message);
+}
+
+auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> void
+{
+    //TODO validate params
+    auto new_nickname = message.GetParams()[PARAM_NICKNAME];
+    auto new_username = message.GetParams()[PARAM_USERNAME];
+    auto server_name = message.GetParams()[PARAM_SERVERNAME];
+    auto new_realname = message.GetParams()[PARAM_REALNAME];
+    
+    auto client_with_same_nickname = client_database_->GetClient(new_nickname);
+    if (client_with_same_nickname)
+    {
+        //TODO send kill command to both users with nickname
+        return ;
+    }
+    auto remote_server = client_database_->GetServer(server_name);
+    if (!remote_server)
+    {
+        server->Push(GetErrorMessage(ERR_NOSUCHSERVER, server_name));
+        return ;
+    }
+
+    auto new_remote_user = std::make_unique<RemoteUser>(
+        dynamic_cast<IServer*>(server),
+        *remote_server,
+        new_nickname,
+        new_username,
+        new_realname);
+    client_database_->AddRemoteUser(std::move(new_remote_user));
+}
+
+auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &message) -> void
+{
+    //TODO validate nickname
+    auto new_nickname = message.GetParams()[PARAM_NICKNAME];
+    auto old_nickname = message.GetNickname();
+    if (old_nickname == std::nullopt)
+    {
+        server->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+        return ;
+    }
+    auto remote_user = client_database_->GetUser(*old_nickname);
+    if (!remote_user)
+    {
+        server->Push(GetErrorMessage(ERR_NOSUCHNICK, *old_nickname));
+        return ;
+    }
+
+    auto client_with_same_nickname = client_database_->GetClient(new_nickname);
     if (client_with_same_nickname)
     {
         //TODO send kill command to both users with nickname
@@ -24,31 +116,26 @@ static auto HandleNICKFromServer(IClientDatabase *client_database,
         return ;
     }
 
-    auto client = client_database->GetClient(*old_nickname);
-    if (client)
-        (*client)->SetNickname(new_nickname);
-    else
-    {
-        ; //TODO What do we do if we do not have that client somehow?
-    }
+    (*remote_user)->SetNickname(new_nickname);
 }
 
-static auto HandleNICKFromUser(IServerConfig *server_config, IClientDatabase *client_database,
-    IClient* client, const std::string &nickname) -> void
+auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
 {
-    auto client_with_nickname = client_database->GetClient(nickname);
-
-    if (client_with_nickname)
-    {
-        client->Push(std::to_string(ERR_NICKNAMEINUSE));
-        return ;
-    }
-
+    //TODO validate nickname
+    auto nickname = message.GetParams()[PARAM_NICKNAME];
     if (client->GetNickname() == nickname)
     {
-        client->Push(std::to_string(ERR_NICKCOLLISION));
+        client->Push(GetErrorMessage(ERR_NICKCOLLISION));
         return ;
     }
+
+    auto client_with_nickname = client_database_->GetClient(nickname);
+    if (client_with_nickname)
+    {
+        client->Push(GetErrorMessage(ERR_NICKNAMEINUSE));
+        return ;
+    }
+
     client->SetNickname(nickname);
 
     if (client->GetState() == IClient::State::kRegistered)
@@ -56,34 +143,12 @@ static auto HandleNICKFromUser(IServerConfig *server_config, IClientDatabase *cl
     else if (client->GetState() == IClient::State::kUnRegistered)
     {
         try {
-            client = client_database->RegisterLocalUser(client->GetUUID());
-            auto welcome_message = ":" + server_config->GetName() + " 001 " + 
-                client->GetNickname() + " :Welcome to " + server_config->GetDescription();
+            client = client_database_->RegisterLocalUser(client->GetUUID());
+            auto welcome_message = ":" + server_config_->GetName() + " 001 " + 
+                client->GetNickname() + " :Welcome to " + server_config_->GetDescription();
             client->Push(welcome_message);
         } catch (IClientDatabase::UnableToRegister &ex) {
             ;
         }
     }
-}
-
-auto NICKHandler(IServerConfig *server_config,
-    IClientDatabase *client_database,
-    IMessage &message) -> void
-{
-    auto client = *(client_database->GetClient(message.GetClientUUID()));
-
-    auto params = message.GetParams();
-    if (params.size() == 0)
-    {
-        client->Push(std::to_string(ERR_NONICKNAMEGIVEN));
-        return ;
-    }
-
-    auto nickname = params.front();
-    //TODO validate nickname
-
-    if (client->GetType() == IClient::Type::kServer)
-        HandleNICKFromServer(client_database, client, message, nickname);
-    else
-        HandleNICKFromUser(server_config, client_database, client, nickname);
 }

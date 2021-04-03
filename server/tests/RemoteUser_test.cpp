@@ -16,15 +16,18 @@ class RemoteUserTests : public ::testing::Test
 
     std::string nickname1;
     std::string username1;
+    std::string realname1;
 
     void SetUp() override
     {
         nickname1 = "nickname1";
         username1 = "username1";
-        remote_user1 = std::make_unique<RemoteUser>(&mock_server1, &mock_server1, nickname1, username1);
+        realname1 = "realname1";
+        remote_user1 = std::make_unique<RemoteUser>(&mock_server1, &mock_server1, nickname1, username1, realname1);
     }
 };
 
+//TODO
 TEST_F(RemoteUserTests, todo)
 {
     remote_user1->Push("hallo");

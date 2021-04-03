@@ -1,5 +1,6 @@
 #include "MessageHandlers/PASSHandler.h"
 #include "Numerics.h"
+#include "Utilities.h"
 
 PASSHandler::PASSHandler(IClientDatabase *client_database) : client_database_(client_database), logger("PASSHandler")
 {}
@@ -13,7 +14,7 @@ auto PASSHandler::Handle(IMessage &message) -> void
     
     if (client->GetState() != IClient::State::kUnRegistered)
     {
-        client->Push(std::to_string(ERR_ALREADYREGISTERED));
+        client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
         return ;
     }
 
@@ -22,7 +23,7 @@ auto PASSHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     if (params.size() == 0)
     {
-        client->Push(std::to_string(ERR_NEEDMOREPARAMS));
+        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
         return ;
     }
     //TODO Parse password

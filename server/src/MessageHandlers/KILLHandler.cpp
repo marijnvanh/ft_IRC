@@ -1,4 +1,5 @@
 #include "Numerics.h"
+#include "Utilities.h"
 #include "MessageHandlers/KILLHandler.h"
 
 #define NICKNAME_PARAM 0
@@ -10,7 +11,7 @@ auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
 	auto params = message.GetParams();
 	if (params.size() < 2)
 	{
-		client->Push(std::to_string(ERR_NEEDMOREPARAMS));
+		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
 		return;
 	}
 
@@ -23,7 +24,7 @@ auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
 	{
 		if ((*otherClient)->GetType() == IClient::Type::kServer)
 		{
-			client->Push(std::to_string(ERR_CANTKILLSERVER));
+			client->Push(GetErrorMessage(ERR_CANTKILLSERVER));
 			return;
 		}
 
@@ -33,7 +34,7 @@ auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
 	else
 	{
 		// TODO: Forward to other known servers?
-		client->Push(std::to_string(ERR_NOSUCHNICK));
+		client->Push(GetErrorMessage(ERR_NOSUCHNICK));
 		return;
 	}
 }

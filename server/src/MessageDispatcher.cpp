@@ -14,9 +14,6 @@
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
     : server_data_(server_data)
 {
-    handlers_.insert(std::make_pair("NICK", [](auto server_data, auto message) {
-            NICKHandler(&server_data->server_config_, &server_data->client_database_, message);
-        }));
     handlers_.insert(std::make_pair("USER", [](auto server_data, auto message) {
             USERHandler(&server_data->server_config_, &server_data->client_database_, message);
         }));
@@ -47,6 +44,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
     );
     command_handlers_.insert(std::make_pair("SERVER",
         std::make_unique<SERVERHandler>(&server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("NICK",
+        std::make_unique<NICKHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     
 }
