@@ -9,7 +9,7 @@
 
 class IUser;
 
-enum ChannelMode : uint32_t
+enum class ChannelMode:uint8_t
 {
 	/** +k: Channel key. */
 	CM_KEY = 'k' - 65,
@@ -69,7 +69,7 @@ public:
 	 * @brief Mode specific functionality. Sets the given mode.
 	 */
 	virtual auto SetMode(ChannelMode mode_key, bool value) -> void
-		{ mode_[mode_key] = value; }
+		{ mode_[(uint8_t)mode_key] = value; }
 
 	/**
 	 * @brief Mode specific functionality. Gets the the constant mode object.
@@ -81,7 +81,8 @@ public:
 	 * 
 	 * @returns Whether or not the given mod is set or unset.
 	 */
-	virtual auto HasMode(ChannelMode mode_key) const -> bool { return mode_[mode_key]; }
+	virtual auto HasMode(ChannelMode mode_key) const -> bool
+		{ return mode_[(uint8_t)mode_key]; }
 
 protected:
 	std::string key_;

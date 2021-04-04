@@ -17,14 +17,15 @@ using ::testing::Throw;
 using ::testing::Return;
 using ::testing::AtLeast;
 using ::testing::ReturnRef;
+using ::testing::StrictMock;
 
 class MODETests : public ::testing::Test
 {
     public:
-	MODEHandler *handler;
+	std::unique_ptr<MODEHandler> handler;
 
-	MockChannel mock_channel1;
-    MockLocalUser mock_localuser1;
+	StrictMock<MockChannel> mock_channel1;
+    StrictMock<MockLocalUser> mock_localuser1;
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
 
     std::string channel1_key;
@@ -39,7 +40,7 @@ class MODETests : public ::testing::Test
 
     void SetUp() override
     {
-		handler = new MODEHandler(&mock_server_config, &mock_client_database, &mock_channel_database);
+		handler = std::make_unique<MODEHandler>(&mock_server_config, &mock_client_database, &mock_channel_database);
 
         channel1_key = "p@ssw0rd";
 		channel1_name = "#channel1";
@@ -62,11 +63,6 @@ class MODETests : public ::testing::Test
 		EXPECT_CALL(mock_channel1, HasUser(uuid1))
 			.WillRepeatedly(Return(true));
     }
-
-	void TearDown() override
-	{
-		delete(handler);
-	}
 };
 
 TEST_F(MODETests, SuccessTest)
@@ -75,6 +71,12 @@ TEST_F(MODETests, SuccessTest)
     message_params.push_back(channel1_name);
 	message_params.push_back("+kt-t");
 	message_params.push_back(channel1_key);
+
+	EXPECT_CALL(mock_channel1, HasOperator(uuid1))
+		.WillRepeatedly(Return(true));
+
+	EXPECT_CALL(mock_channel1, PushToLocal("MODE " + message_params[0] + " " +
+		message_params[1] + " " + message_params[2]));
 
 	// Act
     handler->Handle(message1);

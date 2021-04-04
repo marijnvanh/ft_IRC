@@ -8,7 +8,7 @@
 
 class IChannel;
 
-enum UserMode
+enum class UserMode:uint8_t
 {
 	/** +s: Server notice mask */
 	UM_SNOMASK = 's' - 65,
@@ -37,7 +37,7 @@ class IUser : public virtual IClient
 	 * @brief Mode specific functionality. Sets the given mode.
 	 */
 	virtual auto SetMode(UserMode mode_key, bool value) -> void
-		{ mode_[mode_key] = value; }
+		{ mode_[(uint8_t)mode_key] = value; }
 
 	/**
 	 * @brief Mode specific functionality. Gets the the constant mode object.
@@ -49,7 +49,8 @@ class IUser : public virtual IClient
 	 * 
 	 * @returns Whether or not the given mod is set or unset.
 	 */
-	virtual auto HasMode(UserMode mode_key) const -> bool { return mode_[mode_key]; }
+	virtual auto HasMode(UserMode mode_key) const -> bool
+		{ return mode_[(uint8_t)mode_key]; }
 
     private:
 	

@@ -135,8 +135,8 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 
 	if (params.size() < 2)
 	{
-		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_UMODEIS) +
-			" " + user->GetNickname() + " :" + FormatMode(user->GetMode()));
+		user->Push(std::to_string(RPL_UMODEIS) + " " +
+			user->GetNickname() + " :" + FormatMode(user->GetMode()));
 		return ;
 	}
 
@@ -167,7 +167,7 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 		break ;
 	}
 
-	user->Push(":" + user->GetNickname() + " MODE " + user->GetNickname() +
+	user->Push("MODE " + user->GetNickname() +
 		" :" + FormatMode(user->GetMode()));
 }
 
@@ -189,7 +189,7 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 
 	if (params.size() < 2)
 	{
-		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_CHANNELMODEIS) +
+		user->Push(std::to_string(RPL_CHANNELMODEIS) +
 			" " + (*channel)->GetName() + " :" + FormatMode((*channel)->GetMode()));
 		return ;
 	}
@@ -232,7 +232,7 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 		}
 	}
 
-	(*channel)->PushToLocal(":" + user->GetNickname() + " MODE " + (*channel)->GetName() +
+	(*channel)->PushToLocal("MODE " + (*channel)->GetName() +
 		" " + params[MODE_CHANGES] + " " + params[CHANNEL_TARGET_IDENTIFIER]);
 }
 
