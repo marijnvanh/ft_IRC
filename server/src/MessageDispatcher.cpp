@@ -12,18 +12,16 @@
 #include "MessageHandlers/SERVERHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data) 
-    : server_data_(server_data)
 {
-    handlers_.insert(std::make_pair("USER", [](auto server_data, auto message) {
-            USERHandler(&server_data->server_config_, &server_data->client_database_, message);
-        }));
-    handlers_.insert(std::make_pair("KILL", [](auto server_data, auto message) {
-            KILLHandler(&server_data->client_database_, message);
-        }));
-    handlers_.insert(std::make_pair("QUIT", [](auto server_data, auto message) {
-            QUITHandler(&server_data->client_database_, message);
-        }));
-
+    command_handlers_.insert(std::make_pair("USER",
+        std::make_unique<USERHandler>(&server_data->server_config_, &server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("QUIT",
+        std::make_unique<QUITHandler>(&server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("KILL",
+        std::make_unique<KILLHandler>(&server_data->client_database_))
+    );
     command_handlers_.insert(std::make_pair("PART",
         std::make_unique<PARTHandler>(&server_data->client_database_, &server_data->channel_database_))
     );
@@ -56,12 +54,9 @@ MessageDispatcher::~MessageDispatcher()
 
 auto MessageDispatcher::Dispatch(Message message) -> void
 {
-    auto handler = handlers_.find(message.GetCommand());
     auto command_handler = command_handlers_.find(message.GetCommand());
 
-    if (handler != handlers_.end())
-        handler->second(server_data_, message);
-    else if (command_handler != command_handlers_.end())
+    if (command_handler != command_handlers_.end())
         command_handler->second->Handle(message);
     else    //TODO Handle invalid message
         std::cerr << "Received invalid message" << std::endl;
