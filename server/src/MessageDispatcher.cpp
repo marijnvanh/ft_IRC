@@ -12,7 +12,8 @@
 #include "MessageHandlers/MODEHandler.h"
 #include "MessageHandlers/SERVERHandler.h"
 
-MessageDispatcher::MessageDispatcher(ServerData* server_data) 
+MessageDispatcher::MessageDispatcher(ServerData* server_data) :
+    logger("MD")
 {
     command_handlers_.insert(std::make_pair("USER",
         std::make_unique<USERHandler>(&server_data->server_config_, &server_data->client_database_))
@@ -63,5 +64,5 @@ auto MessageDispatcher::Dispatch(Message message) -> void
     if (command_handler != command_handlers_.end())
         command_handler->second->Handle(message);
     else    //TODO Handle invalid message
-        std::cerr << "Received invalid message" << std::endl;
+        logger.Log(LogLevel::WARNING, "Received invalid command: %s", message.GetCommand().c_str());
 }

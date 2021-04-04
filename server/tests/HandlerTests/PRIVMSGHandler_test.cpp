@@ -68,7 +68,7 @@ TEST_F(PRIVMSGTests, SendMessageToChannel)
     EXPECT_CALL(mock_channel_database, GetChannel(mock_channel_name))
         .WillOnce(Return(std::optional<IChannel*>(&mock_channel)));
 
-    EXPECT_CALL(mock_channel, PushToLocal(_));
+    EXPECT_CALL(mock_channel, PushToLocal(_, _));
 
     PRIVMSG_handler.Handle(message1);
 }

@@ -11,11 +11,11 @@ public:
 	Channel(std::string name, std::string key, ChannelType type);
 	~Channel();
 
-	auto PushToLocal(std::string irc_message) -> void override;
+	auto PushToLocal(const std::string &irc_message, std::optional<IRC::UUID> except_uuid) -> void override;
 
-  auto AddUser(IUser* new_user) -> void override;
+	auto AddUser(IUser* new_user) -> void override;
 	auto HasUser(IRC::UUID uuid) -> bool override;
-  auto RemoveUser(IRC::UUID uuid) -> bool override;
+	auto RemoveUser(IRC::UUID uuid) -> bool override;
 
 	auto CountUsers() -> uint32_t override;
 	auto GetUserListAsString() -> const std::string override;

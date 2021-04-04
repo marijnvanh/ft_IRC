@@ -7,6 +7,7 @@
 #include "MessageHandlers/ICommandHandler.h"
 #include "IMessageDispatcher.h"
 #include "ServerData.h"
+#include "Logger.h"
 
 class MessageDispatcher : public IMessageDispatcher
 {
@@ -18,6 +19,7 @@ class MessageDispatcher : public IMessageDispatcher
 
     private:
     std::unordered_map<std::string, std::unique_ptr<ICommandHandler>> command_handlers_;
+    Logger logger;
 };
 
 #endif

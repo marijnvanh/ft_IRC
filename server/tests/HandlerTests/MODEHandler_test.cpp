@@ -75,7 +75,7 @@ TEST_F(MODETests, SuccessTest)
 		.WillRepeatedly(Return(true));
 
 	EXPECT_CALL(mock_channel1, PushToLocal("MODE " + message_params[0] + " " +
-		message_params[1] + " " + message_params[2]));
+		message_params[1] + " " + message_params[2], _));
 
 	// Act
     handler->Handle(message1);

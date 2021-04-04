@@ -47,7 +47,7 @@ auto IRCServer::RunOnce() -> void
             auto client = std::make_unique<Client>(std::move(io_handler));
 
             server_data_->client_database_.AddClient(std::move(client));
-            logger.Log(LogLevel::DEBUG, "New client on FD: ", socket->GetFD());
+            logger.Log(LogLevel::DEBUG, "New client on FD: %d", socket->GetFD());
         });
 
     server_data_->client_database_.PollClients(
@@ -57,7 +57,7 @@ auto IRCServer::RunOnce() -> void
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
                 auto message = Message(client->GetUUID(), parsed_message);
 
-                std::cout << message << std::endl;
+                logger.Log(LogLevel::DEBUG, "Received: %s", raw_message.c_str());
                 message_dispatcher_->Dispatch(message);
 
             } catch (ParseException &e) {

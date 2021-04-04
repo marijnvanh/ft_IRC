@@ -229,9 +229,9 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 			return ;
 		}
 	}
-
-	(*channel)->PushToLocal("MODE " + (*channel)->GetName() +
-		" " + params[MODE_CHANGES] + " " + params[CHANNEL_TARGET_IDENTIFIER]);
+	std::string mode_message = "MODE " + (*channel)->GetName() +
+		" " + params[MODE_CHANGES] + " " + params[CHANNEL_TARGET_IDENTIFIER];
+	(*channel)->PushToLocal(mode_message, std::optional<IRC::UUID>(user->GetUUID()));
 }
 
 
