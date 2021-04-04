@@ -39,7 +39,7 @@ class NICKHandlerTests : public ::testing::Test
     void SetUp() override
     {
 		nick_handler_ = std::make_unique<NICKHandler>(&mock_server_config, &mock_client_database);
-        server_client1.SetType(IClient::Type::kServer);
+        server_client1.SetType(IClient::Type::kLocalServer);
         user_client1.SetType(IClient::Type::kLocalUser);
 
         EXPECT_CALL(mock_client1, GetUUID())

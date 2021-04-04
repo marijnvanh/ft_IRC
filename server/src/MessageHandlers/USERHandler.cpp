@@ -25,7 +25,7 @@ auto USERHandler::Handle(IMessage &message) -> void
         return ;
     }
 
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         client->Push("ERROR: USER command not supported from server");
     }
@@ -37,7 +37,7 @@ auto USERHandler::HandleUSERFromUser(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (client->GetState() != IClient::State::kUnRegistered)
+    if (client->GetType() != IClient::Type::kUnRegistered)
     {
         client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
         return ;

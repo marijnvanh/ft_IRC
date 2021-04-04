@@ -32,6 +32,10 @@ namespace IRC {
             return (other.Low() == Low() && other.High() == High());
         }
 
+        auto operator!=(const UUID other) const -> bool {
+            return (other.Low() != Low() || other.High() != High());
+        }
+
         auto ToString() const -> std::string {
             size_t i;
             std::ostringstream ss;

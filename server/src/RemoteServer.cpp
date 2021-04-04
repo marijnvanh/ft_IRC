@@ -4,6 +4,7 @@ RemoteServer::RemoteServer(IServer* local_server, IServer* remote_server, std::s
     Server(server_name),
     uuid_(IRC::UUIDGenerator::GetInstance().Generate())
 {
+    type_ = IClient::Type::kRemoteServer;
     local_server_ = local_server;
     remote_server_ = remote_server;
     remote_server_->AddClient(this);

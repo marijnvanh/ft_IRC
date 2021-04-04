@@ -21,7 +21,7 @@ auto QUITHandler::Handle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (client->GetState() == IClient::State::kUnRegistered)
+    if (client->GetType() == IClient::Type::kUnRegistered)
     {
         client_database_->DisconnectClient(client->GetUUID());
     }
@@ -29,7 +29,7 @@ auto QUITHandler::Handle(IMessage &message) -> void
     {
         DisconnectLocalUser(message);
     }
-    else if (client->GetType() == IClient::Type::kServer)
+    else if (client->GetType() == IClient::Type::kLocalServer)
     {
         DisconnectRemoteUser(client, message);
     }

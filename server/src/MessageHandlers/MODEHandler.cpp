@@ -9,10 +9,8 @@
 /*
 ERR_NEEDMOREPARAMS RPL_CHANNELMODEIS ERR_NOSUCHNICK*/
 
-MODEHandler::MODEHandler(IServerConfig *server_config,
-	IClientDatabase *client_database, IChannelDatabase *channel_database) :
+MODEHandler::MODEHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
     logger("MODEHandler"),
-	server_config_(server_config),
     client_database_(client_database),
     channel_database_(channel_database)
 {}
@@ -84,7 +82,7 @@ auto MODEHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (client->GetState() == IClient::State::kUnRegistered)
+    if (client->GetType() == IClient::Type::kUnRegistered)
     {
         client->Push(GetErrorMessage(ERR_NOTREGISTERED));
         return ;
@@ -96,7 +94,7 @@ auto MODEHandler::Handle(IMessage &message) -> void
         return ;
     }
     
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         auto remote_client_nickname = message.GetNickname();
     

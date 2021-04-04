@@ -55,7 +55,7 @@ auto PARTHandler::Handle(IMessage &message) -> void
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
 	// Handle unregistered client.
-	if (client->GetState() == IClient::kUnRegistered)
+	if (client->GetType() == IClient::Type::kUnRegistered)
 	{
 		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
 		return;

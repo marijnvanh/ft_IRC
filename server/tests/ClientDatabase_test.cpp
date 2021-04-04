@@ -6,6 +6,7 @@
 #include <optional>
 #include "Mutex.h"
 #include "MockClient.h"
+#include "MockServer.h"
 #include "MockLocalUser.h"
 
 using ::testing::AtLeast;
@@ -29,13 +30,21 @@ class ClientDatabaseTests : public ::testing::Test
     std::unique_ptr<MockLocalUser> unique_local_user1;
     MockLocalUser *local_user1;
     IRC::UUID uuid_local_user1 = IRC::UUIDGenerator::GetInstance().Generate();
+    std::unique_ptr<MockLocalUser> unique_local_user2;
+    MockLocalUser *local_user2;
+    IRC::UUID uuid_local_user2 = IRC::UUIDGenerator::GetInstance().Generate();
 
+    std::unique_ptr<MockServer> unique_server1;
+    std::string server_name = "somename";
+    MockServer *mock_server1;
+    IRC::UUID uuid_mock_server1 = IRC::UUIDGenerator::GetInstance().Generate();
 
     std::shared_ptr<ClientDatabase> client_database;
 
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
     IRC::UUID uuid2 = IRC::UUIDGenerator::GetInstance().Generate();
     IRC::UUID uuid3 = IRC::UUIDGenerator::GetInstance().Generate();
+    IRC::UUID uuid4 = IRC::UUIDGenerator::GetInstance().Generate();
 
     void SetUp() override
     {
@@ -48,6 +57,12 @@ class ClientDatabaseTests : public ::testing::Test
 
         unique_local_user1 = std::make_unique<MockLocalUser>();
         local_user1 = unique_local_user1.get();
+        unique_local_user2 = std::make_unique<MockLocalUser>();
+        local_user2 = unique_local_user2.get();
+        
+        unique_server1 = std::make_unique<MockServer>();
+        mock_server1 = unique_server1.get();
+        mock_server1->SetType(IClient::Type::kLocalServer);
         
         client_database = std::make_shared<ClientDatabase>();
 
@@ -59,6 +74,13 @@ class ClientDatabaseTests : public ::testing::Test
             .WillRepeatedly(ReturnRef(uuid3));
         EXPECT_CALL(*local_user1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid_local_user1));
+        EXPECT_CALL(*local_user2, GetUUID())
+            .WillRepeatedly(ReturnRef(uuid_local_user2));
+        EXPECT_CALL(*mock_server1, GetUUID())
+            .WillRepeatedly(ReturnRef(uuid4));
+        
+        EXPECT_CALL(*mock_server1, GetServerName())
+            .WillRepeatedly(ReturnRef(server_name));
     }
 };
 
@@ -224,4 +246,24 @@ TEST_F(ClientDatabaseTests, DisconnectUser)
 
     local_user = client_database->GetClient(uuid_local_user1);
     ASSERT_EQ(local_user, std::nullopt);
+}
+
+TEST_F(ClientDatabaseTests, BroadCastSuccessTest)
+{
+    std::string irc_message = "some_message";
+    client_database->AddClient(std::move(unique_client1));
+    client_database->AddLocalUser(std::move(unique_local_user1));
+    client_database->AddLocalUser(std::move(unique_local_user2));
+    client_database->AddServer(std::move(unique_server1));
+
+    EXPECT_CALL(*client1, Push(irc_message))
+        .Times(0);
+    EXPECT_CALL(*local_user1, Push(_))
+        .Times(0);
+    EXPECT_CALL(*local_user2, Push(irc_message))
+        .Times(1);
+    EXPECT_CALL(*mock_server1, Push(irc_message))
+        .Times(1);
+
+    client_database->Broadcast(irc_message, uuid_local_user1);
 }

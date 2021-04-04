@@ -38,13 +38,13 @@ auto PRIVMSGHandler::Handle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (client->GetState() == IClient::State::kUnRegistered)
+    if (client->GetType() == IClient::Type::kUnRegistered)
     {
         client->Push(GetErrorMessage(ERR_NOTREGISTERED));
         return ;
     }
     
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         auto remote_client_nickname = message.GetNickname();
     

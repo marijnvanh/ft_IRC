@@ -45,7 +45,7 @@ class QUITTests : public ::testing::Test
         // server_client_unique1 = std::make_unique<MockClient>();
         // server_client1 = server_client_unique1.get();
         // server_client_shared1 = std::move(server_client_unique1);
-        // server_client1->SetType(IClient::Type::kServer);
+        // server_client1->SetType(IClient::Type::kLocalServer);
 
         local_user1.SetNickname(local_user_nickname1);
 

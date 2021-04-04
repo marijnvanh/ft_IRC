@@ -39,14 +39,14 @@ auto NAMESHandler::Handle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (client->GetState() == IClient::State::kUnRegistered)
+    if (client->GetType() == IClient::Type::kUnRegistered)
     {
         client->Push(GetErrorMessage(ERR_NOTREGISTERED));
         return ;
     }
     
     /* Names message can't come from a server, so we just ignore it if it does */
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         return ;
     }

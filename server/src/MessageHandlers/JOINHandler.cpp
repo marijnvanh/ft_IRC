@@ -106,7 +106,7 @@ auto JOINHandler::Handle(IMessage &message) -> void
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
 	// Handle unregistered client.
-	if (client->GetState() == IClient::kUnRegistered)
+	if (client->GetType() == IClient::Type::kUnRegistered)
 	{
 		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
 		return;
@@ -119,7 +119,7 @@ auto JOINHandler::Handle(IMessage &message) -> void
 	}
 
 	// Handle server message.
-	if (client->GetType() == IClient::kServer)
+	if (client->GetType() == IClient::Type::kLocalServer || client->GetType() == IClient::Type::kRemoteServer)
 	{
         auto remote_client_nickname = message.GetNickname();
         if (remote_client_nickname == std::nullopt)

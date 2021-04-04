@@ -53,7 +53,7 @@ TEST_F(PASSTests, InvalidParams)
 TEST_F(PASSTests, AlreadyRegisteredClient)
 {
     PASSHandler PASS_handler(&mock_client_database);
-    mock_client1.SetState(IClient::State::kRegistered);
+    mock_client1.SetType(IClient::Type::kLocalUser);
 
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 

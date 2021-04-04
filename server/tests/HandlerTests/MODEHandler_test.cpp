@@ -34,13 +34,12 @@ class MODETests : public ::testing::Test
     MockMessage message1;
     std::vector<std::string> message_params;
 
-    MockServerConfig mock_server_config;
     MockClientDatabase mock_client_database;
     MockChannelDatabase mock_channel_database;
 
     void SetUp() override
     {
-		handler = std::make_unique<MODEHandler>(&mock_server_config, &mock_client_database, &mock_channel_database);
+		handler = std::make_unique<MODEHandler>(&mock_client_database, &mock_channel_database);
 
         channel1_key = "p@ssw0rd";
 		channel1_name = "#channel1";

@@ -58,7 +58,7 @@ TEST_F(SERVERHandlerTests, RegularUserTryingToSendSERVERMessage)
     message_params.push_back("ignored");
     message_params.push_back("ignored");
 
-    mock_client1.SetState(IClient::State::kRegistered);
+    mock_client1.SetType(IClient::Type::kLocalUser);
 
     EXPECT_CALL(mock_client1, Push("462 :You may not reregister"));
 
@@ -71,8 +71,8 @@ TEST_F(SERVERHandlerTests, DuplicateServersOnNetwork)
     message_params.push_back("ignored");
     message_params.push_back("ignored");
 
-    mock_client1.SetState(IClient::State::kRegistered);
-    mock_client1.SetType(IClient::Type::kServer);
+    mock_client1.SetType(IClient::Type::kLocalUser);
+    mock_client1.SetType(IClient::Type::kLocalServer);
     
     EXPECT_CALL(mock_client_database, GetServer(new_server_name1))
         .WillOnce(Return(std::optional<IServer*>(&mock_server1)));
@@ -87,8 +87,8 @@ TEST_F(SERVERHandlerTests, ServerRegisteringRemoteServer)
     message_params.push_back("ignored");
     message_params.push_back("ignored");
 
-    mock_client1.SetState(IClient::State::kRegistered);
-    mock_client1.SetType(IClient::Type::kServer);
+    mock_client1.SetType(IClient::Type::kLocalUser);
+    mock_client1.SetType(IClient::Type::kLocalServer);
     
     EXPECT_CALL(mock_client_database, GetServer(new_server_name1))
         .WillOnce(Return(std::nullopt));
@@ -109,7 +109,7 @@ TEST_F(SERVERHandlerTests, ClientRegisteringAsServer)
     message_params.push_back("ignored");
     message_params.push_back("ignored");
 
-    mock_client1.SetState(IClient::State::kUnRegistered);
+    mock_client1.SetType(IClient::Type::kUnRegistered);
     
     EXPECT_CALL(mock_client_database, GetServer(new_server_name1))
         .WillOnce(Return(std::nullopt));
