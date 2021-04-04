@@ -12,6 +12,7 @@ using ::testing::Throw;
 using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::_;
+using ::testing::StrictMock;
 
 class QUITTests : public ::testing::Test
 {
@@ -22,22 +23,25 @@ class QUITTests : public ::testing::Test
     // MockMessage server_message1;
     // std::vector<std::string> server_message_params1;
 
-    MockLocalUser local_user1;
+    std::unique_ptr<QUITHandler> quit_handler_;
+
+    StrictMock<MockLocalUser> local_user1;
     MockMessage local_user_message1;
     std::string local_user_nickname1;
     std::vector<std::string> local_user_message_params1;
     IRC::UUID local_user1_uuid = IRC::UUIDGenerator::GetInstance().Generate();
 
-    MockClient base_client1;
+    StrictMock<MockClient> base_client1;
     MockMessage base_message1;
     std::string base_nickname1;
     std::vector<std::string> base_message_params1;
     IRC::UUID base_client1_uuid = IRC::UUIDGenerator::GetInstance().Generate();
 
-    MockClientDatabase mock_client_database;
+    StrictMock<MockClientDatabase> mock_client_database;
 
     void SetUp() override
     {
+        quit_handler_ = std::make_unique<QUITHandler>(&mock_client_database);
         // server_client_unique1 = std::make_unique<MockClient>();
         // server_client1 = server_client_unique1.get();
         // server_client_shared1 = std::move(server_client_unique1);
@@ -73,11 +77,11 @@ class QUITTests : public ::testing::Test
 TEST_F(QUITTests, RemoveUnregisteredClient)
 {
     EXPECT_CALL(mock_client_database, DisconnectClient(base_client1_uuid));
-    QUITHandler(&mock_client_database, base_message1);
+    quit_handler_->Handle(base_message1);
 }
 
 TEST_F(QUITTests, RemoveLocalUser)
 {
     EXPECT_CALL(mock_client_database, DisconnectClient(local_user1_uuid));
-    QUITHandler(&mock_client_database, local_user_message1);
+    quit_handler_->Handle(local_user_message1);
 }

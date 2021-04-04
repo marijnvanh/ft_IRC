@@ -13,7 +13,7 @@ class MockChannelDatabase : public IChannelDatabase {
     MOCK_METHOD(void, RemoveChannel, (std::string channel_name), ());
     MOCK_METHOD(IChannel*, AddChannel, (std::unique_ptr<IChannel> new_channel), ());
     MOCK_METHOD(std::optional<IChannel*>, GetChannel, (std::string channel_name), ());
-	MOCK_METHOD(std::optional<IChannel*>, CreateChannel, (const std::string name, const std::string key, ChannelType type, ChannelMode mode), ());
+	MOCK_METHOD(std::optional<IChannel*>, CreateChannel, (const std::string name, const std::string key, ChannelType type), ());
 	MOCK_METHOD(void, ForEachChannel, (std::function<void(IChannel*)> action), ());
 
 };

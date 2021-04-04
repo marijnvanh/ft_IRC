@@ -9,37 +9,15 @@
 
 class IUser;
 
-enum ChannelMode : uint32_t
+enum class ChannelMode:uint8_t
 {
-	None				= 1 << 0,
-	Private				= 1 << 1, // Private channel.
-	Secret				= 1 << 2, // Secret channel.
-	InviteOnly			= 1 << 3, // Invite-only channel.
-	OperatorTopic		= 1 << 4, // Topic settable by channel operator only.
-	NoOutsideMessages	= 1 << 5, // No messages to channel from clients on the outside.
-	Moderated			= 1 << 6  // Moderated channel.
+	/** +k: Channel key. */
+	CM_KEY = 'k' - 65,
+	/** +t: Channel topic. */
+	CM_TOPIC = 't' - 65,
+	/** +o: Channel operator. */
+	CM_OPERATOR = 'o' - 65
 };
-
-inline ChannelMode operator | (ChannelMode lhs, ChannelMode rhs)
-{
-	return static_cast<ChannelMode>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-}
-
-inline ChannelMode operator & (ChannelMode lhs, ChannelMode rhs)
-{
-	return static_cast<ChannelMode>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-}
-
-inline ChannelMode operator ~ (ChannelMode lhs)
-{
-	return static_cast<ChannelMode>(~static_cast<uint32_t>(lhs));
-}
-    
-inline ChannelMode& operator |= (ChannelMode& lhs, ChannelMode rhs)
-{
-    lhs = lhs | rhs;
-    return lhs;
-}
 
 class IChannel
 {
@@ -55,13 +33,11 @@ public:
 	virtual ~IChannel() {};
 
 	/**
-     * @brief Push a message on to the send queue of all connected users.
+     * @brief Push a message on to the send queue of all local users.
      * 
-     * @param irc_message The message to be send to all connected users.
+     * @param irc_message The message to be send to all local users.
      */
-    virtual auto PushToAll(std::string irc_message) -> void = 0;
     virtual auto PushToLocal(std::string irc_message) -> void = 0;
-    virtual auto PushToRemote(std::string irc_message) -> void = 0;
 
     virtual auto AddUser(IUser* new_user) -> void = 0;
 	/**
@@ -75,22 +51,38 @@ public:
 	virtual auto CountUsers() -> uint32_t = 0;
 	virtual auto GetUserListAsString() -> const std::string = 0;
 
+	virtual auto AddOperator(IRC::UUID uuid) -> bool = 0;
+	virtual auto HasOperator(IRC::UUID uuid) -> bool = 0;
+	virtual auto RemoveOperator(IRC::UUID uuid) -> bool = 0;
+
 	virtual auto SetKey(std::string new_key) -> void { key_ = new_key; }
 	virtual auto SetName(std::string new_name) -> void { name_ = new_name; }
-	virtual auto SetMode(ChannelMode new_mode) -> void { mode_ = new_mode; }
 	virtual auto SetType(ChannelType new_type) -> void { type_ = new_type; }
 	virtual auto SetTopic(std::string new_topic) -> void { topic_ = new_topic; }
 
 	virtual auto GetKey() const -> std::string { return key_; }
 	virtual auto GetName() const -> std::string { return name_; }
-	virtual auto GetMode() const -> ChannelMode { return mode_; }
 	virtual auto GetType() const -> ChannelType { return type_; }
 	virtual auto GetTopic() const -> std::string { return topic_; }
 
-	virtual auto HasMode(ChannelMode mode) const -> bool { return mode_ & mode; }
+	/**
+	 * @brief Mode specific functionality. Sets the given mode.
+	 */
+	virtual auto SetMode(ChannelMode mode_key, bool value) -> void
+		{ mode_[(uint8_t)mode_key] = value; }
 
-	virtual auto ClearMode() -> void { mode_ = ChannelMode::None; }
-	virtual auto ClearMode(ChannelMode mode) -> void { mode_ = (mode_ & ~mode); }
+	/**
+	 * @brief Mode specific functionality. Gets the the constant mode object.
+	 */
+	virtual auto GetMode() const -> std::bitset<64> { return mode_; }
+
+	/**
+	 * @brief Mode specific functionality. Returns the value of the given mode.
+	 * 
+	 * @returns Whether or not the given mod is set or unset.
+	 */
+	virtual auto HasMode(ChannelMode mode_key) const -> bool
+		{ return mode_[(uint8_t)mode_key]; }
 
 protected:
 	std::string key_;
@@ -98,8 +90,8 @@ protected:
 
 	std::string topic_;
 
-	ChannelMode mode_;
 	ChannelType type_;
+	std::bitset<64> mode_;
 
 };
 

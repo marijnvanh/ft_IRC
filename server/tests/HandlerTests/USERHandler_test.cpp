@@ -11,22 +11,26 @@ using ::testing::Throw;
 using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::_;
+using ::testing::StrictMock;
 
 class USERFromUserTests : public ::testing::Test
 {
     public:
-    MockClient mock_client1;
+	std::unique_ptr<USERHandler> user_handler_;
+
+    StrictMock<MockClient> mock_client1;
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
 
     MockMessage message1;
     std::vector<std::string> message_params;
 
-    MockClientDatabase mock_client_database;
+    StrictMock<MockClientDatabase> mock_client_database;
     MockServerConfig mock_server_config;
 
     void SetUp() override
     {
-
+        user_handler_ = std::make_unique<USERHandler>(&mock_server_config, &mock_client_database);
+        
         EXPECT_CALL(mock_client1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid1));
         EXPECT_CALL(message1, GetClientUUID())
@@ -47,7 +51,9 @@ TEST_F(USERFromUserTests, SuccessTest)
 
     EXPECT_CALL(mock_client_database, RegisterLocalUser(uuid1))
         .WillOnce(Return(&mock_client1));
-    USERHandler(&mock_server_config, &mock_client_database, message1);
+    EXPECT_CALL(mock_client1, Push(_))
+        .Times(1);
+    user_handler_->Handle(message1);
 
     ASSERT_EQ(mock_client1.GetUsername(), "username");
     ASSERT_EQ(mock_client1.GetRealname(), "realname");

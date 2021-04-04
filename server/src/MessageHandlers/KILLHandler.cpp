@@ -4,9 +4,17 @@
 
 #define NICKNAME_PARAM 0
 
-auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
+KILLHandler::KILLHandler(IClientDatabase *client_database) :
+    client_database_(client_database),
+    logger("KILLHandler")
+{}
+
+KILLHandler::~KILLHandler()
+{}
+
+auto KILLHandler::Handle(IMessage &message) -> void
 {
-    auto client = *(client_database->GetClient(message.GetClientUUID()));
+    auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
 	auto params = message.GetParams();
 	if (params.size() < 2)
@@ -20,7 +28,7 @@ auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
 	auto nickname = params[NICKNAME_PARAM];
 
 	// Attempt to KILL all clients with the given username.
-	if (auto otherClient = client_database->GetClient(nickname))
+	if (auto otherClient = client_database_->GetClient(nickname))
 	{
 		if ((*otherClient)->GetType() == IClient::Type::kRemoteServer ||
 			(*otherClient)->GetType() == IClient::Type::kLocalServer)

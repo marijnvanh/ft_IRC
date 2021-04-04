@@ -19,7 +19,7 @@ public:
     virtual auto RemoveChannel(std::string channel_name) -> void = 0;
     virtual auto AddChannel(std::unique_ptr<IChannel> new_channel) -> IChannel* = 0;
     virtual auto CreateChannel(const std::string name, const std::string key,
-		ChannelType type, ChannelMode mode) -> std::optional<IChannel*> = 0;
+		ChannelType type) -> std::optional<IChannel*> = 0;
 
     virtual auto GetChannel(const std::string channel_name) -> std::optional<IChannel*> = 0;
 
