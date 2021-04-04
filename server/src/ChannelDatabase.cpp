@@ -38,10 +38,9 @@ auto ChannelDatabase::DeleteEmptyChannels() -> void
 }
 
 auto ChannelDatabase::CreateChannel(const std::string name, const std::string key,
-	ChannelType type = ChannelType::kLocal,
-	ChannelMode mode = ChannelMode::None) -> std::optional<IChannel*>
+	ChannelType type = ChannelType::kLocal) -> std::optional<IChannel*>
 {
-	auto new_channel = std::make_unique<Channel>(name, key, type, mode);
+	auto new_channel = std::make_unique<Channel>(name, key, type);
 
     logger.Log(LogLevel::INFO, "New channel <%s> with key <%s> created.", name.c_str(), key.c_str());
 

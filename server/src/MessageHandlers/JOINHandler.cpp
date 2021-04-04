@@ -39,29 +39,34 @@ static auto CreateChannelKeyMap(std::string param_name,
 }
 
 static auto TryAddUserToChannel(IChannel* channel,
-	const std::string key, IUser* user) -> void
+	const std::string key, IUser* user, bool isOp) -> bool
 {
 	// TODO: Check channel modes to see if user has enough privilege.
-	if (channel->GetKey() != key)
+	if (channel->HasMode(ChannelMode::CM_KEY) && channel->GetKey() != key)
 	{
 		user->Push(GetErrorMessage(ERR_BADCHANNELKEY, channel->GetName()));
-		return;
+		return (false);
 	}
 
 	// Disallow users from joining the same channel twice.
 	// Undefined behaviour, since a user should never attempt this.
 	if (channel->HasUser(user->GetUUID()))
 	{
-		return;
+		return (false);
 	}
 
 	channel->AddUser(user);
 	user->AddChannel(channel);
 	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
+	if (isOp)
+	{
+		channel->AddOperator(user->GetUUID());
+	}
 	
 	user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());
 	user->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString());
 	user->Push(std::to_string(RPL_ENDOFNAMES) + " " + channel->GetName() + ":End of /NAMES list");
+	return (true);
 }
 
 
@@ -73,6 +78,7 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 
 	for (auto kvp : channel_pairs)
 	{
+		bool channel_created = false;
 		// TODO: The length and prefix check should probably be part of the parser(?)
 		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
@@ -84,10 +90,13 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 
 		if (!current_channel)
 		{
-			current_channel = channel_database->CreateChannel(kvp.first, kvp.second, ChannelType::kLocal, ChannelMode::None);
+			channel_created = true;
+			current_channel = channel_database->CreateChannel(kvp.first,
+				kvp.second, ChannelType::kLocal);
 		}
 
-		TryAddUserToChannel(*current_channel, kvp.second, dynamic_cast<IUser*>(client));
+		TryAddUserToChannel(*current_channel, kvp.second,
+			dynamic_cast<IUser*>(client), channel_created);
 	}
 }
 

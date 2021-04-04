@@ -21,7 +21,7 @@ public:
     auto RemoveChannel(std::string channel_name) -> void override;
     auto AddChannel(std::unique_ptr<IChannel> new_channel) -> IChannel* override;
 	auto CreateChannel(const std::string name, const std::string key,
-		ChannelType type, ChannelMode mode) -> std::optional<IChannel*> override;
+		ChannelType type) -> std::optional<IChannel*> override;
 
     auto GetChannel(const std::string channel_name) -> std::optional<IChannel*> override;
 
