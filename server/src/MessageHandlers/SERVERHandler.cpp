@@ -20,7 +20,7 @@ auto SERVERHandler::Handle(IMessage &message) -> void
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-	if (client->GetState() == IClient::kRegistered && client->GetType() != IClient::Type::kServer )
+	if (client->GetType() == IClient::Type::kLocalUser)
 	{
 		client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
 		return;
@@ -39,7 +39,7 @@ auto SERVERHandler::Handle(IMessage &message) -> void
         return ;
     }
 
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         auto remote_server_name = message.GetServername();
         if (!remote_server_name)

@@ -55,7 +55,7 @@ TEST_F(ClientUpgradeTests, RegisterLocalUser)
     auto uuid_client1 = raw_client1->GetUUID();
 
     auto client = client_database->GetClient(uuid_client1);
-    ASSERT_EQ((*client)->GetType(), IClient::State::kUnRegistered);
+    ASSERT_EQ((*client)->GetType(), IClient::Type::kUnRegistered);
 
     auto is_localuser = dynamic_cast<ILocalUser *>(*client);
     ASSERT_EQ(is_localuser, nullptr);
@@ -74,7 +74,7 @@ TEST_F(ClientUpgradeTests, RegisterServer)
     auto uuid_client1 = raw_client1->GetUUID();
 
     auto client = client_database->GetClient(uuid_client1);
-    ASSERT_EQ((*client)->GetType(), IClient::State::kUnRegistered);
+    ASSERT_EQ((*client)->GetType(), IClient::Type::kUnRegistered);
 
     auto is_server = dynamic_cast<IServer *>(*client);
     ASSERT_EQ(is_server, nullptr);
@@ -83,7 +83,7 @@ TEST_F(ClientUpgradeTests, RegisterServer)
 
     client = client_database->GetClient(uuid_client1);
 
-    ASSERT_EQ((*client)->GetType(), IClient::Type::kServer);
+    ASSERT_EQ((*client)->GetType(), IClient::Type::kLocalServer);
     is_server = dynamic_cast<IServer*>(*client);
     ASSERT_EQ(is_server->GetUUID(), uuid_client1);
 }

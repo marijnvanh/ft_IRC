@@ -38,7 +38,6 @@ class USERFromUserTests : public ::testing::Test
     }
 };
 
-
 TEST_F(USERFromUserTests, SuccessTest)
 {
     message_params.push_back("username");
@@ -52,5 +51,5 @@ TEST_F(USERFromUserTests, SuccessTest)
 
     ASSERT_EQ(mock_client1.GetUsername(), "username");
     ASSERT_EQ(mock_client1.GetRealname(), "realname");
-    ASSERT_EQ(mock_client1.GetState(), IClient::State::kUnRegistered);
+    ASSERT_EQ(mock_client1.GetType(), IClient::Type::kUnRegistered);
 }

@@ -22,7 +22,8 @@ auto KILLHandler(IClientDatabase *client_database, IMessage &message) -> void
 	// Attempt to KILL all clients with the given username.
 	if (auto otherClient = client_database->GetClient(nickname))
 	{
-		if ((*otherClient)->GetType() == IClient::Type::kServer)
+		if ((*otherClient)->GetType() == IClient::Type::kRemoteServer ||
+			(*otherClient)->GetType() == IClient::Type::kLocalServer)
 		{
 			client->Push(GetErrorMessage(ERR_CANTKILLSERVER));
 			return;

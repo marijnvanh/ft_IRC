@@ -5,7 +5,7 @@ LocalServer::LocalServer(std::string server_name, Client &&old_client) :
     Client(std::move(old_client)),
     Server(server_name)
 {
-    type_ = IClient::Type::kServer;
+    type_ = IClient::Type::kLocalServer;
 }
 
 LocalServer::~LocalServer()

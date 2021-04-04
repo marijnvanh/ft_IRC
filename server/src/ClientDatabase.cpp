@@ -29,7 +29,7 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
         logger.Log(LogLevel::ERROR, "No client to delete"); // Should never happen
         return;
     }
-    if ((*client)->GetState() == IClient::State::kUnRegistered)
+    if ((*client)->GetType() == IClient::Type::kUnRegistered)
     {
         logger.Log(LogLevel::INFO, "Client with nickname: %s being disconnected", (*client)->GetNickname().c_str());
         clients_.erase(uuid);
@@ -42,7 +42,7 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
         return ;
     }
 
-    if ((*client)->GetType() == IClient::Type::kServer)
+    if ((*client)->GetType() == IClient::Type::kLocalServer || (*client)->GetType() == IClient::Type::kRemoteServer)
     {
         DisconnectServer(dynamic_cast<IServer *>(*client));
         return ;
@@ -216,9 +216,8 @@ auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::optional<IClient*>
 static auto FindNickname(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, const std::string &nickname) ->
     std::optional<IClient*>
 {
-    for (auto it = clients.begin(), next_it = it; it != clients.end(); it = next_it)
+    for (auto it = clients.begin(); it != clients.end(); it++)
     {
-        ++next_it;
         if (it->second->GetNickname() == nickname)
             return std::optional<IClient*>(it->second.get());
     }
@@ -243,7 +242,7 @@ auto ClientDatabase::GetServer(IRC::UUID uuid) -> std::optional<IServer*>
 {
     auto server = GetClient(uuid);
 
-    if (server && (*server)->GetType() == IClient::Type::kServer)
+    if (server && ((*server)->GetType() == IClient::Type::kLocalServer || (*server)->GetType() == IClient::Type::kRemoteServer))
         return std::optional<IServer*>(dynamic_cast<IServer*>((*server)));
     else
         return std::nullopt;
@@ -270,7 +269,7 @@ auto ClientDatabase::GetUser(const std::string &nickname) -> std::optional<IUser
         logger.Log(LogLevel::DEBUG, "Couldn't find client %s", nickname.c_str());
         return std::nullopt;
     }
-    if ((*user)->GetType() != IClient::kLocalUser && (*user)->GetType() != IClient::kRemoteUser)
+    if ((*user)->GetType() != IClient::Type::kLocalUser && (*user)->GetType() != IClient::Type::kRemoteUser)
     {
         logger.Log(LogLevel::DEBUG, "Client with nickname: %s not a user", nickname.c_str());
         return std::nullopt;
@@ -278,4 +277,28 @@ auto ClientDatabase::GetUser(const std::string &nickname) -> std::optional<IUser
 
     logger.Log(LogLevel::DEBUG, "Found client %s", nickname.c_str());
     return std::optional<IUser*>(dynamic_cast<IUser*>(*user));
+}
+
+auto ClientDatabase::Broadcast(const std::string &irc_message, IRC::UUID except_uuid) -> void
+{
+    BroadcastToLocalUsers(irc_message, except_uuid);
+    BroadcastToLocalServers(irc_message, except_uuid);
+}
+
+auto ClientDatabase::BroadcastToLocalUsers(const std::string &irc_message, IRC::UUID except_uuid) -> void
+{
+    for (auto it = local_users_.begin(); it != local_users_.end(); it++)
+    {
+        if (it->second->GetUUID() != except_uuid)
+            it->second->Push(irc_message);
+    }
+}
+
+auto ClientDatabase::BroadcastToLocalServers(const std::string &irc_message, IRC::UUID except_uuid) -> void
+{
+    for (auto it = servers_.begin(); it != servers_.end(); it++)
+    {
+        if (it->second->GetType() == IClient::Type::kLocalServer && it->second->GetUUID() != except_uuid)
+            it->second->Push(irc_message);
+    }
 }

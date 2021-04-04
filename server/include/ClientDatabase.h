@@ -56,6 +56,16 @@ class ClientDatabase : public IClientDatabase
     auto SendAll() -> void;
 
     /**
+     * @brief Push irc message to all local users and local servers execept for client with except_uuid
+     * 
+     * @param irc_message 
+     * @param except_uuid client the message came from is skipped
+     */
+    auto Broadcast(const std::string &irc_message, IRC::UUID except_uuid) -> void override;
+    auto BroadcastToLocalUsers(const std::string &irc_message, IRC::UUID except_uuid) -> void override;
+    auto BroadcastToLocalServers(const std::string &irc_message, IRC::UUID except_uuid) -> void override;
+    
+    /**
      * @brief Get client
      * 
      * @param uuid 

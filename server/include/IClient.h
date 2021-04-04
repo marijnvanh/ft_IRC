@@ -10,27 +10,19 @@ class IServer;
 
 class IClient
 {
-
     public:
 
-    enum Type
-    {
-        kUnInitialized = 0, // Maybe this should be kUnRegistered
-        kLocalUser,
-        kRemoteUser,
-        kServer
-    };
-
-    //TODO move UnRegistered state to Type?
-    enum State
+    enum class Type
     {
         kUnRegistered = 0,
-        kRegistered
+        kLocalUser,
+        kRemoteUser,
+        kLocalServer,
+        kRemoteServer
     };
 
     IClient() :
-        state_(IClient::State::kUnRegistered),
-        type_(IClient::Type::kUnInitialized),
+        type_(IClient::Type::kUnRegistered),
         uuid_(IRC::UUIDGenerator::GetInstance().Generate()),
         local_server_(NULL),
         remote_server_(NULL)
@@ -65,15 +57,13 @@ class IClient
     virtual auto SendAll() -> void = 0;
     
 
+    virtual auto GetType() const -> IClient::Type { return type_; }
+    virtual auto SetType(IClient::Type type) -> void { type_ = type; }
     virtual auto GetUUID() const -> const IRC::UUID& { return uuid_; };
-    virtual auto GetState() const -> IClient::State { return state_; }
-    virtual auto SetState(IClient::State state) -> void { state_ = state; }
     virtual auto GetPassword() const -> const std::string& { return password_; }
     virtual auto SetPassword(std::string password) -> void { password_ = password; }
     virtual auto GetNickname() const -> const std::string& { return nickname_; }
     virtual auto SetNickname(std::string nickname) -> void { nickname_ = nickname; }
-    virtual auto GetType() const -> IClient::Type { return type_; }
-    virtual auto SetType(IClient::Type type) -> void { type_ = type; }
     virtual auto GetUsername() const -> const std::string& { return username_; }
     virtual auto SetUsername(std::string username) -> void { username_ = username; }
     virtual auto GetRealname() const -> const std::string& { return realname_; }
@@ -92,7 +82,6 @@ class IClient
 
     protected:
 
-    State state_;
     Type type_;
     IRC::UUID uuid_;
     std::string password_;

@@ -45,7 +45,7 @@ auto NICKHandler::Handle(IMessage &message) -> void
         return ;
     }
 
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         if (params.size() <= 2)
             HandleNicknameChangeFromServer(client, message);
@@ -138,9 +138,9 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
 
     client->SetNickname(nickname);
 
-    if (client->GetState() == IClient::State::kRegistered)
+    if (client->GetType() != IClient::Type::kUnRegistered)
         ;//TODO Inform all connected clients that nickname has changed
-    else if (client->GetState() == IClient::State::kUnRegistered)
+    else if (client->GetType() == IClient::Type::kUnRegistered)
     {
         try {
             client = client_database_->RegisterLocalUser(client->GetUUID());

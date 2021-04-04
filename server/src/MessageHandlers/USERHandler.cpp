@@ -10,7 +10,7 @@ static auto HandleUSERFromUser(IServerConfig *server_config, IClientDatabase *cl
 {
     auto client = *(client_database->GetClient(message.GetClientUUID()));
 
-    if (client->GetState() != IClient::State::kUnRegistered)
+    if (client->GetType() != IClient::Type::kUnRegistered)
     {
         client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
         return ;
@@ -45,7 +45,7 @@ auto USERHandler(IServerConfig *server_config,
         return ;
     }
 
-    if (client->GetType() == IClient::Type::kServer)
+    if (client->GetType() == IClient::Type::kLocalServer)
     {
         client->Push("ERROR: USER command not supported from server");
     }

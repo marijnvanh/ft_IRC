@@ -26,7 +26,7 @@ class Client : public virtual IClient
 
     Client (Client&& other) : IClient(std::move(other)), uuid_(other.uuid_), logger("Client")
     {
-        if (other.state_ != kUnRegistered)
+        if (other.type_ != IClient::Type::kUnRegistered)
             throw AlreadyRegistered("Can't move a client after registration");
         io_handler_ = std::move(other.io_handler_);
         outgoing_msg_queue_ = std::move(other.outgoing_msg_queue_);
