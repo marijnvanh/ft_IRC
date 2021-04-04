@@ -14,8 +14,7 @@ class MODEHandler : public ICommandHandler
 
 public:
 
-    MODEHandler(IServerConfig *server_config,
-		IClientDatabase *client_database, IChannelDatabase *channel_database);
+    MODEHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~MODEHandler();
 
     auto Handle(IMessage &message) -> void override;
@@ -29,7 +28,6 @@ public:
  private:
 
     Logger logger;
-	IServerConfig *server_config_;
     IClientDatabase *client_database_;
     IChannelDatabase *channel_database_;
 

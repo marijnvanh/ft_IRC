@@ -42,10 +42,7 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data)
         std::make_unique<NAMESHandler>(&server_data->client_database_, &server_data->channel_database_))
     );
     command_handlers_.insert(std::make_pair("MODE",
-        std::make_unique<MODEHandler>(
-			&server_data->server_config_,
-			&server_data->client_database_,
-			&server_data->channel_database_))
+        std::make_unique<MODEHandler>(&server_data->client_database_, &server_data->channel_database_))
 	);
     command_handlers_.insert(std::make_pair("SERVER",
         std::make_unique<SERVERHandler>(&server_data->client_database_))
