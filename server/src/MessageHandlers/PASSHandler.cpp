@@ -23,7 +23,7 @@ auto PASSHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     if (params.size() == 0)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "PASS"));
         return ;
     }
     //TODO Parse password
