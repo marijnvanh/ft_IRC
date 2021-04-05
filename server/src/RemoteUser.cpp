@@ -22,7 +22,6 @@ RemoteUser::~RemoteUser()
 
 auto RemoteUser::Push(std::string irc_message) -> void
 {
-    
     local_server_->Push(":" + nickname_ + " " + irc_message);
 }
 
