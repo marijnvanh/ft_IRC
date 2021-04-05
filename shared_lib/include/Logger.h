@@ -27,6 +27,7 @@ class Logger
     static auto SetLevel(std::string const &prefix, LogLevel const &level) -> void;
     static auto SetDefaultLogLevel(LogLevel level) -> void;
     static auto DisableLogs(bool enable) -> void; 
+    static auto ResolveLogLevel(const std::string &level) -> LogLevel;
 
     private:
     static auto ParseLogLevel(LogLevel level) -> std::string;

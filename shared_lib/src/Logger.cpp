@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstdarg>
 #include <stdio.h>
+#include <map>
 
 #define MAX_LOG_LENGTH 1024
 
@@ -64,6 +65,23 @@ auto Logger::ParseLogLevel(LogLevel level) -> std::string
     if (level >= LogLevel::INVALID)
         return "ERROR FORMATTING LOG";
     return colors[level] + levels[level] + "\e[39m]";
+}
+
+auto Logger::ResolveLogLevel(const std::string &level) -> LogLevel
+{
+    static std::map<std::string, LogLevel> const log_levels = {
+        {"DEBUG", LogLevel::DEBUG},
+        {"INFO", LogLevel::INFO},
+        {"WARNING", LogLevel::WARNING},
+        {"ERROR", LogLevel::ERROR}
+    };
+
+    auto log_level = log_levels.find(level);
+
+    if (log_level != log_levels.cend())
+        return log_level->second;
+    else
+        return LogLevel::INVALID;
 }
 
 auto Logger::SetAllLevels(LogLevel level) -> void

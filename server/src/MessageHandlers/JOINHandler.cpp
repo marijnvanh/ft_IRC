@@ -57,7 +57,8 @@ static auto TryAddUserToChannel(IChannel* channel,
 
 	channel->AddUser(user);
 	user->AddChannel(channel);
-	channel->PushToLocal(":" + user->GetNickname() + " JOIN " + channel->GetName());
+	std::string join_message = ":" + user->GetNickname() + " JOIN " + channel->GetName();
+	channel->PushToLocal(join_message, std::optional<IRC::UUID>(user->GetUUID()));
 	if (isOp)
 	{
 		channel->AddOperator(user->GetUUID());

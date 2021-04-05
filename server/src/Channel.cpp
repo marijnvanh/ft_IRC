@@ -15,11 +15,12 @@ Channel::Channel(std::string name, std::string key, ChannelType type)
 
 Channel::~Channel() { }
 
-auto Channel::PushToLocal(std::string irc_message) -> void
+auto Channel::PushToLocal(const std::string &irc_message, std::optional<IRC::UUID> except_uuid) -> void
 {
     for (auto it = local_users_.cbegin(); it != local_users_.cend(); ++it)
     {
-		it->second->Push(irc_message);
+	    if (!except_uuid || it->second->GetUUID() != *except_uuid)
+            it->second->Push(irc_message);
 	}
 }
 

@@ -117,7 +117,7 @@ auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, std::string &receiver, st
     else
     {
         auto response = ":" + sender->GetNickname() + " PRIVMSG " + receiver +  " :" + message_content;
-        (*channel)->PushToLocal(response); //TODO except current user?
+        (*channel)->PushToLocal(response, std::optional<IRC::UUID>(sender->GetUUID()));
         //TODO send msg to all servers connected to this server except from the user it came from
     }
 }

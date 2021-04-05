@@ -3,6 +3,7 @@
 
 #include "AddressInfo.h"
 #include "ISocket.h"
+#include "Logger.h"
 
 #include <map>
 #include <memory>
@@ -56,9 +57,9 @@ namespace IRC::TCP
 
     private:
         std::map<int, std::shared_ptr<ISocket>> sockets_;
-
         int max_fd_;
         fd_set master_fd_list_;
+		Logger logger;
 
 		/**
 		 * @brief Updates known socket states. Removes socket from known sockets if its state is kDisconnected.

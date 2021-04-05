@@ -9,7 +9,8 @@
 
 using namespace IRC;
 
-TCP::IOController::IOController()
+TCP::IOController::IOController() :
+	logger("IOController")
 {
 	max_fd_ = 0;
     FD_ZERO(&master_fd_list_);
@@ -65,7 +66,7 @@ auto TCP::IOController::AcceptNewConnections(const std::function<void(std::share
 			}
 			catch (TCP::ISocket::Error &ex)
 			{
-				std::cerr << "Could not accept new connection: " << ex.what() << std::endl;
+				logger.Log(LogLevel::WARNING, "Could not accept new connection: %s", ex.what());
 				return ; 
 			}
 		}

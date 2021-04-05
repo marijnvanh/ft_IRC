@@ -8,5 +8,17 @@
 	"hosting-data": {
 		"port": "5000",
 		"address": "0.0.0.0"
+	},
+	"log-settings": {
+		"default-level": "DEBUG",
+		"log-levels": [
+			["IRCServer", "DEBUG"],
+			["ServerConfig", "INFO"],
+			["Client", "INFO"],
+			["MD", "INFO"],
+			["ClientDatabase", "DEBUG"],
+			["ChannelDatabase", "INFO"],
+			["IOController", "INFO"]
+		]
 	}
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include "IUser.h"
 
@@ -34,10 +35,11 @@ public:
 
 	/**
      * @brief Push a message on to the send queue of all local users.
-     * 
+	 * 
      * @param irc_message The message to be send to all local users.
-     */
-    virtual auto PushToLocal(std::string irc_message) -> void = 0;
+	 * @param except_uuid uuid that will be skipped
+	 */
+    virtual auto PushToLocal(const std::string &irc_message, std::optional<IRC::UUID> except_uuid) -> void = 0;
 
     virtual auto AddUser(IUser* new_user) -> void = 0;
 	/**

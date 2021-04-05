@@ -5,18 +5,15 @@
 #include "Message.h"
 #include "TCPIOHandler.h"
 #include "MessageDispatcher.h"
-#include "LogSettings.h"
 #include "Socket.h"
+#include "Numerics.h"
+#include "Utilities.h"
 
 IRCServer::IRCServer(const std::string &config_path) :
     server_data_(std::make_unique<ServerData>(config_path)),
     message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_.get())),
     logger("IRCServer")
-{
-	server_data_->server_config_.TryParseFrom(config_path);
-
-    SetLogSettings();
-}
+{}
 
 IRCServer::~IRCServer()
 {}
@@ -47,7 +44,7 @@ auto IRCServer::RunOnce() -> void
             auto client = std::make_unique<Client>(std::move(io_handler));
 
             server_data_->client_database_.AddClient(std::move(client));
-            logger.Log(LogLevel::DEBUG, "New client on FD: ", socket->GetFD());
+            logger.Log(LogLevel::DEBUG, "New client on FD: %d", socket->GetFD());
         });
 
     server_data_->client_database_.PollClients(
@@ -57,12 +54,13 @@ auto IRCServer::RunOnce() -> void
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
                 auto message = Message(client->GetUUID(), parsed_message);
 
-                std::cout << message << std::endl;
-                message_dispatcher_->Dispatch(message);
+                logger.Log(LogLevel::DEBUG, "Received: %s", raw_message.c_str());
+                if (!message_dispatcher_->Dispatch(message))
+                    client->Push(GetErrorMessage(ERR_UNKNOWNCOMMAND, message.GetCommand()));
 
             } catch (ParseException &e) {
                 logger.Log(LogLevel::WARNING, "Failed to parse: %s ", raw_message.c_str());
-                //TODO Handle invalid message
+                client->Push("ERROR :Could not parse message");
             }
         });
     server_data_->client_database_.SendAll();

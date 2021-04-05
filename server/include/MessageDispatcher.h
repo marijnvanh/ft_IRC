@@ -7,6 +7,7 @@
 #include "MessageHandlers/ICommandHandler.h"
 #include "IMessageDispatcher.h"
 #include "ServerData.h"
+#include "Logger.h"
 
 class MessageDispatcher : public IMessageDispatcher
 {
@@ -14,10 +15,17 @@ class MessageDispatcher : public IMessageDispatcher
     MessageDispatcher(ServerData *server_data);
     ~MessageDispatcher();
 
-    auto Dispatch(Message message) -> void override;
+    /**
+     * @brief Dispatch message to its appropriate message handler
+     * Will return true on success and false if it cannot match a message handler
+     * 
+     * @param message 
+     */
+    auto Dispatch(Message message) -> bool override;
 
     private:
     std::unordered_map<std::string, std::unique_ptr<ICommandHandler>> command_handlers_;
+    Logger logger;
 };
 
 #endif

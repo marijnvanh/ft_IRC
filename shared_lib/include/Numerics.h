@@ -72,7 +72,7 @@ enum
 	// ERR_TOOMANYCHANNELS             = 405,
 	// ERR_WASNOSUCHNICK               = 406,
 	ERR_NOTEXTTOSEND                = 412,
-	// ERR_UNKNOWNCOMMAND              = 421,
+	ERR_UNKNOWNCOMMAND              = 421,
 	// ERR_NOMOTD                      = 422,
 	ERR_NONICKNAMEGIVEN             = 431,
 	ERR_ERRONEUSNICKNAME            = 432,

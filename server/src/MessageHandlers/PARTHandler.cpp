@@ -38,7 +38,8 @@ static auto StartPartParsing(std::vector<std::string> params,
 		{
 			auto user = dynamic_cast<IUser*>(client);
 			user->RemoveChannel(channel_name);
-			(*channel)->PushToLocal(":" + client->GetNickname() + " PART " + channel_name + " " + part_message);
+			part_message = ":" + client->GetNickname() + " PART " + channel_name + " " + part_message;
+			(*channel)->PushToLocal(part_message, std::nullopt);
 
 			// TODO: Send message to all connected server instances.
 		}
