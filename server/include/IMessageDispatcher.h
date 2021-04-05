@@ -9,7 +9,7 @@ class IMessageDispatcher
 {
     public:
     virtual ~IMessageDispatcher() {};
-    virtual auto Dispatch(Message message) -> void = 0;
+    virtual auto Dispatch(Message message) -> bool = 0;
 };
 
 #endif

@@ -5,7 +5,12 @@
 
 using json = nlohmann::json;
 
-ServerConfig::ServerConfig(const std::string &file_path) : config_file_(file_path)
+#define LOG_NAME 0
+#define LOG_LEVEL 1
+
+ServerConfig::ServerConfig(const std::string &file_path) :
+	config_file_(file_path),
+	logger("ServerConfig")
 {
 	if (this->TryParseFrom(file_path) == false)
 	{
@@ -34,8 +39,25 @@ auto ServerConfig::ParseHostingData(json jf) -> void
 	}
 }
 
+auto ServerConfig::ParseLogData(json jf) -> void
+{
+	if (jf.contains("log-settings"))
+	{
+		auto default_log_level_str = jf["log-settings"]["default-level"];
+		logger.SetDefaultLogLevel(logger.ResolveLogLevel(default_log_level_str));
+
+		auto log_settings = jf["log-settings"]["log-levels"];
+		for (auto it = log_settings.cbegin(); it < log_settings.cend(); it++)
+		{
+			auto log_level = logger.ResolveLogLevel((*it)[LOG_LEVEL]);
+			logger.SetLevel((*it)[LOG_NAME], log_level);
+		}
+	}
+}
+
 auto ServerConfig::TryParseFrom(std::string file_path) -> bool
 {
+	logger.Log(LogLevel::INFO, "Loading server config from %s", file_path.c_str());
 	if (file_path.empty())
 	{
 		return (false);
@@ -46,13 +68,16 @@ auto ServerConfig::TryParseFrom(std::string file_path) -> bool
 	{
 		return (false);
 	}
-
-	json jf = json::parse(ifs);
-
-	ParseServerData(jf);
-	ParseHostingData(jf);
-
-	// TODO: Parse logging level data?
+	try {
+		json jf = json::parse(ifs);
+		ParseServerData(jf);
+		ParseHostingData(jf);
+		ParseLogData(jf);
+	}
+	catch (std::exception &ex) {
+		logger.Log(LogLevel::ERROR, "Failed to parse config file");
+		return (false);
+	}
 
 	return (true);
 }

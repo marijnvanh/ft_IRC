@@ -15,7 +15,13 @@ class MessageDispatcher : public IMessageDispatcher
     MessageDispatcher(ServerData *server_data);
     ~MessageDispatcher();
 
-    auto Dispatch(Message message) -> void override;
+    /**
+     * @brief Dispatch message to its appropriate message handler
+     * Will return true on success and false if it cannot match a message handler
+     * 
+     * @param message 
+     */
+    auto Dispatch(Message message) -> bool override;
 
     private:
     std::unordered_map<std::string, std::unique_ptr<ICommandHandler>> command_handlers_;
