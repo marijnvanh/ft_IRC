@@ -15,7 +15,7 @@ class MockClientDatabase : public IClientDatabase {
     MOCK_METHOD(void, AddRemoteUser, (std::unique_ptr<IRemoteUser> new_remoteuser), ());
     MOCK_METHOD(void, AddServer, (std::unique_ptr<IServer> new_server), ());
     MOCK_METHOD(void, DisconnectClient, (IRC::UUID uuid, std::optional<std::string>), ());
-    MOCK_METHOD(void, DisconnectUser, (IUser *user), ());
+    MOCK_METHOD(void, DisconnectUser, (IUser *user, std::optional<std::string>), ());
     MOCK_METHOD(void, DisconnectServer, (IServer *server), ());
     MOCK_METHOD(std::optional<IClient*>, GetClient, (IRC::UUID uuid), ());
     MOCK_METHOD(std::optional<IClient*>, GetClient, (const std::string &nickname), ());
