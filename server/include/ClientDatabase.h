@@ -38,7 +38,8 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param uuid 
      */
-    auto DisconnectClient(IRC::UUID uuid) -> void override;
+    auto DisconnectClient(IRC::UUID uuid,
+		std::optional<std::string> quit_message = std::nullopt) -> void override;
     auto DisconnectUser(IUser *user) -> void override;
     auto DisconnectServer(IServer *server) -> void override;
 

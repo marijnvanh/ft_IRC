@@ -24,7 +24,8 @@ auto Server::Disconnect(IClientDatabase *client_database) -> void
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
     {
         ++next_it;
-        client_database->DisconnectClient(it->first);
+        client_database->DisconnectClient(it->first,
+			std::make_optional<std::string>("Server killed"));
     }
     /*
         Remove server from local and remote server lists

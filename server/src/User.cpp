@@ -22,3 +22,8 @@ auto User::RemoveUserFromAllChannels() -> void
 	}
     channels_.clear();
 }
+
+auto User::GetChannels() -> std::unordered_map<std::string, IChannel*>&
+{
+	return (this->channels_);
+}

@@ -16,6 +16,7 @@ class User : public virtual IUser
     auto AddChannel(IChannel *channel) -> void override;
     auto RemoveChannel(const std::string &channel_name) -> void override;
     auto RemoveUserFromAllChannels() -> void override;
+	auto GetChannels() -> std::unordered_map<std::string, IChannel*>& override;
 
     private:
     

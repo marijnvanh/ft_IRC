@@ -21,7 +21,8 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> IClient*
     return ret.first->second.get();
 }
 
-auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectClient(IRC::UUID uuid,
+	std::optional<std::string> quit_message) -> void
 {
     auto client = GetClient(uuid);
     if (!client)
@@ -38,7 +39,18 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
 
     if ((*client)->GetType() == IClient::Type::kLocalUser || (*client)->GetType() == IClient::Type::kRemoteUser)
     {
-        DisconnectUser(dynamic_cast<IUser *>(*client));
+		auto user = dynamic_cast<IUser*>(*client);
+		/*if (quit_message)
+		{
+			auto channels = user->GetChannels();
+			for (auto it = channels.cbegin(); it != channels.cend(); ++it)
+			{
+				it->second->PushToLocal(*quit_message, user->GetUUID());
+			}
+		}*/
+		(void)quit_message;
+		// TODO: Send to all local servers.
+        DisconnectUser(user);
         return ;
     }
 
@@ -81,8 +93,7 @@ auto ClientDatabase::HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IC
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle quit message sending
-            DisconnectClient(it->first);
+            DisconnectClient(it->first, std::make_optional<std::string>("Connection interrupted"));
         }
     }
 }
@@ -104,8 +115,7 @@ auto ClientDatabase::HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle quit message sending
-            DisconnectClient(it->first);
+            DisconnectClient(it->first, std::make_optional<std::string>("Connection interrupted"));
         }
     }
 }
