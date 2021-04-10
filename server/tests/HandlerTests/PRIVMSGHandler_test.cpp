@@ -54,7 +54,7 @@ TEST_F(PRIVMSGTests, SendMessageToUser)
     message_params.push_back(localuser_name2);
     message_params.push_back("message content");
 
-    EXPECT_CALL(mock_localuser2, Push(": PRIVMSG nickname2 :message content")); //TODO fix this
+    EXPECT_CALL(mock_localuser2, Push(": PRIVMSG nickname2 :message content"));
 
     PRIVMSG_handler.Handle(message1);
 }
@@ -68,7 +68,12 @@ TEST_F(PRIVMSGTests, SendMessageToChannel)
     EXPECT_CALL(mock_channel_database, GetChannel(mock_channel_name))
         .WillOnce(Return(std::optional<IChannel*>(&mock_channel)));
 
-    EXPECT_CALL(mock_channel, PushToLocal(_, _));
+    EXPECT_CALL(mock_channel, HasUser(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(mock_channel, PushToLocal(_, _))
+        .Times(1);
+    EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_,_))
+        .Times(1);
 
     PRIVMSG_handler.Handle(message1);
 }

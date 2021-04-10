@@ -88,7 +88,7 @@ TEST_F(NICKHandlerTests, SimpleNicknameFromUnregisteredClient)
 
 TEST_F(NICKHandlerTests, NoNickNameGiven)
 {
-    EXPECT_CALL(mock_client1, Push("461 :Not enough parameters"));
+    EXPECT_CALL(mock_client1, Push("461 NICK :Not enough parameters"));
 
     nick_handler_->Handle(client_message1);
 }
