@@ -21,7 +21,8 @@ auto ClientDatabase::AddClient(std::unique_ptr<IClient> new_client) -> IClient*
     return ret.first->second.get();
 }
 
-auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
+auto ClientDatabase::DisconnectClient(IRC::UUID uuid,
+	std::optional<std::string> quit_message) -> void
 {
     auto client = GetClient(uuid);
     if (!client)
@@ -38,30 +39,54 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid) -> void
 
     if ((*client)->GetType() == IClient::Type::kLocalUser || (*client)->GetType() == IClient::Type::kRemoteUser)
     {
-        DisconnectUser(dynamic_cast<IUser *>(*client));
+		auto user = dynamic_cast<IUser*>(*client);				
+        DisconnectUser(user, quit_message);
         return ;
     }
 
     if ((*client)->GetType() == IClient::Type::kLocalServer || (*client)->GetType() == IClient::Type::kRemoteServer)
     {
-        DisconnectServer(dynamic_cast<IServer *>(*client));
+        DisconnectServer(dynamic_cast<IServer *>(*client), quit_message);
         return ;
     }
 }
 
-auto ClientDatabase::DisconnectUser(IUser *user) -> void
+auto ClientDatabase::DisconnectUser(IUser *user,
+	std::optional<std::string> quit_message) -> void
 {
     auto user_uuid = user->GetUUID();
+
+	if (quit_message)
+	{
+		// Broadcast to user channels.
+		auto channels = user->GetChannels();
+		for (auto it = channels.cbegin(); it != channels.cend(); ++it)
+		{
+			it->second->PushToLocal(":" + user->GetNickname() +
+				" QUIT :" + *quit_message, user->GetUUID());
+		}
+
+		// Broadcast to all servers except local server is the user is remote.
+		auto uuid = IRC::UUID(0, 0); // Generating a tmp uuid.
+		if (user->GetType() == IClient::Type::kRemoteUser)
+		{
+			uuid = user->GetServer()->GetUUID();
+		}
+		this->BroadcastToLocalServers(":" + user->GetNickname() +
+			" QUIT :" + *quit_message, uuid);
+	}
+
     logger.Log(LogLevel::INFO, "User with nickname: %s being disconnected", user->GetNickname().c_str());
     user->RemoveUserFromAllChannels();
     local_users_.erase(user_uuid);
     remote_users_.erase(user_uuid);
 }
 
-auto ClientDatabase::DisconnectServer(IServer *server) -> void
+auto ClientDatabase::DisconnectServer(IServer *server,
+	std::optional<std::string> quit_message) -> void
 {
     logger.Log(LogLevel::INFO, "Server with name: %s being disconnected", server->GetServerName().c_str());
-    server->Disconnect(this);
+    server->Disconnect(this, quit_message);
     servers_.erase(server->GetUUID());
 }
 
@@ -81,8 +106,7 @@ auto ClientDatabase::HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IC
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle quit message sending
-            DisconnectClient(it->first);
+            DisconnectClient(it->first, std::make_optional<std::string>("Connection interrupted"));
         }
     }
 }
@@ -104,8 +128,7 @@ auto ClientDatabase::HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr
         }
         catch (IClient::Disconnected &ex)
         {
-            //TODO Handle quit message sending
-            DisconnectClient(it->first);
+            DisconnectClient(it->first, std::make_optional<std::string>("Connection interrupted"));
         }
     }
 }

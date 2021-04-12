@@ -1,9 +1,9 @@
 #ifndef KILL_HANDLER_HPP
 #define KILL_HANDLER_HPP
 
-#include "MessageHandlers/ICommandHandler.h"
-#include "IClientDatabase.h"
 #include "Logger.h"
+#include "IClientDatabase.h"
+#include "MessageHandlers/ICommandHandler.h"
 
 class KILLHandler : public ICommandHandler
 {
@@ -13,6 +13,13 @@ class KILLHandler : public ICommandHandler
     ~KILLHandler();
     
     auto Handle(IMessage &message) -> void override;
+
+	auto GetCorrectSender(IClient **client, IMessage &message) -> bool;
+	
+	auto HandleKillForLocalUser(IClient *client, IUser *otherUser,
+		std::vector<std::string> &params) -> void;
+	auto HandleKillForRemoteUser(IClient *client, IUser *otherUser,
+		std::vector<std::string> &params) -> void;
     
     private:
     IClientDatabase *client_database_;

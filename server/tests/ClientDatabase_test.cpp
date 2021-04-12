@@ -120,7 +120,6 @@ TEST_F(ClientDatabaseTests, PollClients)
         .WillOnce(Return("test2"))
         .WillRepeatedly(Return(std::nullopt));
 
-
     std::unordered_map<IRC::UUID, std::string> expectations = {
         { uuid1, "test" },
         { uuid2, "test1" },

@@ -38,9 +38,12 @@ class ClientDatabase : public IClientDatabase
      * 
      * @param uuid 
      */
-    auto DisconnectClient(IRC::UUID uuid) -> void override;
-    auto DisconnectUser(IUser *user) -> void override;
-    auto DisconnectServer(IServer *server) -> void override;
+    auto DisconnectClient(IRC::UUID uuid,
+		std::optional<std::string> quit_message = std::nullopt) -> void override;
+    auto DisconnectUser(IUser *user,
+		std::optional<std::string> quit_message = std::nullopt) -> void override;
+    auto DisconnectServer(IServer *server,
+		std::optional<std::string> quit_message = std::nullopt) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message

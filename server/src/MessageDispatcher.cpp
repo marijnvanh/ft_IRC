@@ -11,6 +11,7 @@
 #include "MessageHandlers/NAMESHandler.h"
 #include "MessageHandlers/MODEHandler.h"
 #include "MessageHandlers/SERVERHandler.h"
+#include "MessageHandlers/SQUITHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data) :
     logger("MD")
@@ -50,6 +51,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data) :
     );
     command_handlers_.insert(std::make_pair("NICK",
         std::make_unique<NICKHandler>(&server_data->server_config_, &server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("SQUIT",
+        std::make_unique<SQUITHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     
 }

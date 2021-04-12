@@ -17,13 +17,18 @@ class IClientDatabase
 
     virtual ~IClientDatabase() {};
 
+    virtual auto AddServer(std::unique_ptr<IServer> new_server) -> void = 0;
     virtual auto AddClient(std::unique_ptr<IClient> new_client) -> IClient* = 0;
     virtual auto AddLocalUser(std::unique_ptr<ILocalUser> new_localuser) -> void = 0;
     virtual auto AddRemoteUser(std::unique_ptr<IRemoteUser> new_remoteuser) -> void = 0;
-    virtual auto AddServer(std::unique_ptr<IServer> new_server) -> void = 0;
-    virtual auto DisconnectClient(IRC::UUID uuid) -> void = 0;
-    virtual auto DisconnectUser(IUser *user) -> void = 0;
-    virtual auto DisconnectServer(IServer *server) -> void = 0;
+
+    virtual auto DisconnectClient(IRC::UUID uuid,
+		std::optional<std::string> quit_message) -> void = 0;
+    virtual auto DisconnectUser(IUser *user,
+		std::optional<std::string> quit_message) -> void = 0;
+    virtual auto DisconnectServer(IServer *server,
+		std::optional<std::string> quit_message) -> void = 0;
+
     virtual auto GetClient(IRC::UUID uuid) -> std::optional<IClient*> = 0;
     virtual auto GetClient(const std::string &nickname) -> std::optional<IClient*> = 0;
     virtual auto GetServer(const std::string &server_name) -> std::optional<IServer*> = 0;

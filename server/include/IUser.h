@@ -1,6 +1,7 @@
 #ifndef __IUSER_H__
 #define __IUSER_H__
 
+#include <string>
 #include <bitset>
 
 #include "IClient.h"
@@ -28,6 +29,7 @@ class IUser : public virtual IClient
     virtual auto AddChannel(IChannel *channel) -> void = 0;
     virtual auto RemoveChannel(const std::string &channel_name) -> void = 0;
     virtual auto RemoveUserFromAllChannels() -> void = 0;
+	virtual auto GetChannels() -> std::unordered_map<std::string, IChannel*>& = 0;
 
 	/**
 	 * @brief Mode specific functionality. Sets the given mode.

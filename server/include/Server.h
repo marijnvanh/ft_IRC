@@ -12,7 +12,8 @@ class Server : public virtual IServer
     auto AddClient(IClient* client) -> void override;
     auto RemoveClient(IRC::UUID uuid) -> void override;
     auto GetServerName() const -> const std::string& override { return server_name_; };
-    auto Disconnect(IClientDatabase *client_database) -> void override;
+    auto Disconnect(IClientDatabase *client_database,
+		std::optional<std::string> message) -> void override;
 
     private:
     std::unordered_map<IRC::UUID, IClient*> clients_;
