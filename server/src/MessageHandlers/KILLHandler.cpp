@@ -37,21 +37,21 @@ auto KILLHandler::Handle(IMessage &message) -> void
 	if (auto otherUser = client_database_->GetUser(nickname))
 	{
 		if ((*otherUser)->GetType() == IClient::Type::kRemoteUser)
-			HandleKillForRemoteUser(*client, **otherUser, params);
+			HandleKillForRemoteUser(client, *otherUser, params);
 		else
-			HandleKillForLocalUser(*client, **otherUser, params);
+			HandleKillForLocalUser(client, *otherUser, params);
 	}
 	else
 		client->Push(GetErrorMessage(ERR_NOSUCHNICK, nickname));
 }
 
-auto KILLHandler::HandleKillForLocalUser(IClient &client, IUser &otherUser,
-	std::vector<std::string> params) -> void
+auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
+	std::vector<std::string> &params) -> void
 {
-	auto user = dynamic_cast<IUser*>(&client);
+	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client.Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
@@ -59,24 +59,24 @@ auto KILLHandler::HandleKillForLocalUser(IClient &client, IUser &otherUser,
 		DEFAULT_KILL_MESSAGE : params[MESSAGE_PARAM];
 
 	// Disconnecting the client should broadcast all required messages.
-	client_database_->DisconnectClient(otherUser.GetUUID(),
+	client_database_->DisconnectClient(otherUser->GetUUID(),
 		std::make_optional<std::string>(message));	
 }
 
-auto KILLHandler::HandleKillForRemoteUser(IClient &client, IUser &otherUser,
-	std::vector<std::string> params) -> void
+auto KILLHandler::HandleKillForRemoteUser(IClient *client, IUser *otherUser,
+	std::vector<std::string> &params) -> void
 {
-	auto user = dynamic_cast<IUser*>(&client);
+	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client.Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
 	auto message = params.size() <= MESSAGE_PARAM ?
 		DEFAULT_KILL_MESSAGE : params[MESSAGE_PARAM];
 
-	otherUser.Push(":" + client.GetNickname() + " KILL :" + message);
+	otherUser->Push(":" + client->GetNickname() + " KILL :" + message);
 }
 
 auto KILLHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool

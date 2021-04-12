@@ -16,10 +16,10 @@ class KILLHandler : public ICommandHandler
 
 	auto GetCorrectSender(IClient **client, IMessage &message) -> bool;
 	
-	auto HandleKillForLocalUser(IClient &client, IUser &otherUser,
-		std::vector<std::string> params) -> void;
-	auto HandleKillForRemoteUser(IClient &client, IUser &otherUser,
-		std::vector<std::string> params) -> void;
+	auto HandleKillForLocalUser(IClient *client, IUser *otherUser,
+		std::vector<std::string> &params) -> void;
+	auto HandleKillForRemoteUser(IClient *client, IUser *otherUser,
+		std::vector<std::string> &params) -> void;
     
     private:
     IClientDatabase *client_database_;
