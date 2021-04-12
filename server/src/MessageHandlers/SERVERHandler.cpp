@@ -27,7 +27,7 @@ auto SERVERHandler::Handle(IMessage &message) -> void
 	}	
 	if (params.size() < 3)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "SERVER"));
 		return;
 	}
     

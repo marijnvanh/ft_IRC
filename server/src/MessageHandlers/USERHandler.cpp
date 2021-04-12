@@ -21,7 +21,7 @@ auto USERHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     if (params.size() < 4)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "USER"));
         return ;
     }
 

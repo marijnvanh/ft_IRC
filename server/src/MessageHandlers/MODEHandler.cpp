@@ -23,7 +23,7 @@ static auto HandleChannelTopicSet(IUser *user, IChannel *channel,
 {
 	if (params.size() < 3)
 	{
-		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
 		return ;
 	}
 
@@ -39,7 +39,7 @@ static auto HandleChannelKeySet(IUser *user, IChannel *channel,
 {
 	if (params.size() < 3)
 	{
-		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
 		return ;
 	}
 
@@ -55,7 +55,7 @@ static auto HandleChannelOperatorSet(IUser *user, IChannel *channel,
 {
 	if (params.size() < 3)
 	{
-		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
 		return ;
 	}
 
@@ -90,7 +90,7 @@ auto MODEHandler::Handle(IMessage &message) -> void
 
     if (params.size() == 0)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
         return ;
     }
     

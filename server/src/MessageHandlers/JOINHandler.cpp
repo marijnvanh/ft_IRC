@@ -115,7 +115,7 @@ auto JOINHandler::Handle(IMessage &message) -> void
 	// Handle not enough parameters.
 	if (params.size() == 0)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "JOIN"));
 		return;
 	}
 
