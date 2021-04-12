@@ -15,7 +15,8 @@ class IServer : public virtual IClient
     virtual auto AddClient(IClient* client) -> void = 0;
     virtual auto RemoveClient(IRC::UUID uuid) -> void = 0;
     virtual auto GetServerName() const -> const std::string& = 0;
-    virtual auto Disconnect(IClientDatabase *client_database) -> void = 0;
+    virtual auto Disconnect(IClientDatabase *client_database,
+		std::optional<std::string> message) -> void = 0;
 
     private:
 };

@@ -1,5 +1,7 @@
 #include "Server.h"
 
+#define DEFAULT_DISCONNECT "Server killed"
+
 Server::Server(std::string server_name) : server_name_(server_name)
 {}
 
@@ -19,13 +21,18 @@ auto Server::RemoveClient(IRC::UUID uuid) -> void
 	clients_.erase(uuid);
 }
 
-auto Server::Disconnect(IClientDatabase *client_database) -> void
+auto Server::Disconnect(IClientDatabase *client_database,
+	std::optional<std::string> message) -> void
 {
+	if (!message)
+	{
+		message = std::make_optional<std::string>(DEFAULT_DISCONNECT);
+	}
+
     for (auto it = clients_.begin(), next_it = it; it != clients_.end(); it = next_it)
     {
         ++next_it;
-        client_database->DisconnectClient(it->first,
-			std::make_optional<std::string>("Server killed"));
+        client_database->DisconnectClient(it->first, message);
     }
     /*
         Remove server from local and remote server lists

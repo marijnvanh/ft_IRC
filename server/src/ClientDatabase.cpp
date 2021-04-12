@@ -46,7 +46,7 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid,
 
     if ((*client)->GetType() == IClient::Type::kLocalServer || (*client)->GetType() == IClient::Type::kRemoteServer)
     {
-        DisconnectServer(dynamic_cast<IServer *>(*client));
+        DisconnectServer(dynamic_cast<IServer *>(*client), quit_message);
         return ;
     }
 }
@@ -82,10 +82,11 @@ auto ClientDatabase::DisconnectUser(IUser *user,
     remote_users_.erase(user_uuid);
 }
 
-auto ClientDatabase::DisconnectServer(IServer *server) -> void
+auto ClientDatabase::DisconnectServer(IServer *server,
+	std::optional<std::string> quit_message) -> void
 {
     logger.Log(LogLevel::INFO, "Server with name: %s being disconnected", server->GetServerName().c_str());
-    server->Disconnect(this);
+    server->Disconnect(this, quit_message);
     servers_.erase(server->GetUUID());
 }
 

@@ -26,7 +26,8 @@ class IClientDatabase
 		std::optional<std::string> quit_message) -> void = 0;
     virtual auto DisconnectUser(IUser *user,
 		std::optional<std::string> quit_message) -> void = 0;
-    virtual auto DisconnectServer(IServer *server) -> void = 0;
+    virtual auto DisconnectServer(IServer *server,
+		std::optional<std::string> quit_message) -> void = 0;
 
     virtual auto GetClient(IRC::UUID uuid) -> std::optional<IClient*> = 0;
     virtual auto GetClient(const std::string &nickname) -> std::optional<IClient*> = 0;

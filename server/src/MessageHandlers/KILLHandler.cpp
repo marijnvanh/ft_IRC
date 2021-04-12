@@ -14,7 +14,7 @@ KILLHandler::KILLHandler(IClientDatabase *client_database) :
 
 KILLHandler::~KILLHandler()
 {}
-#include <iostream>
+
 auto KILLHandler::Handle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
@@ -30,28 +30,28 @@ auto KILLHandler::Handle(IMessage &message) -> void
 		client->Push(GetErrorMessage(ERR_NOTREGISTERED, "KILL"));
 		return ;
     }
-	if (!GetCorrectSender(client, message))
+	if (!GetCorrectSender(&client, message))
 		return ;
 
 	auto nickname = params[NICKNAME_PARAM];
 	if (auto otherUser = client_database_->GetUser(nickname))
 	{
 		if ((*otherUser)->GetType() == IClient::Type::kRemoteUser)
-			HandleKillForRemoteUser(client, *otherUser, params);
+			HandleKillForRemoteUser(*client, **otherUser, params);
 		else
-			HandleKillForLocalUser(client, *otherUser, params);
+			HandleKillForLocalUser(*client, **otherUser, params);
 	}
 	else
-		client->Push(GetErrorMessage(ERR_NOSUCHNICK, "KILL"));
+		client->Push(GetErrorMessage(ERR_NOSUCHNICK, nickname));
 }
 
-auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
+auto KILLHandler::HandleKillForLocalUser(IClient &client, IUser &otherUser,
 	std::vector<std::string> params) -> void
 {
-	auto user = dynamic_cast<IUser*>(client);
+	auto user = dynamic_cast<IUser*>(&client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client.Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
@@ -59,44 +59,44 @@ auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
 		DEFAULT_KILL_MESSAGE : params[MESSAGE_PARAM];
 
 	// Disconnecting the client should broadcast all required messages.
-	client_database_->DisconnectClient(otherUser->GetUUID(),
+	client_database_->DisconnectClient(otherUser.GetUUID(),
 		std::make_optional<std::string>(message));	
 }
 
-auto KILLHandler::HandleKillForRemoteUser(IClient *client, IUser *otherUser,
+auto KILLHandler::HandleKillForRemoteUser(IClient &client, IUser &otherUser,
 	std::vector<std::string> params) -> void
 {
-	auto user = dynamic_cast<IUser*>(client);
+	auto user = dynamic_cast<IUser*>(&client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client.Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
 	auto message = params.size() <= MESSAGE_PARAM ?
 		DEFAULT_KILL_MESSAGE : params[MESSAGE_PARAM];
 
-	otherUser->Push(":" + client->GetNickname() + " KILL :" + message);
+	otherUser.Push(":" + client.GetNickname() + " KILL :" + message);
 }
 
-auto KILLHandler::GetCorrectSender(IClient *client, IMessage &message) -> bool
+auto KILLHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool
 {
-	if (client->GetType() == IClient::Type::kLocalServer)
+	if ((*client)->GetType() == IClient::Type::kLocalServer)
 	{
         auto remote_client_nickname = message.GetNickname();
     
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
             return (false);
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            (*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
             return (false);
         }
-        client = *remote_client;
+        *client = *remote_client;
 	}
 	return (true);
 }

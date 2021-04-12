@@ -14,11 +14,11 @@ class KILLHandler : public ICommandHandler
     
     auto Handle(IMessage &message) -> void override;
 
-	auto GetCorrectSender(IClient *client, IMessage &message) -> bool;
+	auto GetCorrectSender(IClient **client, IMessage &message) -> bool;
 	
-	auto HandleKillForLocalUser(IClient *client, IUser *otherUser,
+	auto HandleKillForLocalUser(IClient &client, IUser &otherUser,
 		std::vector<std::string> params) -> void;
-	auto HandleKillForRemoteUser(IClient *client, IUser *otherUser,
+	auto HandleKillForRemoteUser(IClient &client, IUser &otherUser,
 		std::vector<std::string> params) -> void;
     
     private:

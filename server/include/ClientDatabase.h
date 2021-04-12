@@ -42,7 +42,8 @@ class ClientDatabase : public IClientDatabase
 		std::optional<std::string> quit_message = std::nullopt) -> void override;
     auto DisconnectUser(IUser *user,
 		std::optional<std::string> quit_message = std::nullopt) -> void override;
-    auto DisconnectServer(IServer *server) -> void override;
+    auto DisconnectServer(IServer *server,
+		std::optional<std::string> quit_message = std::nullopt) -> void override;
 
     /**
      * @brief Try to receive from all clients and call callback for each received message
