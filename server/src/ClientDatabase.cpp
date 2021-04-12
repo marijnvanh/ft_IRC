@@ -58,14 +58,22 @@ auto ClientDatabase::DisconnectUser(IUser *user,
 
 	if (quit_message)
 	{
+		// Broadcast to user channels.
 		auto channels = user->GetChannels();
 		for (auto it = channels.cbegin(); it != channels.cend(); ++it)
 		{
 			it->second->PushToLocal(":" + user->GetNickname() +
 				" QUIT :" + *quit_message, user->GetUUID());
 		}
+
+		// Broadcast to all servers except local server is the user is remote.
+		auto uuid = IRC::UUID(0, 0); // Generating a tmp uuid.
+		if (user->GetType() == IClient::Type::kRemoteUser)
+		{
+			uuid = user->GetServer()->GetUUID();
+		}
 		this->BroadcastToLocalServers(":" + user->GetNickname() +
-			" QUIT :" + *quit_message, *static_cast<IRC::UUID*>(NULL));
+			" QUIT :" + *quit_message, uuid);
 	}
 
     logger.Log(LogLevel::INFO, "User with nickname: %s being disconnected", user->GetNickname().c_str());

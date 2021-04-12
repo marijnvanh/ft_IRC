@@ -76,7 +76,7 @@ TEST_F(SERVERHandlerTests, DuplicateServersOnNetwork)
     
     EXPECT_CALL(mock_client_database, GetServer(new_server_name1))
         .WillOnce(Return(std::optional<IServer*>(&mock_server1)));
-	EXPECT_CALL(mock_client_database, DisconnectServer(&mock_server1));
+	EXPECT_CALL(mock_client_database, DisconnectClient(uuid1, _));
 
     server_handler_->Handle(message1);
 }

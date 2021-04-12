@@ -35,7 +35,7 @@ auto SERVERHandler::Handle(IMessage &message) -> void
     auto server = client_database_->GetServer(params[PARAM_SERVER_NAME]);
     if (server)
     {
-		client_database_->DisconnectServer(*server);
+		client_database_->DisconnectClient(message.GetClientUUID(), std::nullopt);
         return ;
     }
 
