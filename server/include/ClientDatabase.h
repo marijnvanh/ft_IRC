@@ -2,8 +2,10 @@
 #define _CLIENT_DATABASE_H__
 
 #include <string>
-#include "IClientDatabase.h"
+
 #include "Logger.h"
+#include "IServerConfig.h"
+#include "IClientDatabase.h"
 
 class ClientDatabase : public IClientDatabase
 {
@@ -82,11 +84,15 @@ class ClientDatabase : public IClientDatabase
     auto GetServer(IRC::UUID uuid) -> std::optional<IServer*> override;
     auto GetUser(const std::string &nickname) -> std::optional<IUser*> override;
 
+	auto SetConfig(IServerConfig *server_config) -> void;
+
     private:
 
     auto HandlePoll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
         std::function<void(IClient*, std::string)> &message_handler) -> void;
     auto HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients) -> void;
+
+	IServerConfig *server_config_;
 
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> clients_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> local_users_;

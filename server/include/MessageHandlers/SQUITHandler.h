@@ -17,7 +17,7 @@ public:
 
     auto Handle(IMessage &message) -> void override;
 	
-	auto GetCorrectSender(IClient **client, IMessage &message) -> bool;
+	auto GetOriginalSender(IClient **client, IMessage &message) -> bool;
 
 	auto HandleUserMessage(IUser *user,
 		std::vector<std::string> params) -> void;

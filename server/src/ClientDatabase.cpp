@@ -87,6 +87,13 @@ auto ClientDatabase::DisconnectServer(IServer *server,
 {
     logger.Log(LogLevel::INFO, "Server with name: %s being disconnected", server->GetServerName().c_str());
     server->Disconnect(this, quit_message);
+
+	auto ignore_uuid = server->GetUUID();
+	if (server->GetType() == IClient::Type::kRemoteServer)
+		ignore_uuid = server->GetServer()->GetUUID();
+
+	this->BroadcastToLocalServers(":" + server_config_->GetName() + " SQUIT " + 
+		server->GetServerName() + " :" + *quit_message, ignore_uuid);
     servers_.erase(server->GetUUID());
 }
 
@@ -300,6 +307,11 @@ auto ClientDatabase::GetUser(const std::string &nickname) -> std::optional<IUser
 
     logger.Log(LogLevel::DEBUG, "Found client %s", nickname.c_str());
     return std::optional<IUser*>(dynamic_cast<IUser*>(*user));
+}
+
+auto ClientDatabase::SetConfig(IServerConfig *server_config) -> void
+{
+	server_config_ = server_config;
 }
 
 auto ClientDatabase::Broadcast(const std::string &irc_message, IRC::UUID except_uuid) -> void
