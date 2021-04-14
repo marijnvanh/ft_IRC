@@ -15,7 +15,9 @@ SQUITHandler::SQUITHandler(IServerConfig *server_config,
 	server_config_(server_config),
     client_database_(client_database),
     logger("SQUITHandler")
-{}
+{
+	(void)server_config_;
+}
 
 SQUITHandler::~SQUITHandler()
 {}
