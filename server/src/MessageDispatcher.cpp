@@ -12,8 +12,9 @@
 #include "MessageHandlers/MODEHandler.h"
 #include "MessageHandlers/SERVERHandler.h"
 #include "MessageHandlers/SQUITHandler.h"
+#include "MessageHandlers/CONNECTHandler.h"
 
-MessageDispatcher::MessageDispatcher(ServerData* server_data) :
+MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_server) :
     logger("MD")
 {
     command_handlers_.insert(std::make_pair("USER",
@@ -47,7 +48,7 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data) :
         std::make_unique<MODEHandler>(&server_data->client_database_, &server_data->channel_database_))
 	);
     command_handlers_.insert(std::make_pair("SERVER",
-        std::make_unique<SERVERHandler>(&server_data->client_database_))
+        std::make_unique<SERVERHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("NICK",
         std::make_unique<NICKHandler>(&server_data->server_config_, &server_data->client_database_))
@@ -55,7 +56,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data) :
     command_handlers_.insert(std::make_pair("SQUIT",
         std::make_unique<SQUITHandler>(&server_data->server_config_, &server_data->client_database_))
     );
-    
+    command_handlers_.insert(std::make_pair("CONNECT",
+        std::make_unique<CONNECTHandler>(&server_data->server_config_, &server_data->client_database_, irc_server))
+    );
 }
 
 MessageDispatcher::~MessageDispatcher()

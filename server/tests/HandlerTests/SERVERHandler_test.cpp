@@ -5,6 +5,7 @@
 #include "MockMessage.h"
 #include "MockClient.h"
 #include "MockServer.h"
+#include "MockServerConfig.h"
 #include "MockClientDatabase.h"
 
 using ::testing::AtLeast;
@@ -18,6 +19,7 @@ class SERVERHandlerTests : public ::testing::Test
 {
     public:
 	std::unique_ptr<SERVERHandler> server_handler_;
+    MockServerConfig mock_server_config_;
 
 	StrictMock<MockClient> mock_client1;
 	std::string new_server_name1;
@@ -35,7 +37,7 @@ class SERVERHandlerTests : public ::testing::Test
 
     void SetUp() override
     {
-		server_handler_ = std::make_unique<SERVERHandler>(&mock_client_database);
+		server_handler_ = std::make_unique<SERVERHandler>(&mock_server_config_, &mock_client_database);
 
         EXPECT_CALL(mock_client_database, GetClient(uuid1))
             .WillRepeatedly(Return(std::optional<IClient*>(&mock_client1)));
@@ -99,6 +101,9 @@ TEST_F(SERVERHandlerTests, ServerRegisteringRemoteServer)
     EXPECT_CALL(mock_client_database, GetServer(uuid1))
         .WillOnce(Return(std::optional<IServer*>(&mock_server1)));
     EXPECT_CALL(mock_client_database, AddServer(_));
+    EXPECT_CALL(mock_remote_server, AddClient(_));
+    EXPECT_CALL(mock_remote_server, RemoveClient(_));
+    EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_, uuid1));
 
     server_handler_->Handle(message1);
 }
@@ -113,7 +118,10 @@ TEST_F(SERVERHandlerTests, ClientRegisteringAsServer)
     
     EXPECT_CALL(mock_client_database, GetServer(new_server_name1))
         .WillOnce(Return(std::nullopt));
-    EXPECT_CALL(mock_client_database, RegisterLocalServer(new_server_name1, uuid1));
+    EXPECT_CALL(mock_client_database, RegisterLocalServer(new_server_name1, uuid1))
+        .WillOnce(Return(&mock_server1));
+    EXPECT_CALL(mock_server1, Push(_));
+    EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_, uuid1));
 
     server_handler_->Handle(message1);
 }

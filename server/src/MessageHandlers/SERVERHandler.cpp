@@ -7,8 +7,9 @@
 #define PARAM_HOPCOUNT 1
 #define PARAM_INFO 2
 
-SERVERHandler::SERVERHandler(IClientDatabase *client_database)
-	: client_database_(client_database),
+SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database)
+	: server_config_(server_config),
+    client_database_(client_database),
     logger("SERVERHandler")
 {}
 
@@ -55,15 +56,30 @@ auto SERVERHandler::Handle(IMessage &message) -> void
         }
         auto local_server = (*client_database_->GetServer(client->GetUUID()));
         HandleRemoteServerRegistration(local_server, *remote_server, params[PARAM_SERVER_NAME]);
+        auto irc_message = ":" + *remote_server_name + " SERVER " + params[PARAM_SERVER_NAME]
+            + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
+        client_database_->BroadcastToLocalServers(irc_message, client->GetUUID());
     }
     else
+    {
         HandleLocalServerRegistration(client, params[PARAM_SERVER_NAME]);
-    //TODO broadcast server message to all local connected servers
+        auto irc_message = ":" + server_config_->GetName() + " SERVER " + params[PARAM_SERVER_NAME]
+            + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
+        client_database_->BroadcastToLocalServers(irc_message, message.GetClientUUID());
+    }
 }
 
 auto SERVERHandler::HandleLocalServerRegistration(IClient *client, const std::string &server_name) -> void
 {
-    client_database_->RegisterLocalServer(server_name, client->GetUUID());
+    client = client_database_->RegisterLocalServer(server_name, client->GetUUID());
+    if (client->GetRegisterState() == IClient::RegisterState::kRegistering)
+        client->SetRegisterState(IClient::RegisterState::kRegistered);
+    else
+    {
+        client->SetRegisterState(IClient::RegisterState::kRegistered);
+        auto message = "SERVER " + server_config_->GetName() + " 1 :" + server_config_->GetDescription();
+        client->Push(message);
+    }
 }
 
 auto SERVERHandler::HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, const std::string &server_name) -> void

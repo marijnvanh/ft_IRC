@@ -29,6 +29,8 @@ public:
 	auto GetPort() -> std::string { return (server_port_); }
 	auto GetAddress() -> std::string { return (server_address_); }
 
+	auto GetAuthorizedServers() -> std::unordered_map<std::string, std::pair<std::string, std::string>>& { return (authorized_servers_); }
+
 protected:
 
     /**
@@ -62,6 +64,11 @@ protected:
      * @brief Address the server socket should bind to (defaults to DEFAULT_SERVER_ADDRESS).
      */
 	std::string server_address_;
+
+    /**
+     * @brief List of authorized servers
+     */
+	std::unordered_map<std::string, std::pair<std::string, std::string>> authorized_servers_;
 };
 
 #endif
