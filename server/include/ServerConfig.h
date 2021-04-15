@@ -26,6 +26,7 @@ private:
 	auto ParseServerData(nlohmann::json jf) -> void;
 	auto ParseHostingData(nlohmann::json jf) -> void;
 	auto ParseLogData(nlohmann::json jf) -> void;
+	auto ParseAuthorizedServers(nlohmann::json jf) -> void;
 };
 
 #endif

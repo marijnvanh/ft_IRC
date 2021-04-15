@@ -21,8 +21,16 @@ class IClient
         kRemoteServer
     };
 
+    enum class RegisterState
+    {
+        kNotRegistered = 0,
+        kRegistering = 1,
+        kRegistered = 2,
+    };
+
     IClient() :
         type_(IClient::Type::kUnRegistered),
+        register_state_(IClient::RegisterState::kNotRegistered),
         uuid_(IRC::UUIDGenerator::GetInstance().Generate()),
         local_server_(NULL),
         remote_server_(NULL)
@@ -59,6 +67,8 @@ class IClient
 
     virtual auto GetType() const -> IClient::Type { return type_; }
     virtual auto SetType(IClient::Type type) -> void { type_ = type; }
+    virtual auto GetRegisterState() const -> IClient::RegisterState { return register_state_; }
+    virtual auto SetRegisterState(IClient::RegisterState state) -> void { register_state_ = state; }
     virtual auto GetUUID() const -> const IRC::UUID& { return uuid_; };
     virtual auto GetPassword() const -> const std::string& { return password_; }
     virtual auto SetPassword(std::string password) -> void { password_ = password; }
@@ -83,6 +93,7 @@ class IClient
     protected:
 
     Type type_;
+    RegisterState register_state_;
     IRC::UUID uuid_;
     std::string password_;
     std::string nickname_;
