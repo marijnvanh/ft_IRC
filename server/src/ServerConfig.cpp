@@ -8,6 +8,10 @@ using json = nlohmann::json;
 #define LOG_NAME 0
 #define LOG_LEVEL 1
 
+#define SERVER_NAME 0
+#define IP 1
+#define PORT 2
+
 ServerConfig::ServerConfig(const std::string &file_path) :
 	config_file_(file_path),
 	logger("ServerConfig")
@@ -55,6 +59,19 @@ auto ServerConfig::ParseLogData(json jf) -> void
 	}
 }
 
+auto ServerConfig::ParseAuthorizedServers(json jf) -> void
+{
+	if (jf.contains("authorized-servers"))
+	{
+		auto authorized_servers = jf["authorized-servers"];
+		for (auto it = authorized_servers.cbegin(); it < authorized_servers.cend(); it++)
+		{
+			auto authorized_server = std::make_pair((*it)[IP], (*it)[PORT]);
+			authorized_servers_.insert(std::make_pair((*it)[SERVER_NAME], std::move(authorized_server)));
+		}
+	}
+}
+
 auto ServerConfig::TryParseFrom(std::string file_path) -> bool
 {
 	logger.Log(LogLevel::INFO, "Loading server config from %s", file_path.c_str());
@@ -73,6 +90,7 @@ auto ServerConfig::TryParseFrom(std::string file_path) -> bool
 		ParseServerData(jf);
 		ParseHostingData(jf);
 		ParseLogData(jf);
+		ParseAuthorizedServers(jf);
 	}
 	catch (std::exception &ex) {
 		logger.Log(LogLevel::ERROR, "Failed to parse config file");

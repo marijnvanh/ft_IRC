@@ -120,7 +120,7 @@ auto JOINHandler::Handle(IMessage &message) -> void
 	}
 
 	// Handle server message.
-	if (client->GetType() == IClient::Type::kLocalServer || client->GetType() == IClient::Type::kRemoteServer)
+	if (client->GetType() == IClient::Type::kLocalServer)
 	{
         auto remote_client_nickname = message.GetNickname();
         if (remote_client_nickname == std::nullopt)

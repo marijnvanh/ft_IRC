@@ -11,9 +11,11 @@
 
 IRCServer::IRCServer(const std::string &config_path) :
     server_data_(std::make_unique<ServerData>(config_path)),
-    message_dispatcher_(std::make_unique<MessageDispatcher>(server_data_.get())),
     logger("IRCServer")
-{}
+{
+    message_dispatcher_ = std::make_unique<MessageDispatcher>(server_data_.get(), this);
+
+}
 
 IRCServer::~IRCServer()
 {}
@@ -64,4 +66,27 @@ auto IRCServer::RunOnce() -> void
             }
         });
     server_data_->client_database_.SendAll();
+}
+
+auto IRCServer::CreateNewConnection(std::string &ip, std::string &port) -> std::optional<IClient*>
+{
+    logger.Log(LogLevel::DEBUG, "Attempting to create a new client on %s", ip.c_str());
+
+    TCP::AddressInfo address_info(ip, port);
+
+    auto server_socket = std::make_shared<TCP::Socket>();
+    try {
+        server_socket->Connect(address_info);
+        logger.Log(LogLevel::DEBUG, "Connected new client");
+    }
+    catch (TCP::Socket::Error &ex){
+        logger.Log(LogLevel::WARNING, "Failed to connect new client on %s on port %s", ip.c_str(), port.c_str());
+        logger.Log(LogLevel::DEBUG, "Socket error: %s", ex.what());
+        return std::nullopt;
+    }
+    tcp_io_controller_.AddSocket(server_socket);
+
+    auto io_handler = std::make_unique<TCPIOHandler>(server_socket);
+    auto client = std::make_unique<Client>(std::move(io_handler));
+    return std::optional<IClient*>(server_data_->client_database_.AddClient(std::move(client)));
 }

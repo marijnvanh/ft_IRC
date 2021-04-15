@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 
 #include "IOController.h"
 #include "ServerData.h"
@@ -28,6 +29,15 @@ class IRCServer
      * 
      */
     auto RunOnce() -> void;
+
+    /**
+     * @brief Create a new connection
+     * 
+     * @param ip 
+     * @param port 
+     * @return IClient* 
+     */
+    auto CreateNewConnection(std::string &ip, std::string &port) -> std::optional<IClient*>;
 
     private:
 

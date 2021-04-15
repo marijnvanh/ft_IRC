@@ -8,11 +8,14 @@
 #include "IMessageDispatcher.h"
 #include "ServerData.h"
 #include "Logger.h"
+#include "IRCServer.h"
+
+class IRCServer;
 
 class MessageDispatcher : public IMessageDispatcher
 {
     public:
-    MessageDispatcher(ServerData *server_data);
+    MessageDispatcher(ServerData *server_data, IRCServer *irc_server);
     ~MessageDispatcher();
 
     /**
