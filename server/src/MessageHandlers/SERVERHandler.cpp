@@ -92,13 +92,19 @@ auto SERVERHandler::HandleBroadcasting(IClient *new_server, IMessage &message) -
     auto irc_message = ":" + server_config_->GetName() + " SERVER " + params[PARAM_SERVER_NAME]
         + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
     client_database_->BroadcastToLocalServers(irc_message, message.GetClientUUID());
-
-    client_database_->DoForEachServer(
-        [new_server](IClient* client)
-        {
-            // Make a server message
-            (void)client;
-            new_server->Push("message");
-        }, std::nullopt );
     
+    auto this_server_name = server_config_->GetName();
+    client_database_->DoForEachServer(
+        [this_server_name, new_server](IClient* client)
+        {
+            auto server = dynamic_cast<IServer*>(client);
+            new_server->Push(server->GenerateServerMessage(this_server_name));
+        }, std::make_optional<IRC::UUID>(new_server->GetUUID()));
+    
+    client_database_->DoForEachUser(
+        [this_server_name, new_server](IClient* client)
+        {
+            auto user = dynamic_cast<IUser*>(client);
+            new_server->Push(user->GenerateNickMessage(this_server_name));
+        }, std::nullopt);
 }
