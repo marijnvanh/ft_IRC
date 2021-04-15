@@ -24,6 +24,8 @@ auto IRCServer::Start() -> void
 {
     logger.Log(LogLevel::INFO, "Attempting to start server...");
 
+	server_data_->client_database_.SetConfig(&server_data_->server_config_);
+
     TCP::AddressInfo address_info(server_data_->server_config_.GetAddress(),
 		server_data_->server_config_.GetPort());
 

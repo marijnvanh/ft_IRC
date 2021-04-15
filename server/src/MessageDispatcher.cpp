@@ -12,7 +12,10 @@
 #include "MessageHandlers/MODEHandler.h"
 #include "MessageHandlers/SERVERHandler.h"
 #include "MessageHandlers/SQUITHandler.h"
+#include "MessageHandlers/ERRORHandler.h"
+#include "MessageHandlers/NUMERICHandler.h"
 #include "MessageHandlers/CONNECTHandler.h"
+
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_server) :
     logger("MD")
@@ -56,6 +59,12 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
     command_handlers_.insert(std::make_pair("SQUIT",
         std::make_unique<SQUITHandler>(&server_data->server_config_, &server_data->client_database_))
     );
+    command_handlers_.insert(std::make_pair("ERROR",
+        std::make_unique<ERRORHandler>(&server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("NUMERIC",
+        std::make_unique<NUMERICHandler>(&server_data->client_database_))
+    );
     command_handlers_.insert(std::make_pair("CONNECT",
         std::make_unique<CONNECTHandler>(&server_data->server_config_, &server_data->client_database_, irc_server))
     );
@@ -64,13 +73,33 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
 MessageDispatcher::~MessageDispatcher()
 {}
 
+static auto CheckIfNumeric(const std::string &numeric) -> bool
+{
+    if (numeric.size() == 3 &&
+        std::isdigit(numeric[0]) &&
+        std::isdigit(numeric[1]) &&
+        std::isdigit(numeric[2]))
+    {
+        return true;
+    }
+    return false;
+}
+
 auto MessageDispatcher::Dispatch(Message message) -> bool
 {
     auto command_handler = command_handlers_.find(message.GetCommand());
 
     if (command_handler != command_handlers_.end())
     {
+        logger.Log(LogLevel::DEBUG, "Handling command: %s", message.GetCommand().c_str());
         command_handler->second->Handle(message);
+        return true;
+    }
+    else if (CheckIfNumeric(message.GetCommand()))
+    {
+        logger.Log(LogLevel::DEBUG, "Handling numeric: %s", message.GetCommand().c_str());
+        auto numeric_handler = command_handlers_.find("NUMERIC");
+        numeric_handler->second->Handle(message);
         return true;
     }
     else

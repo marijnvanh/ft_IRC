@@ -19,7 +19,7 @@
 			["IRCServer", "DEBUG"],
 			["ServerConfig", "INFO"],
 			["Client", "INFO"],
-			["MD", "INFO"],
+			["MD", "DEBUG"],
 			["ClientDatabase", "DEBUG"],
 			["ChannelDatabase", "INFO"],
 			["IOController", "INFO"]
