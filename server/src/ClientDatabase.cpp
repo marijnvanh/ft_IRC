@@ -325,3 +325,27 @@ auto ClientDatabase::BroadcastToLocalServers(const std::string &irc_message, IRC
             it->second->Push(irc_message);
     }
 }
+
+auto ClientDatabase::DoForEachServer(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void
+{
+    DoForEach(servers_, action, skip_uuid);
+}
+
+auto ClientDatabase::DoForEachUser(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void
+{
+    DoForEach(local_users_, action, skip_uuid);
+    DoForEach(remote_users_, action, skip_uuid);
+}
+
+auto ClientDatabase::DoForEach(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
+        std::function<void(IClient*)> &action,
+        std::optional<IRC::UUID> &skip_uuid) -> void
+{
+    for (auto it = clients.begin(); it != clients.end(); it++)
+    {
+        if (!skip_uuid)
+            action(it->second.get());
+        else if (it->second->GetUUID() != *skip_uuid)
+            action(it->second.get());
+    }
+}

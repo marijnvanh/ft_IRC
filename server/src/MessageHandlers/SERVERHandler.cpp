@@ -62,28 +62,43 @@ auto SERVERHandler::Handle(IMessage &message) -> void
     }
     else
     {
-        HandleLocalServerRegistration(client, params[PARAM_SERVER_NAME]);
-        auto irc_message = ":" + server_config_->GetName() + " SERVER " + params[PARAM_SERVER_NAME]
-            + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
-        client_database_->BroadcastToLocalServers(irc_message, message.GetClientUUID());
+        HandleLocalServerRegistration(client, message);
     }
 }
 
-auto SERVERHandler::HandleLocalServerRegistration(IClient *client, const std::string &server_name) -> void
+auto SERVERHandler::HandleLocalServerRegistration(IClient *client, IMessage &message) -> void
 {
-    client = client_database_->RegisterLocalServer(server_name, client->GetUUID());
-    if (client->GetRegisterState() == IClient::RegisterState::kRegistering)
-        client->SetRegisterState(IClient::RegisterState::kRegistered);
+    auto new_server = client_database_->RegisterLocalServer(message.GetParams()[PARAM_SERVER_NAME], client->GetUUID());
+    if (new_server->GetRegisterState() == IClient::RegisterState::kRegistering)
+        new_server->SetRegisterState(IClient::RegisterState::kRegistered);
     else
     {
-        client->SetRegisterState(IClient::RegisterState::kRegistered);
+        new_server->SetRegisterState(IClient::RegisterState::kRegistered);
         auto message = "SERVER " + server_config_->GetName() + " 1 :" + server_config_->GetDescription();
-        client->Push(message);
+        new_server->Push(message);
     }
+    HandleBroadcasting(new_server, message);
 }
 
 auto SERVERHandler::HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, const std::string &server_name) -> void
 {
     auto new_server = std::make_unique<RemoteServer>(local_server, remote_server, server_name);
     client_database_->AddServer(std::move(new_server));
+}
+
+auto SERVERHandler::HandleBroadcasting(IClient *new_server, IMessage &message) -> void
+{
+    auto params = message.GetParams();
+    auto irc_message = ":" + server_config_->GetName() + " SERVER " + params[PARAM_SERVER_NAME]
+        + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
+    client_database_->BroadcastToLocalServers(irc_message, message.GetClientUUID());
+
+    client_database_->DoForEachServer(
+        [new_server](IClient* client)
+        {
+            // Make a server message
+            (void)client;
+            new_server->Push("message");
+        }, std::nullopt );
+    
 }

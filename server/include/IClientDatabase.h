@@ -39,7 +39,9 @@ class IClientDatabase
     virtual auto Broadcast(const std::string &irc_message, IRC::UUID except_uuid) -> void = 0;
     virtual auto BroadcastToLocalUsers(const std::string &irc_message, IRC::UUID except_uuid) -> void = 0;
     virtual auto BroadcastToLocalServers(const std::string &irc_message, IRC::UUID except_uuid) -> void = 0;
-
+    
+    virtual auto DoForEachServer(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void = 0;
+    virtual auto DoForEachUser(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void = 0;
 
     class DuplicateClient : public std::runtime_error
     {
