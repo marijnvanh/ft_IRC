@@ -25,15 +25,61 @@ SQUITHandler::~SQUITHandler()
 auto SQUITHandler::HandleUserMessage(IUser *user,
 	std::vector<std::string> params) -> void
 {
-	(void)user;
-	(void)params;
+	auto server = client_database_->GetServer(params[SERVER_NAME]);
+
+	if (!user->HasMode(UserMode::UM_OPERATOR))
+	{
+		user->Push(GetErrorMessage(ERR_NOPRIVILEGES, "SQUIT"));
+		return ;
+	}
+	if (params[SERVER_NAME] == server_config_->GetName())
+	{
+		user->Push(":" + user->GetNickname() + " NOTICE :Cannot kill host");
+		return ;
+	}
+	if (!server)
+	{
+		user->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		return ;		
+	}
+
+	if ((*server)->GetType() == IClient::Type::kRemoteServer)
+	{
+		(*server)->Push(":" + user->GetNickname() + " SQUIT " +
+			params[SERVER_NAME] + " :" + params[SQUIT_MESSAGE]);
+	}
+	else
+	{
+		(*server)->Disconnect(client_database_,
+			std::make_optional<std::string>(params[SQUIT_MESSAGE]));
+	}
 }
 
 auto SQUITHandler::HandleServerMessage(IServer *server,
 	std::vector<std::string> params) -> void
 {
-	(void)server;
-	(void)params;
+	auto target_server = client_database_->GetServer(params[SERVER_NAME]);
+	if (target_server)
+	{
+		if ((*target_server)->GetType() == IClient::Type::kLocalServer ||
+			(*target_server)->GetLocalServer() == server)
+		{
+			client_database_->DisconnectServer(*target_server,
+				std::make_optional<std::string>(params[SQUIT_MESSAGE]));
+		}
+		else
+		{
+			(*target_server)->Push(":" + server->GetServerName() + " SQUIT " +
+				params[SERVER_NAME] + " :" + params[SQUIT_MESSAGE]);			
+		}
+	}
+	else if (params[SERVER_NAME] == server_config_->GetName())
+	{
+		server->Disconnect(client_database_,
+			std::make_optional<std::string>(params[SQUIT_MESSAGE]));
+	}
+	else
+		server->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
 }
 
 auto SQUITHandler::Handle(IMessage &message) -> void
@@ -51,7 +97,49 @@ auto SQUITHandler::Handle(IMessage &message) -> void
 		client->Push(GetErrorMessage(ERR_NOTREGISTERED, "SQUIT"));
 		return ;
     }
-	
-	// TODO: Handle user message.
-	// TODO: Handle server message.
+	if (!GetOriginalSender(&client, message))
+		return ;
+
+	if (client->GetType() == IClient::Type::kLocalServer ||
+		client->GetType() == IClient::Type::kRemoteServer)
+	{
+		HandleServerMessage(dynamic_cast<IServer*>(client), params);
+		return;
+	}
+	HandleUserMessage(dynamic_cast<IUser*>(client), params);
+}
+
+auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
+{
+	if ((*client)->GetType() == IClient::Type::kLocalServer)
+	{
+        auto remote_client_nickname = message.GetNickname();
+
+		// TODO: Make sure the following works in the parser/message.
+		/*		
+		message.GetPrefix();
+		if (message.GetOriginType() == OriginType::Server)
+		{
+			// Search in server DB.
+		}
+		else // Remote user
+		{
+			// Search in remote user DB
+		}*/
+
+        if (remote_client_nickname == std::nullopt)
+        {
+            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            return (false);
+        }
+		// TODO: Handle this properly for servers.
+        auto remote_client = client_database_->GetClient(*remote_client_nickname);
+        if (!remote_client)
+        {
+            (*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            return (false);
+        }
+        *client = *remote_client;
+	}
+	return (true);
 }

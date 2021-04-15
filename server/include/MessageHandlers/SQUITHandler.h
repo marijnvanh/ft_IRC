@@ -16,6 +16,9 @@ public:
     ~SQUITHandler();
 
     auto Handle(IMessage &message) -> void override;
+	
+	auto GetOriginalSender(IClient **client, IMessage &message) -> bool;
+
 	auto HandleUserMessage(IUser *user,
 		std::vector<std::string> params) -> void;
 	auto HandleServerMessage(IServer *server,
