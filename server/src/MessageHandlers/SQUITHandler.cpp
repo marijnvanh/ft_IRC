@@ -25,6 +25,11 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 {
 	auto server = client_database_->GetServer(params[SERVER_NAME]);
 
+	if (!user->HasMode(UserMode::UM_OPERATOR))
+	{
+		user->Push(GetErrorMessage(ERR_NOPRIVILEGES, "SQUIT"));
+		return ;
+	}
 	if (params[SERVER_NAME] == server_config_->GetName())
 	{
 		user->Push(":" + user->GetNickname() + " NOTICE :Cannot kill host");
@@ -54,7 +59,8 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 	auto target_server = client_database_->GetServer(params[SERVER_NAME]);
 	if (target_server)
 	{
-		if ((*target_server)->GetServer() == server)
+		if ((*target_server)->GetType() == IClient::Type::kLocalServer ||
+			(*target_server)->GetServer() == server)
 		{
 			client_database_->DisconnectServer(*target_server,
 				std::make_optional<std::string>(params[SQUIT_MESSAGE]));
