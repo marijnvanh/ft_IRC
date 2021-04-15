@@ -68,7 +68,7 @@ class IClient
     virtual auto SetUsername(std::string username) -> void { username_ = username; }
     virtual auto GetRealname() const -> const std::string& { return realname_; }
     virtual auto SetRealname(std::string realname) -> void { realname_ = realname; }
-    virtual auto GetServer() const -> IServer* { return local_server_; };
+    virtual auto GetLocalServer() const -> IServer* { return local_server_; };
 
     IClient (IClient& other) = delete;
     IClient &operator =(IClient& other) = delete;

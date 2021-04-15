@@ -60,7 +60,7 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 	if (target_server)
 	{
 		if ((*target_server)->GetType() == IClient::Type::kLocalServer ||
-			(*target_server)->GetServer() == server)
+			(*target_server)->GetLocalServer() == server)
 		{
 			client_database_->DisconnectServer(*target_server,
 				std::make_optional<std::string>(params[SQUIT_MESSAGE]));

@@ -70,7 +70,7 @@ auto ClientDatabase::DisconnectUser(IUser *user,
 		auto uuid = IRC::UUID(0, 0); // Generating a tmp uuid.
 		if (user->GetType() == IClient::Type::kRemoteUser)
 		{
-			uuid = user->GetServer()->GetUUID();
+			uuid = user->GetLocalServer()->GetUUID();
 		}
 		this->BroadcastToLocalServers(":" + user->GetNickname() +
 			" QUIT :" + *quit_message, uuid);
@@ -90,7 +90,7 @@ auto ClientDatabase::DisconnectServer(IServer *server,
 
 	auto ignore_uuid = server->GetUUID();
 	if (server->GetType() == IClient::Type::kRemoteServer)
-		ignore_uuid = server->GetServer()->GetUUID();
+		ignore_uuid = server->GetLocalServer()->GetUUID();
 
 	this->BroadcastToLocalServers(":" + server_config_->GetName() + " SQUIT " + 
 		server->GetServerName() + " :" + *quit_message, ignore_uuid);
