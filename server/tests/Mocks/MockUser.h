@@ -14,6 +14,8 @@ class MockUser : public virtual IUser, public MockClient {
     MOCK_METHOD(void, RemoveChannel, (const std::string &channel_name), ());
     MOCK_METHOD(void, RemoveUserFromAllChannels, (), ());
     MOCK_METHOD((std::unordered_map<std::string, IChannel*>&), GetChannels, (), ());
+    MOCK_METHOD(std::string, GenerateNickMessage, (const std::string &this_server_name), (const));
+
 };
 
 #endif

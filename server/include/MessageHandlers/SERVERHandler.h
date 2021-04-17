@@ -17,8 +17,9 @@ class SERVERHandler : public ICommandHandler
 
     private:
 
-    auto HandleLocalServerRegistration(IClient *client, const std::string &server_name) -> void;
+    auto HandleLocalServerRegistration(IClient *client, IMessage &message) -> void;
     auto HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, const std::string &server_name) -> void;
+    auto HandleBroadcasting(IClient *new_server, IMessage &message) -> void;
 
     IServerConfig *server_config_;
     IClientDatabase *client_database_;

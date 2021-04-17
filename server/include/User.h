@@ -17,6 +17,7 @@ class User : public virtual IUser
     auto RemoveChannel(const std::string &channel_name) -> void override;
     auto RemoveUserFromAllChannels() -> void override;
 	auto GetChannels() -> std::unordered_map<std::string, IChannel*>& override;
+	auto GenerateNickMessage(const std::string &this_server_name) const -> std::string override;
 
     private:
     

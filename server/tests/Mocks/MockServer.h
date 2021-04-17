@@ -14,6 +14,7 @@ class MockServer : public IServer, public MockClient {
     MOCK_METHOD(const std::string&, GetServerName, (), (const));
     MOCK_METHOD(void, Disconnect, (IClientDatabase *client_database,
 		std::optional<std::string> message), ());
+    MOCK_METHOD(std::string, GenerateServerMessage, (const std::string &this_server_name), (const));
 };
 
 #endif

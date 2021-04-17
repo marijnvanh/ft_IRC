@@ -55,6 +55,15 @@ class ClientDatabase : public IClientDatabase
     auto PollClients(std::function<void(IClient*, std::string)> message_handler) -> void;
 
     /**
+     * @brief Do action for each server/user
+     * 
+     * @param action 
+     * @param skip_uuid possible skip server/user with uuid
+     */
+    auto DoForEachServer(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void override;
+    auto DoForEachUser(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void override;
+
+    /**
      * @brief Empty all client send queus
      * 
      */
@@ -92,8 +101,11 @@ class ClientDatabase : public IClientDatabase
         std::function<void(IClient*, std::string)> &message_handler) -> void;
     auto HandleSendAll(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients) -> void;
 
-	IServerConfig *server_config_;
+    auto DoForEach(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
+        std::function<void(IClient*)> &action,
+        std::optional<IRC::UUID> &skip_uuid) -> void;
 
+	IServerConfig *server_config_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> clients_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> local_users_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> remote_users_;
