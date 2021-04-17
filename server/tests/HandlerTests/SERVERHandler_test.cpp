@@ -31,6 +31,7 @@ class SERVERHandlerTests : public ::testing::Test
     StrictMock<MockClientDatabase> mock_client_database;
 
     MockServer mock_server1;
+    IRC::UUID uuid2 = IRC::UUIDGenerator::GetInstance().Generate();
 
     MockServer mock_remote_server;
     std::string remote_server_name = "SomeOtherServer";
@@ -48,6 +49,8 @@ class SERVERHandlerTests : public ::testing::Test
             .WillRepeatedly(Return(uuid1));
         EXPECT_CALL(message1, GetParams())
             .WillRepeatedly(ReturnRef(message_params));
+        EXPECT_CALL(mock_server1, GetUUID())
+            .WillRepeatedly(ReturnRef(uuid2));
     }
 
 	void TearDown() override
@@ -122,6 +125,8 @@ TEST_F(SERVERHandlerTests, ClientRegisteringAsServer)
         .WillOnce(Return(&mock_server1));
     EXPECT_CALL(mock_server1, Push(_));
     EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_, uuid1));
+    EXPECT_CALL(mock_client_database, DoForEachServer(_, _));
+    EXPECT_CALL(mock_client_database, DoForEachUser(_, _));
 
     server_handler_->Handle(message1);
 }
