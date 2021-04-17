@@ -247,7 +247,7 @@ TEST_F(ClientDatabaseTests, DisconnectUser)
     ASSERT_EQ(local_user, std::nullopt);
 }
 
-TEST_F(ClientDatabaseTests, BroadCastSuccessTest)
+TEST_F(ClientDatabaseTests, BroadCastLocalServersSuccessTest)
 {
     std::string irc_message = "some_message";
     client_database->AddClient(std::move(unique_client1));
@@ -255,14 +255,16 @@ TEST_F(ClientDatabaseTests, BroadCastSuccessTest)
     client_database->AddLocalUser(std::move(unique_local_user2));
     client_database->AddServer(std::move(unique_server1));
 
+    mock_server1->SetType(IClient::Type::kLocalServer);
+
     EXPECT_CALL(*client1, Push(irc_message))
         .Times(0);
     EXPECT_CALL(*local_user1, Push(_))
         .Times(0);
     EXPECT_CALL(*local_user2, Push(irc_message))
-        .Times(1);
+        .Times(0);
     EXPECT_CALL(*mock_server1, Push(irc_message))
         .Times(1);
 
-    client_database->Broadcast(irc_message, uuid_local_user1);
+    client_database->BroadcastToLocalServers(irc_message, uuid_local_user1);
 }

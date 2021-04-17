@@ -67,13 +67,16 @@ auto ClientDatabase::DisconnectUser(IUser *user,
 		}
 
 		// Broadcast to all servers except local server is the user is remote.
-		auto uuid = IRC::UUID(0, 0); // Generating a tmp uuid.
 		if (user->GetType() == IClient::Type::kRemoteUser)
 		{
-			uuid = user->GetLocalServer()->GetUUID();
+            BroadcastToLocalServers(":" + user->GetNickname() +
+                " QUIT :" + *quit_message, user->GetLocalServer()->GetUUID());
 		}
-		this->BroadcastToLocalServers(":" + user->GetNickname() +
-			" QUIT :" + *quit_message, uuid);
+        else
+        {
+            BroadcastToLocalServers(":" + user->GetNickname() +
+                " QUIT :" + *quit_message, std::nullopt);
+        }
 	}
 
     logger.Log(LogLevel::INFO, "User with nickname: %s being disconnected", user->GetNickname().c_str());
@@ -171,6 +174,9 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
     tmp_unique_client.reset(new LocalUser(std::move(*client)));
     auto new_local_user = local_users_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
     clients_.erase(uuid);
+
+    auto local_user = dynamic_cast<IUser*>(new_local_user.first->second.get());
+    BroadcastToLocalServers(local_user->GenerateNickMessage(server_config_->GetName()), std::nullopt);
     return new_local_user.first->second.get();
 }
 
@@ -314,28 +320,27 @@ auto ClientDatabase::SetConfig(IServerConfig *server_config) -> void
 	server_config_ = server_config;
 }
 
-auto ClientDatabase::Broadcast(const std::string &irc_message, IRC::UUID except_uuid) -> void
+auto ClientDatabase::BroadcastToLocalUsers(const std::string &irc_message, std::optional<IRC::UUID> skip_uuid) -> void
 {
-    BroadcastToLocalUsers(irc_message, except_uuid);
-    BroadcastToLocalServers(irc_message, except_uuid);
+    std::function<void(IClient*)> push_message = [irc_message](IClient* client)
+    {
+        client->Push(irc_message);
+    };
+
+    DoForEach(local_users_, push_message, skip_uuid);
 }
 
-auto ClientDatabase::BroadcastToLocalUsers(const std::string &irc_message, IRC::UUID except_uuid) -> void
+auto ClientDatabase::BroadcastToLocalServers(const std::string &irc_message, std::optional<IRC::UUID> skip_uuid) -> void
 {
-    for (auto it = local_users_.begin(); it != local_users_.end(); it++)
+    std::function<void(IClient*)> push_message = [irc_message](IClient* client)
     {
-        if (it->second->GetUUID() != except_uuid)
-            it->second->Push(irc_message);
-    }
-}
+        if (client->GetType() == IClient::Type::kLocalServer)
+        {
+            client->Push(irc_message);
+        }
+    };
 
-auto ClientDatabase::BroadcastToLocalServers(const std::string &irc_message, IRC::UUID except_uuid) -> void
-{
-    for (auto it = servers_.begin(); it != servers_.end(); it++)
-    {
-        if (it->second->GetType() == IClient::Type::kLocalServer && it->second->GetUUID() != except_uuid)
-            it->second->Push(irc_message);
-    }
+    DoForEach(servers_, push_message, skip_uuid);
 }
 
 auto ClientDatabase::DoForEachServer(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void

@@ -119,6 +119,9 @@ TEST_F(NICKHandlerTests, NicknameChangeFromRemoteUser)
     /* Init client with old_nickname */
     user_client1.SetNickname("old_nickname");
 
+    EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_,_))
+        .Times(1);
+
     nick_handler_->Handle(server_message1);
 
     ASSERT_EQ(user_client1.GetNickname(), "new_nickname");
@@ -139,10 +142,11 @@ TEST_F(NICKHandlerTests, NoOrigin)
 
 TEST_F(NICKHandlerTests, RemoteUserRegistration)
 {
+    std::string servername = "servername";
     server_params.push_back("new_nickname");
     server_params.push_back("fake_hop_count");
     server_params.push_back("new_username");
-    server_params.push_back("servername");
+    server_params.push_back(servername);
     server_params.push_back("randomtoken");
     server_params.push_back("umode");
     server_params.push_back("realname");
@@ -152,7 +156,15 @@ TEST_F(NICKHandlerTests, RemoteUserRegistration)
         .WillOnce(Return(std::nullopt));
     EXPECT_CALL(mock_client_database, GetServer("servername"))
         .WillOnce(Return(std::optional<IServer*>(&mock_server)));
+    EXPECT_CALL(mock_server, GetServerName())
+        .WillOnce(ReturnRef(servername));
     EXPECT_CALL(mock_client_database, AddRemoteUser(_))
+        .Times(1);
+    EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_,_))
+        .Times(1);
+    EXPECT_CALL(mock_server, AddClient(_))
+        .Times(1);
+    EXPECT_CALL(mock_server, RemoveClient(_))
         .Times(1);
 
     nick_handler_->Handle(server_message1);
