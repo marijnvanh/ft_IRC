@@ -57,7 +57,7 @@ enum
 	// RPL_MOTDSTART                   = 375,
 	// RPL_ENDOFMOTD                   = 376,
 
-	// RPL_YOUAREOPER                  = 381,
+	RPL_YOUREOPER                 	= 381,
 	// RPL_REHASHING                   = 382,
 	// RPL_TIME                        = 391,
 
@@ -84,6 +84,7 @@ enum
 	ERR_NOTREGISTERED               = 451,
 	ERR_NEEDMOREPARAMS              = 461,
 	ERR_ALREADYREGISTERED           = 462,
+	ERR_PASSWDMISMATCH				= 464,
 	// ERR_YOUREBANNEDCREEP            = 465,
 	// ERR_UNKNOWNMODE                 = 472,
 
@@ -101,7 +102,7 @@ enum
 	ERR_CANTKILLSERVER				= 483,
 	// ERR_RESTRICTED                  = 484,
 
-	// ERR_NOOPERHOST                  = 491,
+	ERR_NOOPERHOST                  = 491,
 	ERR_UMODEUNKNOWNFLAG			= 501,
 	ERR_USERSDONTMATCH              = 502
 };

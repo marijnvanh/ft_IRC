@@ -15,6 +15,7 @@
 #include "MessageHandlers/ERRORHandler.h"
 #include "MessageHandlers/NUMERICHandler.h"
 #include "MessageHandlers/CONNECTHandler.h"
+#include "MessageHandlers/OPERHandler.h"
 
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_server) :
@@ -67,6 +68,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
     );
     command_handlers_.insert(std::make_pair("CONNECT",
         std::make_unique<CONNECTHandler>(&server_data->server_config_, &server_data->client_database_, irc_server))
+    );
+    command_handlers_.insert(std::make_pair("OPER",
+        std::make_unique<OPERHandler>(&server_data->server_config_, &server_data->client_database_))
     );
 }
 
