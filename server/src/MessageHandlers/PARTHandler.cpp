@@ -6,8 +6,11 @@
 #define CHANNEL_NAME_PARAM 0
 #define PART_MESSAGE_PARAM 1
 
-PARTHandler::PARTHandler(IClientDatabase *client_database, IChannelDatabase *channel_database)
-	: client_database_(client_database), channel_database_(channel_database), logger("PARTHandler")
+PARTHandler::PARTHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
+	: server_config_(server_config),
+	client_database_(client_database),
+	channel_database_(channel_database),
+	logger("PARTHandler")
 {}
 
 PARTHandler::~PARTHandler()
@@ -29,7 +32,7 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 
 		if (!channel)
 		{
-			client->Push(GetErrorMessage(ERR_NOSUCHCHANNEL, channel_name));
+			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, channel_name));
 			continue;
 		}
 
@@ -42,7 +45,7 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 		}
 		else
 		{
-			client->Push(GetErrorMessage(ERR_NOTONCHANNEL, channel_name));			
+			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTONCHANNEL, channel_name));			
 		}		
 	}
 	auto part_irc_msg = ":" + client->GetNickname() + " PART " + params[CHANNEL_NAME_PARAM] + " " + part_message;
@@ -60,13 +63,13 @@ auto PARTHandler::Handle(IMessage &message) -> void
 	// Handle unregistered client.
 	if (client->GetType() == IClient::Type::kUnRegistered)
 	{
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
 		return;
 	}	
 	// Handle not enough parameters.
 	if (params.size() == 0)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "PART"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "PART"));
 		return;
 	}
 

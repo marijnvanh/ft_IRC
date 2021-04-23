@@ -7,8 +7,9 @@
 
 #define DEFAULT_KILL_MESSAGE "Has been killed"
 
-KILLHandler::KILLHandler(IClientDatabase *client_database) :
-    client_database_(client_database),
+KILLHandler::KILLHandler(IServerConfig *server_config, IClientDatabase *client_database)
+    : server_config_(server_config),
+	client_database_(client_database),
     logger("KILLHandler")
 {}
 
@@ -22,12 +23,12 @@ auto KILLHandler::Handle(IMessage &message) -> void
 
 	if (params.size() < 2)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "KILL"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "KILL"));
 		return ;
 	}
     if (client->GetType() == IClient::Type::kUnRegistered)
     {
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED, "KILL"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED, "KILL"));
 		return ;
     }
 	if (!GetCorrectSender(&client, message))
@@ -42,7 +43,7 @@ auto KILLHandler::Handle(IMessage &message) -> void
 			HandleKillForLocalUser(client, *otherUser, params);
 	}
 	else
-		client->Push(GetErrorMessage(ERR_NOSUCHNICK, nickname));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, nickname));
 }
 
 auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
@@ -51,7 +52,7 @@ auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
 	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
@@ -69,7 +70,7 @@ auto KILLHandler::HandleKillForRemoteUser(IClient *client, IUser *otherUser,
 	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
@@ -87,13 +88,13 @@ auto KILLHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool
     
         if (remote_client_nickname == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return (false);
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
             return (false);
         }
         *client = *remote_client;

@@ -3,17 +3,19 @@
 
 #include "MessageHandlers/ICommandHandler.h"
 #include "IClientDatabase.h"
+#include "IServerConfig.h"
 #include "Logger.h"
 
 class PASSHandler : public ICommandHandler
 {
     public:
-    PASSHandler(IClientDatabase *client_database);
+    PASSHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~PASSHandler();
 
     auto Handle(IMessage &message) -> void override;
 
     private:
+    IServerConfig *server_config_;
     IClientDatabase *client_database_;
     Logger logger;
 };

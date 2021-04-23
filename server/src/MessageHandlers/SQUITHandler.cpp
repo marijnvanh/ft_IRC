@@ -29,7 +29,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		user->Push(GetErrorMessage(ERR_NOPRIVILEGES, "SQUIT"));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "SQUIT"));
 		return ;
 	}
 	if (params[SERVER_NAME] == server_config_->GetName())
@@ -39,7 +39,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 	}
 	if (!server)
 	{
-		user->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 		return ;		
 	}
 
@@ -79,7 +79,7 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 			std::make_optional<std::string>(params[SQUIT_MESSAGE]));
 	}
 	else
-		server->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 }
 
 auto SQUITHandler::Handle(IMessage &message) -> void
@@ -89,12 +89,12 @@ auto SQUITHandler::Handle(IMessage &message) -> void
 	
 	if (params.size() < 2)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "SQUIT"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "SQUIT"));
 		return;
 	}
     if (client->GetType() == IClient::Type::kUnRegistered)
     {
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED, "SQUIT"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED, "SQUIT"));
 		return ;
     }
 	if (!GetOriginalSender(&client, message))
@@ -129,14 +129,14 @@ auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> boo
 
         if (remote_client_nickname == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return (false);
         }
 		// TODO: Handle this properly for servers.
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (!remote_client)
         {
-            (*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
             return (false);
         }
         *client = *remote_client;

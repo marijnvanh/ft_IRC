@@ -11,6 +11,7 @@
 #include "MockServerConfig.h"
 #include "MockClientDatabase.h"
 #include "MockChannelDatabase.h"
+#include "MockServerConfig.h"
 
 using ::testing::_;
 using ::testing::Throw;
@@ -36,10 +37,11 @@ class MODETests : public ::testing::Test
 
     MockClientDatabase mock_client_database;
     MockChannelDatabase mock_channel_database;
+    MockServerConfig mock_server_config;
 
     void SetUp() override
     {
-		handler = std::make_unique<MODEHandler>(&mock_client_database, &mock_channel_database);
+		handler = std::make_unique<MODEHandler>(&mock_server_config, &mock_client_database, &mock_channel_database);
 
         channel1_key = "p@ssw0rd";
 		channel1_name = "#channel1";
@@ -94,7 +96,7 @@ TEST_F(MODETests, FailureTest_WrongMode)
 	EXPECT_CALL(mock_channel1, HasOperator(uuid1))
 		.WillRepeatedly(Return(true));
 
-	EXPECT_CALL(mock_localuser1, Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, 'g'))));
+	EXPECT_CALL(mock_localuser1, Push(GetErrorMessage("", ERR_UMODEUNKNOWNFLAG, std::string(1, 'g'))));
 
 	// Act
     handler->Handle(message1);

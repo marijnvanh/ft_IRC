@@ -7,6 +7,7 @@
 #include "MockLocalUser.h"
 #include "MockClientDatabase.h"
 #include "MockChannelDatabase.h"
+#include "MockServerConfig.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -31,10 +32,12 @@ class JOINTests : public ::testing::Test
 
     MockClientDatabase mock_client_database;
     MockChannelDatabase mock_channel_database;
+    MockServerConfig mock_server_config;
+
 
     void SetUp() override
     {
-		handler = new JOINHandler(&mock_client_database, &mock_channel_database);
+		handler = new JOINHandler(&mock_server_config, &mock_client_database, &mock_channel_database);
 
         channel1_key = "p@ssw0rd";
 		channel1_name = "#channel1";

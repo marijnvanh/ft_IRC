@@ -5,6 +5,7 @@
 #include "MockLocalUser.h"
 #include "MockChannelDatabase.h"
 #include "MockChannel.h"
+#include "MockServerConfig.h"
 #include "PRIVMSGHandler.h"
 
 using ::testing::AtLeast;
@@ -27,6 +28,8 @@ class PRIVMSGTests : public ::testing::Test
 
     MockClientDatabase mock_client_database;
     MockChannelDatabase mock_channel_database;
+    MockServerConfig mock_server_config;
+
     MockChannel mock_channel;
     std::string mock_channel_name;
 
@@ -50,7 +53,7 @@ class PRIVMSGTests : public ::testing::Test
 
 TEST_F(PRIVMSGTests, SendMessageToUser)
 {
-    PRIVMSGHandler PRIVMSG_handler(&mock_client_database, &mock_channel_database);
+    PRIVMSGHandler PRIVMSG_handler(&mock_server_config, &mock_client_database, &mock_channel_database);
     message_params.push_back(localuser_name2);
     message_params.push_back("message content");
 
@@ -61,7 +64,7 @@ TEST_F(PRIVMSGTests, SendMessageToUser)
 
 TEST_F(PRIVMSGTests, SendMessageToChannel)
 {
-    PRIVMSGHandler PRIVMSG_handler(&mock_client_database, &mock_channel_database);
+    PRIVMSGHandler PRIVMSG_handler(&mock_server_config, &mock_client_database, &mock_channel_database);
     message_params.push_back(mock_channel_name);
     message_params.push_back("message content");
 

@@ -2,7 +2,10 @@
 #include "Numerics.h"
 #include "Utilities.h"
 
-PASSHandler::PASSHandler(IClientDatabase *client_database) : client_database_(client_database), logger("PASSHandler")
+PASSHandler::PASSHandler(IServerConfig *server_config, IClientDatabase *client_database)
+    : server_config_(server_config),
+    client_database_(client_database),
+    logger("PASSHandler")
 {}
 
 PASSHandler::~PASSHandler()
@@ -14,7 +17,7 @@ auto PASSHandler::Handle(IMessage &message) -> void
     
     if (client->GetType() != IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
         return ;
     }
 
@@ -23,7 +26,7 @@ auto PASSHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     if (params.size() == 0)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "PASS"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "PASS"));
         return ;
     }
     //TODO Parse password

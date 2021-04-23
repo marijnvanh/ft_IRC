@@ -60,7 +60,10 @@ auto IRCServer::RunOnce() -> void
 
                 logger.Log(LogLevel::DEBUG, "Received: %s", raw_message.c_str());
                 if (!message_dispatcher_->Dispatch(message))
-                    client->Push(GetErrorMessage(ERR_UNKNOWNCOMMAND, message.GetCommand()));
+                {
+                    auto error_reply = GetErrorMessage(server_data_->server_config_.GetName(), ERR_UNKNOWNCOMMAND, message.GetCommand());
+                    client->Push(error_reply);
+                }
 
             } catch (ParseException &e) {
                 logger.Log(LogLevel::WARNING, "Failed to parse: %s ", raw_message.c_str());

@@ -4,8 +4,9 @@
 
 #define PARAM_ERROR_MESSAGE 0
 
-ERRORHandler::ERRORHandler(IClientDatabase *client_database)
-	: client_database_(client_database),
+ERRORHandler::ERRORHandler(IServerConfig *server_config, IClientDatabase *client_database)
+	: server_config_(server_config),
+	client_database_(client_database),
     logger("ERRORHandler")
 {}
 
@@ -23,7 +24,7 @@ auto ERRORHandler::Handle(IMessage &message) -> void
 
 	if (params.size() == 0)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "ERROR"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "ERROR"));
 		return;
 	}
     logger.Log(LogLevel::ERROR, "Received ERROR: %s", params[PARAM_ERROR_MESSAGE].c_str());

@@ -8,15 +8,17 @@
 #define CHANNEL_NAME_PARAM 0
 #define CHANNEL_KEYS_PARAM 1
 
-JOINHandler::JOINHandler(IClientDatabase *client_database, IChannelDatabase *channel_database)
-	: client_database_(client_database), channel_database_(channel_database), logger("JOINHandler")
+JOINHandler::JOINHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
+	: server_config_(server_config),
+	client_database_(client_database),
+	channel_database_(channel_database),
+	logger("JOINHandler")
 {}
 
 JOINHandler::~JOINHandler()
 {}
 
-static auto CreateChannelKeyMap(std::string param_name,
-	std::string param_key) -> const std::map<std::string, std::string>
+auto JOINHandler::CreateChannelKeyMap(std::string param_name, std::string param_key) -> const std::map<std::string, std::string>
 {
 	auto channel_keys = split(param_key, ",");
 	auto channel_names = split(param_name, ",");
@@ -38,13 +40,12 @@ static auto CreateChannelKeyMap(std::string param_name,
 	return (nameKeyMap);
 }
 
-static auto TryAddUserToChannel(IChannel* channel,
-	const std::string key, IUser* user, bool isOp) -> bool
+auto JOINHandler::TryAddUserToChannel(IChannel* channel, const std::string key, IUser* user, bool isOp) -> bool
 {
 	// TODO: Check channel modes to see if user has enough privilege.
 	if (channel->HasMode(ChannelMode::CM_KEY) && channel->GetKey() != key)
 	{
-		user->Push(GetErrorMessage(ERR_BADCHANNELKEY, channel->GetName()));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_BADCHANNELKEY, channel->GetName()));
 		return (false);
 	}
 
@@ -74,8 +75,8 @@ static auto TryAddUserToChannel(IChannel* channel,
 }
 
 
-static auto StartJoinParsing(const std::vector<std::string> &params,
-	IClient* client, IChannelDatabase *channel_database)
+auto JOINHandler::StartJoinParsing(const std::vector<std::string> &params,
+	IClient* client, IChannelDatabase *channel_database) -> void
 {
 	auto keys = params.size() >= 2 ? params[CHANNEL_KEYS_PARAM] : std::string();
 	auto channel_pairs = CreateChannelKeyMap(params[CHANNEL_NAME_PARAM], keys);
@@ -86,7 +87,7 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 		// TODO: The length and prefix check should probably be part of the parser(?)
 		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
-			client->Push(GetErrorMessage(ERR_NOSUCHCHANNEL, kvp.first));
+			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, kvp.first));
 			continue;
 		}
 
@@ -112,13 +113,13 @@ auto JOINHandler::Handle(IMessage &message) -> void
 	// Handle unregistered client.
 	if (client->GetType() == IClient::Type::kUnRegistered)
 	{
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
 		return;
 	}	
 	// Handle not enough parameters.
 	if (params.size() == 0)
 	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "JOIN"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "JOIN"));
 		return;
 	}
 
@@ -128,14 +129,14 @@ auto JOINHandler::Handle(IMessage &message) -> void
         auto remote_client_nickname = message.GetNickname();
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return ;
         }
         //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push(GetErrorMessage(ERR_NOSUCHNICK));
+            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK));
             return ;
         }
         client = *remote_client;

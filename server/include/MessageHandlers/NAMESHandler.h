@@ -4,12 +4,13 @@
 #include "MessageHandlers/ICommandHandler.h"
 #include "IClientDatabase.h"
 #include "IChannelDatabase.h"
+#include "IServerConfig.h"
 #include "Logger.h"
 
 class NAMESHandler : public ICommandHandler
 {
     public:
-    NAMESHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
+    NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~NAMESHandler();
 
     auto Handle(IMessage &message) -> void override;
@@ -17,6 +18,7 @@ class NAMESHandler : public ICommandHandler
     auto HandleNAMREPLY(IClient *receiver) -> void;
 
     private:
+    IServerConfig *server_config_;
     IClientDatabase *client_database_;
     IChannelDatabase *channel_database_;
     Logger logger;

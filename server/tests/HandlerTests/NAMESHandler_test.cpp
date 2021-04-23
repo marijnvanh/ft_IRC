@@ -6,6 +6,7 @@
 #include "MockChannelDatabase.h"
 #include "MockChannel.h"
 #include "NAMESHandler.h"
+#include "MockServerConfig.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -28,6 +29,8 @@ class NAMESHandlerTests : public ::testing::Test
 
     MockClientDatabase mock_client_database;
     MockChannelDatabase mock_channel_database;
+    MockServerConfig mock_server_config;
+
     MockChannel mock_channel;
     std::string mock_channel_name;
 
@@ -53,7 +56,7 @@ class NAMESHandlerTests : public ::testing::Test
 
 TEST_F(NAMESHandlerTests, NAMESWithChannelList)
 {
-    NAMESHandler NAMES_handler(&mock_client_database, &mock_channel_database);
+    NAMESHandler NAMES_handler(&mock_server_config, &mock_client_database, &mock_channel_database);
     message_params.push_back(mock_channel_name);
 
     EXPECT_CALL(mock_channel_database, GetChannel(mock_channel_name))
@@ -69,7 +72,7 @@ TEST_F(NAMESHandlerTests, NAMESWithChannelList)
 
 TEST_F(NAMESHandlerTests, NAMESCommandForAllChannels)
 {
-    NAMESHandler NAMES_handler(&mock_client_database, &mock_channel_database);
+    NAMESHandler NAMES_handler(&mock_server_config, &mock_client_database, &mock_channel_database);
 
     EXPECT_CALL(mock_channel_database, ForEachChannel(_));
 

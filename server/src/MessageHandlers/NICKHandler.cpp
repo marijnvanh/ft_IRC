@@ -41,7 +41,7 @@ auto NICKHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     if (params.size() == 0)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "NICK"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "NICK"));
         return ;
     }
 
@@ -78,7 +78,7 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
     auto remote_server = client_database_->GetServer(server_name);
     if (!remote_server)
     {
-        server->Push(GetErrorMessage(ERR_NOSUCHSERVER, server_name));
+        server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, server_name));
         return ;
     }
 
@@ -100,13 +100,13 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
     auto old_nickname = message.GetNickname();
     if (old_nickname == std::nullopt)
     {
-        server->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+        server->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
         return ;
     }
     auto remote_user = client_database_->GetUser(*old_nickname);
     if (!remote_user)
     {
-        server->Push(GetErrorMessage(ERR_NOSUCHNICK, *old_nickname));
+        server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, *old_nickname));
         return ;
     }
 
@@ -129,14 +129,14 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
     auto nickname = message.GetParams()[PARAM_NICKNAME];
     if (client->GetNickname() == nickname)
     {
-        client->Push(GetErrorMessage(ERR_NICKCOLLISION));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NICKCOLLISION));
         return ;
     }
 
     auto client_with_nickname = client_database_->GetClient(nickname);
     if (client_with_nickname)
     {
-        client->Push(GetErrorMessage(ERR_NICKNAMEINUSE));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NICKNAMEINUSE));
         return ;
     }
 
