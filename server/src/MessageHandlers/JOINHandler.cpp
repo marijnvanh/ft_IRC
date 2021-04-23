@@ -64,9 +64,12 @@ static auto TryAddUserToChannel(IChannel* channel,
 		channel->AddOperator(user->GetUUID());
 	}
 	
-	user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());
-	user->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString());
-	user->Push(std::to_string(RPL_ENDOFNAMES) + " " + channel->GetName() + ":End of /NAMES list");
+	if (user->GetType() == IClient::Type::kLocalUser)
+	{
+		user->Push(std::to_string(RPL_TOPIC) + " :" + channel->GetTopic());
+		user->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString());
+		user->Push(std::to_string(RPL_ENDOFNAMES) + " " + channel->GetName() + ":End of /NAMES list");
+	}
 	return (true);
 }
 
@@ -138,7 +141,14 @@ auto JOINHandler::Handle(IMessage &message) -> void
         client = *remote_client;
 	}
 	
-	// TOOD: JOIN should be broadcast to all connected servers.
-
 	StartJoinParsing(params, client, channel_database_);
+
+	/* Broadcast to server */
+	auto join_msg = ":" + client->GetNickname() + " JOIN " + params[CHANNEL_NAME_PARAM];
+	if (params.size() >= 2)
+		join_msg = join_msg + " " + params[CHANNEL_KEYS_PARAM];
+	if (client->GetType() == IClient::Type::kRemoteUser)
+		client_database_->BroadcastToLocalServers(join_msg, client->GetLocalServer()->GetUUID());
+	else
+		client_database_->BroadcastToLocalServers(join_msg, std::nullopt);
 }

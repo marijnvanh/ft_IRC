@@ -75,9 +75,8 @@ class ClientDatabase : public IClientDatabase
      * @param irc_message 
      * @param except_uuid client the message came from is skipped
      */
-    auto Broadcast(const std::string &irc_message, IRC::UUID except_uuid) -> void override;
-    auto BroadcastToLocalUsers(const std::string &irc_message, IRC::UUID except_uuid) -> void override;
-    auto BroadcastToLocalServers(const std::string &irc_message, IRC::UUID except_uuid) -> void override;
+    auto BroadcastToLocalUsers(const std::string &irc_message, std::optional<IRC::UUID> skip_uuid) -> void override;
+    auto BroadcastToLocalServers(const std::string &irc_message, std::optional<IRC::UUID> skip_uuid) -> void override;
     
     /**
      * @brief Get client

@@ -6,7 +6,7 @@
 #include "IRemoteUser.h"
 #include "IServer.h"
 
-class RemoteUser : public IRemoteUser, User
+class RemoteUser : public IRemoteUser, public User
 {
     public:
 

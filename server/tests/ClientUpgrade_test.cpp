@@ -8,6 +8,7 @@
 #include "MockLocalUser.h"
 #include "Client.h"
 #include "MockServer.h"
+#include "MockServerConfig.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -19,6 +20,7 @@ class ClientUpgradeTests : public ::testing::Test
 {
     public:
     MockServer mock_server;
+    MockServerConfig server_config;
 
     std::unique_ptr<MockIOHandler> io_handler1;
     std::unique_ptr<Client> client1;
@@ -39,6 +41,7 @@ class ClientUpgradeTests : public ::testing::Test
         raw_client2 = client2.get();
 
         client_database = std::make_shared<ClientDatabase>();
+        client_database->SetConfig(&server_config);
 
         client_database->AddClient(std::move(client1));
         client_database->AddClient(std::move(client2));

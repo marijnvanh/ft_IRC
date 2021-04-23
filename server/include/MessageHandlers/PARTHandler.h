@@ -18,6 +18,8 @@ class PARTHandler : public ICommandHandler
     IClientDatabase *client_database_;
     IChannelDatabase *channel_database_;
     Logger logger;
+
+    auto StartPartParsing(std::vector<std::string> params, IClient* client) -> void;
 };
 
 #endif

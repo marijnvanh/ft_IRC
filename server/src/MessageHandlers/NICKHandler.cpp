@@ -88,7 +88,9 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
         new_nickname,
         new_username,
         new_realname);
+    auto nick_msg = new_remote_user->GenerateNickMessage(server_config_->GetName());
     client_database_->AddRemoteUser(std::move(new_remote_user));
+    client_database_->BroadcastToLocalServers(nick_msg, server->GetUUID());
 }
 
 auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &message) -> void
@@ -117,6 +119,8 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
     }
 
     (*remote_user)->SetNickname(new_nickname);
+    auto nick_msg = ":" + *old_nickname + " NICK " + new_nickname;
+    client_database_->BroadcastToLocalServers(nick_msg, server->GetUUID());
 }
 
 auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
@@ -136,10 +140,14 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
         return ;
     }
 
+    std::string old_nickname = client->GetNickname();
     client->SetNickname(nickname);
 
     if (client->GetType() != IClient::Type::kUnRegistered)
-        ;//TODO Inform all connected clients that nickname has changed
+    {
+        auto nick_msg = ":" + old_nickname + " NICK " + nickname;
+        client_database_->BroadcastToLocalServers(nick_msg, std::nullopt);
+    }
     else if (client->GetType() == IClient::Type::kUnRegistered)
     {
         try {

@@ -13,8 +13,7 @@ PARTHandler::PARTHandler(IClientDatabase *client_database, IChannelDatabase *cha
 PARTHandler::~PARTHandler()
 {}
 
-static auto StartPartParsing(std::vector<std::string> params,
-	IClient* client, IChannelDatabase *channel_database)
+auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* client) -> void
 {
 	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
 	std::string part_message(":" + client->GetNickname() + " left");
@@ -26,7 +25,7 @@ static auto StartPartParsing(std::vector<std::string> params,
 
 	for (auto channel_name : channel_names)
 	{
-		auto channel = channel_database->GetChannel(channel_name);
+		auto channel = channel_database_->GetChannel(channel_name);
 
 		if (!channel)
 		{
@@ -38,16 +37,19 @@ static auto StartPartParsing(std::vector<std::string> params,
 		{
 			auto user = dynamic_cast<IUser*>(client);
 			user->RemoveChannel(channel_name);
-			part_message = ":" + client->GetNickname() + " PART " + channel_name + " " + part_message;
-			(*channel)->PushToLocal(part_message, std::nullopt);
-
-			// TODO: Send message to all connected server instances.
+			auto part_irc_msg = ":" + client->GetNickname() + " PART " + channel_name + " " + part_message;
+			(*channel)->PushToLocal(part_irc_msg, std::nullopt);
 		}
 		else
 		{
 			client->Push(GetErrorMessage(ERR_NOTONCHANNEL, channel_name));			
 		}		
 	}
+	auto part_irc_msg = ":" + client->GetNickname() + " PART " + params[CHANNEL_NAME_PARAM] + " " + part_message;
+	if (client->GetType() == IClient::Type::kLocalServer)
+		client_database_->BroadcastToLocalServers(part_irc_msg, client->GetUUID());
+	else
+		client_database_->BroadcastToLocalServers(part_irc_msg, std::nullopt);
 }
 
 auto PARTHandler::Handle(IMessage &message) -> void
@@ -68,5 +70,5 @@ auto PARTHandler::Handle(IMessage &message) -> void
 		return;
 	}
 
-	StartPartParsing(params, client, channel_database_);
+	StartPartParsing(params, client);
 }
