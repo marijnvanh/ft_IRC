@@ -9,6 +9,10 @@
 		"port": "5000",
 		"address": "0.0.0.0"
 	},
+	"administrators": [
+		["rkuijper", "youshouldhashthis"],
+		["mavanhe", "mooiejongenenzo"]
+	],
 	"authorized-servers": [
 		["codam.mr.com", "0.0.0.0", "5000"],
 		["server2", "0.0.0.0", "5001"]

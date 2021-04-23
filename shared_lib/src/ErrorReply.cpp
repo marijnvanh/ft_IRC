@@ -22,7 +22,9 @@ std::unordered_map<int, std::string> error_map = {
         {ERR_NICKCOLLISION, "Nickname collision KILL"},
 		{ERR_CANTKILLSERVER, "You cant kill a server!"},
 		{ERR_NOPRIVILEGES, "Permission Denied- You're not an IRC operator"},
-        {ERR_NOSUCHSERVER, "No such server"}
+        {ERR_NOSUCHSERVER, "No such server"},
+		{ERR_NOOPERHOST, "No O-lines for your host"},
+		{ERR_PASSWDMISMATCH, "Password incorrect"}
 };
 
 auto GetErrorMessage(int error, std::string param) -> std::string

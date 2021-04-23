@@ -12,6 +12,9 @@ using json = nlohmann::json;
 #define IP 1
 #define PORT 2
 
+#define USERNAME 0
+#define PASSWORD 1
+
 ServerConfig::ServerConfig(const std::string &file_path) :
 	config_file_(file_path),
 	logger("ServerConfig")
@@ -55,6 +58,18 @@ auto ServerConfig::ParseLogData(json jf) -> void
 		{
 			auto log_level = logger.ResolveLogLevel((*it)[LOG_LEVEL]);
 			logger.SetLevel((*it)[LOG_NAME], log_level);
+		}
+	}
+}
+
+auto ServerConfig::ParseAdministrators(json jf) -> void
+{
+	if (jf.contains("administrators"))
+	{
+		auto administrators = jf["administrators"];
+		for (auto it = administrators.cbegin(); it < administrators.cend(); it++)
+		{
+			administrators_.insert(std::make_pair((*it)[USERNAME], (*it)[PASSWORD]));
 		}
 	}
 }
