@@ -1,14 +1,13 @@
 #include "MessageHandlers/PINGHandler.h"
 
-PINGHandler::PINGHandler(IClientDatabase *client_database)
-{
-    (void)client_database;
-}
+PINGHandler::PINGHandler(IClientDatabase *client_database) :
+	CommandHandler(client_database, "PING")
+{}
 
 PINGHandler::~PINGHandler()
 {}
 
-auto PINGHandler::Handle(IMessage &message) -> void
+auto PINGHandler::SafeHandle(IMessage &message) -> void
 {
     (void)message;
 }

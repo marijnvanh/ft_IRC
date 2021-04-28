@@ -4,15 +4,14 @@
 
 #define PARAM_ERROR_MESSAGE 0
 
-ERRORHandler::ERRORHandler(IClientDatabase *client_database)
-	: client_database_(client_database),
-    logger("ERRORHandler")
+ERRORHandler::ERRORHandler(IClientDatabase *client_database) :
+	CommandHandler(client_database, "ERROR", 1)
 {}
 
 ERRORHandler::~ERRORHandler()
 {}
 
-auto ERRORHandler::Handle(IMessage &message) -> void
+auto ERRORHandler::SafeHandle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
@@ -21,10 +20,5 @@ auto ERRORHandler::Handle(IMessage &message) -> void
 	if (client->GetType() != IClient::Type::kLocalServer)
 		return;
 
-	if (params.size() == 0)
-	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "ERROR"));
-		return;
-	}
-    logger.Log(LogLevel::ERROR, "Received ERROR: %s", params[PARAM_ERROR_MESSAGE].c_str());
+    logger_.Log(LogLevel::ERROR, "Received ERROR: %s", params[PARAM_ERROR_MESSAGE].c_str());
 }

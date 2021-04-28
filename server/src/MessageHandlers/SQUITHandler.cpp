@@ -10,14 +10,10 @@
 #define SERVER_NAME		0
 #define SQUIT_MESSAGE	1
 
-SQUITHandler::SQUITHandler(IServerConfig *server_config,
-	IClientDatabase *client_database) :
-	server_config_(server_config),
-    client_database_(client_database),
-    logger("SQUITHandler")
-{
-	(void)server_config_;
-}
+SQUITHandler::SQUITHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(client_database, "SQUIT", 2),
+	server_config_(server_config)
+{}
 
 SQUITHandler::~SQUITHandler()
 {}
@@ -82,21 +78,11 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 		server->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
 }
 
-auto SQUITHandler::Handle(IMessage &message) -> void
+auto SQUITHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 	auto params = message.GetParams();
-	
-	if (params.size() < 2)
-	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "SQUIT"));
-		return;
-	}
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED, "SQUIT"));
-		return ;
-    }
+
 	if (!GetOriginalSender(&client, message))
 		return ;
 
@@ -117,31 +103,17 @@ auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> boo
 
 		if (!prefix)
 		{
-            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
-            return (false);
+            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN, "SQUIT"));
+			return (false);
 		}
 
-		// TODO: This is almost exact-copy-code. Maybe this could be made anonymous?
-		if (message.GetOriginType() == OriginType::SERVER)
+		auto original_client = client_database_->GetClient(*prefix);
+		if (!original_client)
 		{
-			auto remote_server = client_database_->GetServer(*prefix);
-			if (!remote_server)
-			{
-            	(*client)->Push(GetErrorMessage(ERR_NOSUCHSERVER , *prefix));
-				return (false);
-			}
-			*client = *remote_server;
+            (*client)->Push(GetErrorMessage(message.GetOriginType() == OriginType::SERVER
+				? ERR_NOSUCHSERVER : ERR_NOSUCHNICK, *prefix));
 		}
-		else
-		{
-			auto remote_client = client_database_->GetClient(*prefix);
-			if (!remote_client)
-			{
-            	(*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *prefix));
-				return (false);
-			}
-			*client = *remote_client;			
-		}
+		*client = *original_client;
 	}
 	return (true);
 }

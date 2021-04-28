@@ -1,21 +1,15 @@
 #ifndef ERROR_HANDLER_HPP
 #define ERROR_HANDLER_HPP
 
-#include "Logger.h"
-#include "ICommandHandler.h"
-#include "IClientDatabase.h"
+#include "CommandHandler.h"
 
-class ERRORHandler : public ICommandHandler
+class ERRORHandler : public CommandHandler
 {
     public:
     ERRORHandler(IClientDatabase *client_database);
     ~ERRORHandler();
 
-    auto Handle(IMessage &message) -> void override;
-
-    private:
-    IClientDatabase *client_database_;
-    Logger logger;
+    auto SafeHandle(IMessage &message) -> void override;
 };
 
 #endif

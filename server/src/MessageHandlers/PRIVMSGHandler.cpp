@@ -26,23 +26,17 @@ PRIVMSG Angel :yes I'm receiving it ;
 */
 
 PRIVMSGHandler::PRIVMSGHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
-    client_database_(client_database),
-    channel_database_(channel_database),
-    logger("PRIVMSGHandler")
+    CommandHandler(client_database, "PRIVMSG"),
+    channel_database_(channel_database)
 {}
 
 PRIVMSGHandler::~PRIVMSGHandler()
 {}
 
-auto PRIVMSGHandler::Handle(IMessage &message) -> void
+auto PRIVMSGHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-        client->Push(GetErrorMessage(ERR_NOTREGISTERED));
-        return ;
-    }
     if (!ValidateParams(client, message))
         return ;
 

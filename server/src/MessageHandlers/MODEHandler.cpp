@@ -10,8 +10,7 @@
 ERR_NEEDMOREPARAMS RPL_CHANNELMODEIS ERR_NOSUCHNICK*/
 
 MODEHandler::MODEHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
-    logger("MODEHandler"),
-    client_database_(client_database),
+	CommandHandler(client_database, "MODE", 1),
     channel_database_(channel_database)
 {}
 
@@ -77,22 +76,10 @@ static auto HandleChannelOperatorSet(IUser *user, IChannel *channel,
 	}	
 }
 
-auto MODEHandler::Handle(IMessage &message) -> void
+auto MODEHandler::SafeHandle(IMessage &message) -> void
 {
     auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-        client->Push(GetErrorMessage(ERR_NOTREGISTERED));
-        return ;
-    }
-
-    if (params.size() == 0)
-    {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
-        return ;
-    }
     
     if (client->GetType() == IClient::Type::kLocalServer)
     {

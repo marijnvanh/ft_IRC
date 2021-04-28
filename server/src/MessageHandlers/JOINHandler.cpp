@@ -8,8 +8,9 @@
 #define CHANNEL_NAME_PARAM 0
 #define CHANNEL_KEYS_PARAM 1
 
-JOINHandler::JOINHandler(IClientDatabase *client_database, IChannelDatabase *channel_database)
-	: client_database_(client_database), channel_database_(channel_database), logger("JOINHandler")
+JOINHandler::JOINHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
+	CommandHandler(client_database, "JOIN", 1),
+	channel_database_(channel_database)
 {}
 
 JOINHandler::~JOINHandler()
@@ -104,23 +105,10 @@ static auto StartJoinParsing(const std::vector<std::string> &params,
 	}
 }
 
-auto JOINHandler::Handle(IMessage &message) -> void
+auto JOINHandler::SafeHandle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-	// Handle unregistered client.
-	if (client->GetType() == IClient::Type::kUnRegistered)
-	{
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
-		return;
-	}	
-	// Handle not enough parameters.
-	if (params.size() == 0)
-	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "JOIN"));
-		return;
-	}
 
 	// Handle server message.
 	if (client->GetType() == IClient::Type::kLocalServer)

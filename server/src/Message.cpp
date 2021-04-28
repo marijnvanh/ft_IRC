@@ -35,7 +35,9 @@ auto Message::GetPrefix() const noexcept -> const std::optional<std::string>
 
 auto Message::GetNickname() const noexcept -> const std::optional<std::string>
 {
-	return GetPrefix();
+	if (raw_message_.prefix && !raw_message_.prefix->is_server_origin)
+		return raw_message_.prefix->name;
+	return std::nullopt;
 }
 
 auto Message::GetServername() const noexcept -> const std::optional<std::string>

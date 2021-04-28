@@ -9,6 +9,8 @@ class ICommandHandler
     virtual ~ICommandHandler(){};
 
     virtual auto Handle(IMessage &message) -> void = 0;
+
+	// Make method here bitch, don't put members plz.
 };
 
 #endif

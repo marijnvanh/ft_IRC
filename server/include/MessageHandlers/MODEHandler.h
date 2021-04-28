@@ -3,21 +3,18 @@
 
 #include <bitset>
 
-#include "Logger.h"
 #include "IServerConfig.h"
-#include "IClientDatabase.h"
+#include "CommandHandler.h"
 #include "IChannelDatabase.h"
-#include "MessageHandlers/ICommandHandler.h"
 
-class MODEHandler : public ICommandHandler
+class MODEHandler : public CommandHandler
 {
-
-public:
+	public:
 
     MODEHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~MODEHandler();
 
-    auto Handle(IMessage &message) -> void override;
+    auto SafeHandle(IMessage &message) -> void override;
 
     auto HandleMODEUser(IUser *user,
 		std::vector<std::string> param) -> void;
@@ -25,10 +22,8 @@ public:
 	auto HandleMODEChannel(IUser *user,
 		std::vector<std::string> param) -> void;
 
- private:
+ 	private:
 
-    Logger logger;
-    IClientDatabase *client_database_;
     IChannelDatabase *channel_database_;
 
 	auto FormatMode(std::bitset<64> mode) -> std::string;

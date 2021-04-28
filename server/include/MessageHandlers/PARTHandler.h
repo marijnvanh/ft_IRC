@@ -1,23 +1,20 @@
 #ifndef PART_HANDLER_HPP
 #define PART_HANDLER_HPP
 
-#include "Logger.h"
-#include "ICommandHandler.h"
-#include "IClientDatabase.h"
+#include "CommandHandler.h"
 #include "IChannelDatabase.h"
 
-class PARTHandler : public ICommandHandler
+class PARTHandler : public CommandHandler
 {
     public:
     PARTHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~PARTHandler();
 
-    auto Handle(IMessage &message) -> void override;
+    auto SafeHandle(IMessage &message) -> void override;
 
     private:
-    IClientDatabase *client_database_;
+
     IChannelDatabase *channel_database_;
-    Logger logger;
 
     auto StartPartParsing(std::vector<std::string> params, IClient* client) -> void;
 };

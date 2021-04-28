@@ -26,24 +26,17 @@ NICK from server:
 #define PARAM_REALNAME 6
 
 NICKHandler::NICKHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-    server_config_(server_config),
-    client_database_(client_database),
-    logger("NICKHandler")
+    CommandHandler(client_database, "NICK", 1, true),
+	server_config_(server_config)
 {}
 
 NICKHandler::~NICKHandler()
 {}
 
-auto NICKHandler::Handle(IMessage &message) -> void
+auto NICKHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
     auto params = message.GetParams();
-    if (params.size() == 0)
-    {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "NICK"));
-        return ;
-    }
 
     if (client->GetType() == IClient::Type::kLocalServer)
     {

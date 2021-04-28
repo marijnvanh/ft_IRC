@@ -111,6 +111,7 @@ auto IRC::TryParseServername(CharStream& s) -> std::optional<Hostname> {
 	if (hostname.value.find('.') == std::string::npos)
 	{
 		s.SetLocation(current_head);
+		return (std::nullopt);
 	}
 	return (hostname);
 }

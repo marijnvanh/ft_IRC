@@ -4,35 +4,19 @@
 
 #define SERVER_NAME_PARAM 0
 
-CONNECTHandler::CONNECTHandler(IServerConfig *server_config,
-                            IClientDatabase *client_database,
-                            IRCServer *irc_server) :
-    client_database_(client_database),
+CONNECTHandler::CONNECTHandler(IServerConfig *server_config, IClientDatabase *client_database, IRCServer *irc_server) :
+    CommandHandler(client_database, "CONNECT", 1),
     server_config_(server_config),
-    irc_server_(irc_server),
-    logger("CONNECTHandler")
+    irc_server_(irc_server)
 {}
 
 CONNECTHandler::~CONNECTHandler()
 {}
 
-auto CONNECTHandler::Handle(IMessage &message) -> void
+auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-	// Handle unregistered client.
-	if (client->GetType() == IClient::Type::kUnRegistered)
-	{
-		client->Push(GetErrorMessage(ERR_NOTREGISTERED));
-		return;
-	}	
-	// Handle not enough parameters.
-	if (params.size() == 0)
-	{
-		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "CONNECT"));
-		return;
-	}
 
 	if (client->GetType() == IClient::Type::kLocalServer)
 	{
@@ -57,7 +41,7 @@ auto CONNECTHandler::Handle(IMessage &message) -> void
     auto new_server = irc_server_->CreateNewConnection(server->second.first, server->second.second);
 	if (!new_server)
 	{
-		logger.Log(LogLevel::WARNING, "Failed to connect to server: %s", params[SERVER_NAME_PARAM].c_str());
+		logger_.Log(LogLevel::WARNING, "Failed to connect to server: %s", params[SERVER_NAME_PARAM].c_str());
         return ;
     }
 	(*new_server)->SetRegisterState(IClient::RegisterState::kRegistering);
