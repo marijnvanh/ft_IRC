@@ -67,6 +67,8 @@ namespace IRC {
         std::string name;
         std::optional<std::string> username;
         std::optional<Hostname> hostname;
+
+		bool is_server_origin;
     };
 
     struct RawMessage {
@@ -86,6 +88,8 @@ namespace IRC {
 
     auto ParseHostname(CharStream& s) -> Hostname;
     auto ParseNickname(CharStream& s) -> std::string;
+
+	auto TryParseServername(CharStream& s) -> std::optional<Hostname>;
 } // namespace IRC
 
 #endif // RATW_MESSAGE_HPP

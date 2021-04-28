@@ -113,33 +113,35 @@ auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> boo
 {
 	if ((*client)->GetType() == IClient::Type::kLocalServer)
 	{
-        auto remote_client_nickname = message.GetNickname();
+        auto prefix = message.GetPrefix();
 
-		// TODO: Make sure the following works in the parser/message.
-		/*		
-		message.GetPrefix();
-		if (message.GetOriginType() == OriginType::Server)
+		if (!prefix)
 		{
-			// Search in server DB.
-		}
-		else // Remote user
-		{
-			// Search in remote user DB
-		}*/
-
-        if (remote_client_nickname == std::nullopt)
-        {
             (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
             return (false);
-        }
-		// TODO: Handle this properly for servers.
-        auto remote_client = client_database_->GetClient(*remote_client_nickname);
-        if (!remote_client)
-        {
-            (*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
-            return (false);
-        }
-        *client = *remote_client;
+		}
+
+		// TODO: This is almost exact-copy-code. Maybe this could be made anonymous?
+		if (message.GetOriginType() == OriginType::SERVER)
+		{
+			auto remote_server = client_database_->GetServer(*prefix);
+			if (!remote_server)
+			{
+            	(*client)->Push(GetErrorMessage(ERR_NOSUCHSERVER , *prefix));
+				return (false);
+			}
+			*client = *remote_server;
+		}
+		else
+		{
+			auto remote_client = client_database_->GetClient(*prefix);
+			if (!remote_client)
+			{
+            	(*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *prefix));
+				return (false);
+			}
+			*client = *remote_client;			
+		}
 	}
 	return (true);
 }

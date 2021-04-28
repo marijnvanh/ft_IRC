@@ -8,8 +8,10 @@ Message::Message(IRC::UUID uuid, IRC::RawMessage message) :
 Message::~Message()
 {}
 
-auto Message::GetClientUUID() const noexcept -> const IRC::UUID {
-    return uuid_;
+auto Message::GetOriginType() const noexcept -> const OriginType {
+	if (raw_message_.prefix && raw_message_.prefix->is_server_origin)
+		return (OriginType::SERVER);
+	return (OriginType::USER);
 }
 
 auto Message::GetCommand() const noexcept -> const std::string &{
@@ -20,17 +22,25 @@ auto Message::GetParams() const noexcept -> const std::vector<std::string> & {
     return raw_message_.command.parameters;
 }
 
-auto Message::GetServername() const noexcept -> const std::optional<std::string>
+auto Message::GetClientUUID() const noexcept -> const IRC::UUID {
+    return uuid_;
+}
+
+auto Message::GetPrefix() const noexcept -> const std::optional<std::string>
 {
-    if (raw_message_.prefix)
-        return raw_message_.prefix->name;
-    return std::nullopt;
+	if (raw_message_.prefix)
+		return raw_message_.prefix->name;
+	return std::nullopt;
 }
 
 auto Message::GetNickname() const noexcept -> const std::optional<std::string>
 {
-    if (raw_message_.prefix)
+	return GetPrefix();
+}
+
+auto Message::GetServername() const noexcept -> const std::optional<std::string>
+{
+    if (raw_message_.prefix && raw_message_.prefix->is_server_origin)
         return raw_message_.prefix->name;
     return std::nullopt;
 }
-

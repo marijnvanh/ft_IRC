@@ -31,17 +31,29 @@ auto IRC::ParseRawMessage(CharStream& s) -> RawMessage {
   return rawMessage;
 }
 
+/**
+ * @brief Parses message prefix defined as: servername | nickname [ !user@host ]
+*/
 auto IRC::ParsePrefix(CharStream &s) -> RawPrefix {
   RawPrefix rawPrefix;
 
+  auto name = TryParseServername(s);
+  if (name)
+  {
+	  // Not sure if this works properly. Copy or clone?
+	  rawPrefix.name = (*name).value;
+	  rawPrefix.is_server_origin = true;
+	  return rawPrefix;
+  }
+
   rawPrefix.name = ParseNickname(s);
-  rawPrefix.hostname = Maybe<Hostname>([](CharStream& s) {
-    ParseSymbol('@', s);
-    return ParseHostname(s);
-  }, s);
   rawPrefix.username = Maybe<std::string>([](CharStream& s) {
     ParseSymbol('!', s);
     return ParseNickname(s); // TODO: This should probably be *more* lenient
+  }, s);
+  rawPrefix.hostname = Maybe<Hostname>([](CharStream& s) {
+    ParseSymbol('@', s);
+    return ParseHostname(s);
   }, s);
   return rawPrefix;
 }
@@ -90,6 +102,17 @@ auto IRC::ParseMiddle(CharStream& s) -> std::string {
 
 auto IRC::ParseTrailing(CharStream& s) -> std::string {
   return ConsumeWhile(PredicateExclude({'\n','\r','\0'}), s);
+}
+
+auto IRC::TryParseServername(CharStream& s) -> std::optional<Hostname> {
+	size_t current_head = s.Location();
+	auto hostname = ParseHostname(s);
+
+	if (hostname.value.find('.') == std::string::npos)
+	{
+		s.SetLocation(current_head);
+	}
+	return (hostname);
 }
 
 // TODO: implement this in a better (read: more strict, see RFC 952) way
