@@ -18,7 +18,7 @@ class IMessage
 public:
     virtual ~IMessage() {};
 
-	virtual auto GetOriginType() const noexcept -> const OriginType = 0;
+	virtual auto GetOriginType() const noexcept -> OriginType = 0;
     
 	virtual auto GetCommand() const noexcept -> const std::string & = 0;
     virtual auto GetParams() const noexcept -> const std::vector<std::string> & = 0;

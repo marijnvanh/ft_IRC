@@ -8,7 +8,7 @@ Message::Message(IRC::UUID uuid, IRC::RawMessage message) :
 Message::~Message()
 {}
 
-auto Message::GetOriginType() const noexcept -> const OriginType {
+auto Message::GetOriginType() const noexcept -> OriginType {
 	if (raw_message_.prefix && raw_message_.prefix->is_server_origin)
 		return (OriginType::SERVER);
 	return (OriginType::USER);

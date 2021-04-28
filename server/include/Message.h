@@ -10,7 +10,7 @@ public:
     Message(IRC::UUID uuid, IRC::RawMessage message);
     ~Message();
 
-	auto GetOriginType() const noexcept -> const OriginType override;
+	auto GetOriginType() const noexcept -> OriginType override;
 
     auto GetCommand() const noexcept -> const std::string & override;
     auto GetParams() const noexcept -> const std::vector<std::string> & override;
