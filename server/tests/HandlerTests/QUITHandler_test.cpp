@@ -5,6 +5,7 @@
 #include "MockClient.h"
 #include "MockMessage.h"
 #include "ILocalUser.h"
+#include "MockServerConfig.h"
 #include "MockLocalUser.h"
 
 using ::testing::AtLeast;
@@ -39,10 +40,12 @@ class QUITTests : public ::testing::Test
     IRC::UUID base_client1_uuid = IRC::UUIDGenerator::GetInstance().Generate();
 
     StrictMock<MockClientDatabase> mock_client_database;
+    MockServerConfig mock_server_config;
+
 
     void SetUp() override
     {
-        quit_handler_ = std::make_unique<QUITHandler>(&mock_client_database);
+        quit_handler_ = std::make_unique<QUITHandler>(&mock_server_config, &mock_client_database);
         // server_client_unique1 = std::make_unique<MockClient>();
         // server_client1 = server_client_unique1.get();
         // server_client_shared1 = std::move(server_client_unique1);

@@ -4,12 +4,13 @@
 #include "Logger.h"
 #include "IClientDatabase.h"
 #include "MessageHandlers/ICommandHandler.h"
+#include "IServerConfig.h"
 
 class KILLHandler : public ICommandHandler
 {
     public:
     
-    KILLHandler(IClientDatabase *client_database);
+    KILLHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~KILLHandler();
     
     auto Handle(IMessage &message) -> void override;
@@ -22,6 +23,7 @@ class KILLHandler : public ICommandHandler
 		std::vector<std::string> &params) -> void;
     
     private:
+    IServerConfig *server_config_;
     IClientDatabase *client_database_;
     Logger logger;
 

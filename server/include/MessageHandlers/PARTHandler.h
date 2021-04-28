@@ -5,16 +5,18 @@
 #include "ICommandHandler.h"
 #include "IClientDatabase.h"
 #include "IChannelDatabase.h"
+#include "IServerConfig.h"
 
 class PARTHandler : public ICommandHandler
 {
     public:
-    PARTHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
+    PARTHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~PARTHandler();
 
     auto Handle(IMessage &message) -> void override;
 
     private:
+    IServerConfig *server_config_;
     IClientDatabase *client_database_;
     IChannelDatabase *channel_database_;
     Logger logger;

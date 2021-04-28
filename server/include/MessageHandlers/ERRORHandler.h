@@ -4,16 +4,18 @@
 #include "Logger.h"
 #include "ICommandHandler.h"
 #include "IClientDatabase.h"
+#include "IServerConfig.h"
 
 class ERRORHandler : public ICommandHandler
 {
     public:
-    ERRORHandler(IClientDatabase *client_database);
+    ERRORHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~ERRORHandler();
 
     auto Handle(IMessage &message) -> void override;
 
     private:
+    IServerConfig *server_config_;
     IClientDatabase *client_database_;
     Logger logger;
 };

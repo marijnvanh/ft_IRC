@@ -7,7 +7,8 @@
 
 #define DEFAULT_QUIT_MESSAGE "Leaving"
 
-QUITHandler::QUITHandler(IClientDatabase *client_database) :
+QUITHandler::QUITHandler(IServerConfig *server_config, IClientDatabase *client_database)
+    : server_config_(server_config),
     client_database_(client_database),
     logger("QUITHandler")
 {}
@@ -56,7 +57,7 @@ auto QUITHandler::DisconnectRemoteUser(IClient* remote_user, IMessage &message) 
     auto nickname = message.GetNickname();
     if (nickname == std::nullopt)
     {
-        remote_user->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+        remote_user->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
         return ;
     }
     //TODO validate nickname    
@@ -72,7 +73,7 @@ auto QUITHandler::DisconnectRemoteUser(IClient* remote_user, IMessage &message) 
     }
     else
     {
-        remote_user->Push(GetErrorMessage(ERR_NOSUCHNICK));
+        remote_user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK));
         return ;
     }
 }

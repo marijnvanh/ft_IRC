@@ -25,31 +25,31 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
         std::make_unique<USERHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("QUIT",
-        std::make_unique<QUITHandler>(&server_data->client_database_))
+        std::make_unique<QUITHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("KILL",
-        std::make_unique<KILLHandler>(&server_data->client_database_))
+        std::make_unique<KILLHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("PART",
-        std::make_unique<PARTHandler>(&server_data->client_database_, &server_data->channel_database_))
+        std::make_unique<PARTHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
     command_handlers_.insert(std::make_pair("JOIN",
-        std::make_unique<JOINHandler>(&server_data->client_database_, &server_data->channel_database_))
+        std::make_unique<JOINHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
     command_handlers_.insert(std::make_pair("PING",
-        std::make_unique<PINGHandler>(&server_data->client_database_))
+        std::make_unique<PINGHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("PASS",
-        std::make_unique<PASSHandler>(&server_data->client_database_))
+        std::make_unique<PASSHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("PRIVMSG",
-        std::make_unique<PRIVMSGHandler>(&server_data->client_database_, &server_data->channel_database_))
+        std::make_unique<PRIVMSGHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
     command_handlers_.insert(std::make_pair("NAMES",
-        std::make_unique<NAMESHandler>(&server_data->client_database_, &server_data->channel_database_))
+        std::make_unique<NAMESHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
     command_handlers_.insert(std::make_pair("MODE",
-        std::make_unique<MODEHandler>(&server_data->client_database_, &server_data->channel_database_))
+        std::make_unique<MODEHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
 	);
     command_handlers_.insert(std::make_pair("SERVER",
         std::make_unique<SERVERHandler>(&server_data->server_config_, &server_data->client_database_))
@@ -61,7 +61,7 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
         std::make_unique<SQUITHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("ERROR",
-        std::make_unique<ERRORHandler>(&server_data->client_database_))
+        std::make_unique<ERRORHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("NUMERIC",
         std::make_unique<NUMERICHandler>(&server_data->client_database_))

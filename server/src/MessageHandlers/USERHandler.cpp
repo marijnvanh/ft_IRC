@@ -21,7 +21,7 @@ auto USERHandler::Handle(IMessage &message) -> void
     auto params = message.GetParams();
     if (params.size() < 4)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "USER"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "USER"));
         return ;
     }
 
@@ -39,7 +39,7 @@ auto USERHandler::HandleUSERFromUser(IMessage &message) -> void
 
     if (client->GetType() != IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
         return ;
     }
 

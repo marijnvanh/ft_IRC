@@ -7,6 +7,7 @@
 #include "MockLocalUser.h"
 #include "MockClientDatabase.h"
 #include "MockChannelDatabase.h"
+#include "MockServerConfig.h"
 
 using ::testing::Throw;
 using ::testing::Return;
@@ -35,10 +36,11 @@ class KILLTests : public ::testing::Test
 
     MockClientDatabase mock_client_database;
     MockChannelDatabase mock_channel_database;
+    MockServerConfig mock_server_config;
 
     void SetUp() override
     {
-		handler = std::make_unique<KILLHandler>(&mock_client_database);
+		handler = std::make_unique<KILLHandler>(&mock_server_config, &mock_client_database);
 
         EXPECT_CALL(mock_localuser1, GetUUID())
             .WillRepeatedly(ReturnRef(local_user1_uuid));

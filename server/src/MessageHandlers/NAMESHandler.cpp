@@ -26,7 +26,8 @@
    NAMES                           ; list all visible channels and users
 */
 
-NAMESHandler::NAMESHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
+NAMESHandler::NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
+    : server_config_(server_config),
     client_database_(client_database),
     channel_database_(channel_database),
     logger("NAMESHandler")
@@ -41,7 +42,7 @@ auto NAMESHandler::Handle(IMessage &message) -> void
 
     if (client->GetType() == IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(ERR_NOTREGISTERED));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
         return ;
     }
     

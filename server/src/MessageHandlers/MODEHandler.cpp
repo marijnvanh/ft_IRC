@@ -9,21 +9,22 @@
 /*
 ERR_NEEDMOREPARAMS RPL_CHANNELMODEIS ERR_NOSUCHNICK*/
 
-MODEHandler::MODEHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
-    logger("MODEHandler"),
+MODEHandler::MODEHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
+	: server_config_(server_config),
     client_database_(client_database),
-    channel_database_(channel_database)
+    channel_database_(channel_database),
+    logger("MODEHandler")
 {}
 
 MODEHandler::~MODEHandler()
 {}
 
-static auto HandleChannelTopicSet(IUser *user, IChannel *channel,
+auto MODEHandler::HandleChannelTopicSet(IUser *user, IChannel *channel,
 	std::vector<std::string> params, bool set) -> void
 {
 	if (params.size() < 3)
 	{
-		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
 		return ;
 	}
 
@@ -34,12 +35,12 @@ static auto HandleChannelTopicSet(IUser *user, IChannel *channel,
 	}	
 }
 
-static auto HandleChannelKeySet(IUser *user, IChannel *channel,
+auto MODEHandler::HandleChannelKeySet(IUser *user, IChannel *channel,
 	std::vector<std::string> params, bool set) -> void
 {
 	if (params.size() < 3)
 	{
-		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
 		return ;
 	}
 
@@ -50,12 +51,12 @@ static auto HandleChannelKeySet(IUser *user, IChannel *channel,
 	}
 }
 
-static auto HandleChannelOperatorSet(IUser *user, IChannel *channel,
+auto MODEHandler::HandleChannelOperatorSet(IUser *user, IChannel *channel,
 	IClientDatabase *client_database, std::vector<std::string> params, bool set) -> void
 {
 	if (params.size() < 3)
 	{
-		user->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
 		return ;
 	}
 
@@ -63,7 +64,7 @@ static auto HandleChannelOperatorSet(IUser *user, IChannel *channel,
 	auto other = client_database->GetClient(nick);
 	if (!other)
 	{
-		user->Push(GetErrorMessage(ERR_NOSUCHNICK, nick));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, nick));
 		return ;
 	}
 	
@@ -84,13 +85,13 @@ auto MODEHandler::Handle(IMessage &message) -> void
 
     if (client->GetType() == IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(ERR_NOTREGISTERED));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
         return ;
     }
 
     if (params.size() == 0)
     {
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "MODE"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
         return ;
     }
     
@@ -100,14 +101,14 @@ auto MODEHandler::Handle(IMessage &message) -> void
     
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return ;
         }
         //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
             return ;
         }
         client = *remote_client;
@@ -127,7 +128,7 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 {
 	if (params[TARGET_IDENTIFIER] != user->GetNickname())
 	{
-        user->Push(GetErrorMessage(ERR_USERSDONTMATCH));
+        user->Push(GetErrorMessage(server_config_->GetName(), ERR_USERSDONTMATCH));
 		return ;
 	}
 
@@ -142,7 +143,7 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 	auto set = mode.at(0) == '+';
 	if (mode[0] != '+' && mode[0] != '-')
 	{
-		user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
 		return ;
 	}
 
@@ -161,7 +162,7 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 		{
 			set = mode[i] == '+';
 		}
-		user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
 		break ;
 	}
 
@@ -175,13 +176,13 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 	auto channel = channel_database_->GetChannel(params[TARGET_IDENTIFIER]);
 	if (!channel)
 	{
-		user->Push(GetErrorMessage(ERR_NOSUCHCHANNEL, params[TARGET_IDENTIFIER]));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, params[TARGET_IDENTIFIER]));
 		return ;
 	}
 
 	if (!(*channel)->HasUser(user->GetUUID()))
 	{
-		user->Push(GetErrorMessage(ERR_NOTONCHANNEL, (*channel)->GetName()));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTONCHANNEL, (*channel)->GetName()));
 		return ;		
 	}
 
@@ -194,14 +195,14 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 
 	if (!(*channel)->HasOperator(user->GetUUID()))
 	{
-		user->Push(GetErrorMessage(ERR_CHANOPRIVSNEEDED, params[TARGET_IDENTIFIER]));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_CHANOPRIVSNEEDED, params[TARGET_IDENTIFIER]));
 	}
 
 	auto mode = params[MODE_CHANGES];
 	auto set = mode.at(0) == '+';
 	if (mode[0] != '+' && mode[0] != '-')
 	{
-		user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
 		return ;
 	}
 
@@ -225,7 +226,7 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 		}
 		else
 		{
-			user->Push(GetErrorMessage(ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
+			user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
 			return ;
 		}
 	}
