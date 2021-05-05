@@ -10,7 +10,8 @@
 class NUMERICHandler : public CommandHandler
 {
     public:
-    NUMERICHandler(IClientDatabase *client_database);
+    NUMERICHandler(IServerConfig* server_config_,
+		IClientDatabase *client_database);
     ~NUMERICHandler();
 
     auto SafeHandle(IMessage &message) -> void override;

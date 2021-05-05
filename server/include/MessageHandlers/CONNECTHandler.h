@@ -2,7 +2,6 @@
 #define CONNECT_HANDLER_HPP
 
 #include "IRCServer.h"
-#include "IServerConfig.h"
 #include "CommandHandler.h"
 
 class CONNECTHandler : public CommandHandler
@@ -18,7 +17,6 @@ class CONNECTHandler : public CommandHandler
 
     private:
 
-    IServerConfig *server_config_;
     IRCServer *irc_server_;
 
 };

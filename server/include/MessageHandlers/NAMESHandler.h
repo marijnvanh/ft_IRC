@@ -2,13 +2,12 @@
 #define NAMES_HANDLER_H
 
 #include "CommandHandler.h"
-#include "IClientDatabase.h"
 #include "IChannelDatabase.h"
 
 class NAMESHandler : public CommandHandler
 {
     public:
-    NAMESHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
+    NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~NAMESHandler();
 
     auto SafeHandle(IMessage &message) -> void override;

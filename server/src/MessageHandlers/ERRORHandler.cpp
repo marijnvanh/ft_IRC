@@ -4,8 +4,8 @@
 
 #define PARAM_ERROR_MESSAGE 0
 
-ERRORHandler::ERRORHandler(IClientDatabase *client_database) :
-	CommandHandler(client_database, "ERROR", 1)
+ERRORHandler::ERRORHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "ERROR", 1)
 {}
 
 ERRORHandler::~ERRORHandler()

@@ -7,7 +7,7 @@ class KILLHandler : public CommandHandler
 {
     public:
     
-    KILLHandler(IClientDatabase *client_database);
+    KILLHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~KILLHandler();
     
     auto SafeHandle(IMessage &message) -> void override;
@@ -18,7 +18,6 @@ class KILLHandler : public CommandHandler
 		std::vector<std::string> &params) -> void;
 	auto HandleKillForRemoteUser(IClient *client, IUser *otherUser,
 		std::vector<std::string> &params) -> void;
-
 };
 
 #endif

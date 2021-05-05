@@ -6,8 +6,7 @@
 #define REALNAME_PARAM 3
 
 USERHandler::USERHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-    CommandHandler(client_database, "USER", 4, true),
-    server_config_(server_config)
+    CommandHandler(server_config, client_database, "USER", 4, true)
 {}
 
 USERHandler::~USERHandler()
@@ -33,7 +32,7 @@ auto USERHandler::HandleUSERFromUser(IMessage &message) -> void
 
     if (client->GetType() != IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
         return ;
     }
 

@@ -5,8 +5,7 @@
 #define SERVER_NAME_PARAM 0
 
 CONNECTHandler::CONNECTHandler(IServerConfig *server_config, IClientDatabase *client_database, IRCServer *irc_server) :
-    CommandHandler(client_database, "CONNECT", 1),
-    server_config_(server_config),
+    CommandHandler(server_config, client_database, "CONNECT", 1),
     irc_server_(irc_server)
 {}
 
@@ -26,7 +25,7 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "CONNECT"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "CONNECT"));
 		return ;
 	}
 	auto authorized_servers = server_config_->GetAuthorizedServers();
@@ -34,7 +33,7 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
     auto server = authorized_servers.find(params[SERVER_NAME_PARAM]);
     if (server == authorized_servers.end())
 	{
-		client->Push(GetErrorMessage(ERR_NOSUCHSERVER, "CONNECT")); // Not an authorized server
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, "CONNECT")); // Not an authorized server
         return ;
     }
 

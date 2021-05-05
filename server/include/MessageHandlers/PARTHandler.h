@@ -7,13 +7,12 @@
 class PARTHandler : public CommandHandler
 {
     public:
-    PARTHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
+    PARTHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~PARTHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
 
     private:
-
     IChannelDatabase *channel_database_;
 
     auto StartPartParsing(std::vector<std::string> params, IClient* client) -> void;

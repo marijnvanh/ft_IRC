@@ -11,8 +11,7 @@
 #define SQUIT_MESSAGE	1
 
 SQUITHandler::SQUITHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-	CommandHandler(client_database, "SQUIT", 2),
-	server_config_(server_config)
+	CommandHandler(server_config, client_database, "SQUIT", 2)
 {}
 
 SQUITHandler::~SQUITHandler()
@@ -25,7 +24,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		user->Push(GetErrorMessage(ERR_NOPRIVILEGES, "SQUIT"));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "SQUIT"));
 		return ;
 	}
 	if (params[SERVER_NAME] == server_config_->GetName())
@@ -35,7 +34,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 	}
 	if (!server)
 	{
-		user->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 		return ;		
 	}
 
@@ -75,7 +74,7 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 			std::make_optional<std::string>(params[SQUIT_MESSAGE]));
 	}
 	else
-		server->Push(GetErrorMessage(ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 }
 
 auto SQUITHandler::SafeHandle(IMessage &message) -> void
@@ -103,14 +102,15 @@ auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> boo
 
 		if (!prefix)
 		{
-            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN, "SQUIT"));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN, "SQUIT"));
 			return (false);
 		}
 
 		auto original_client = client_database_->GetClient(*prefix);
 		if (!original_client)
 		{
-            (*client)->Push(GetErrorMessage(message.GetOriginType() == OriginType::SERVER
+            (*client)->Push(GetErrorMessage(server_config_->GetName(),
+				message.GetOriginType() == OriginType::SERVER
 				? ERR_NOSUCHSERVER : ERR_NOSUCHNICK, *prefix));
 		}
 		*client = *original_client;

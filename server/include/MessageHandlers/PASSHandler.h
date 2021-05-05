@@ -2,11 +2,10 @@
 #define PASS_HANDLER_HPP
 
 #include "CommandHandler.h"
-
 class PASSHandler : public CommandHandler
 {
     public:
-    PASSHandler(IClientDatabase *client_database);
+    PASSHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~PASSHandler();
 
     auto SafeHandle(IMessage &message) -> void override;

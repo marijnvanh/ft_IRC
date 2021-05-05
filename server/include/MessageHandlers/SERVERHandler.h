@@ -2,7 +2,6 @@
 #define SERVER_HANDLER_HPP
 
 #include "IServer.h"
-#include "IServerConfig.h"
 #include "CommandHandler.h"
 
 class SERVERHandler : public CommandHandler
@@ -15,8 +14,6 @@ class SERVERHandler : public CommandHandler
     auto SafeHandle(IMessage &message) -> void override;
 
     private:
-
-    IServerConfig *server_config_;
 
     auto HandleLocalServerRegistration(IClient *client, IMessage &message) -> void;
     auto HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, const std::string &server_name) -> void;

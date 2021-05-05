@@ -8,8 +8,7 @@
 #define PARAM_INFO 2
 
 SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-    CommandHandler(client_database, "SERVER", 3, true),
-	server_config_(server_config)
+    CommandHandler(server_config, client_database, "SERVER", 3, true)
 {}
 
 SERVERHandler::~SERVERHandler()
@@ -22,7 +21,7 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
 
 	if (client->GetType() == IClient::Type::kLocalUser)
 	{
-		client->Push(GetErrorMessage(ERR_ALREADYREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
 		return;
 	}
     
@@ -39,13 +38,13 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
         auto remote_server_name = message.GetServername();
         if (!remote_server_name)
         {
-    		client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS));
+    		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS));
             return ;
         }
         auto remote_server = client_database_->GetServer(*remote_server_name);
         if (!remote_server)
         {
-    		client->Push(GetErrorMessage(ERR_NOSUCHSERVER, *remote_server_name));
+    		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, *remote_server_name));
             return ;
         }
         auto local_server = (*client_database_->GetServer(client->GetUUID()));

@@ -4,6 +4,7 @@
 #include "MockClient.h"
 #include "MockClientDatabase.h"
 #include "MockMessage.h"
+#include "MockServerConfig.h"
 #include "UUID.h"
 
 using ::testing::AtLeast;
@@ -21,6 +22,8 @@ class PASSTests : public ::testing::Test
     std::vector<std::string> params;
 
     MockClientDatabase mock_client_database;
+    MockServerConfig mock_server_config;
+
 
     void SetUp() override
     {
@@ -35,7 +38,7 @@ class PASSTests : public ::testing::Test
 
 TEST_F(PASSTests, SuccessTest)
 {
-    PASSHandler PASS_handler(&mock_client_database);
+    PASSHandler PASS_handler(&mock_server_config, &mock_client_database);
     params.push_back("test1");
     PASS_handler.Handle(message1);
 
@@ -44,7 +47,7 @@ TEST_F(PASSTests, SuccessTest)
 
 TEST_F(PASSTests, InvalidParams)
 {
-    PASSHandler PASS_handler(&mock_client_database);
+    PASSHandler PASS_handler(&mock_server_config, &mock_client_database);
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
 
     PASS_handler.Handle(message1);
@@ -52,7 +55,7 @@ TEST_F(PASSTests, InvalidParams)
 
 TEST_F(PASSTests, AlreadyRegisteredClient)
 {
-    PASSHandler PASS_handler(&mock_client_database);
+    PASSHandler PASS_handler(&mock_server_config, &mock_client_database);
     mock_client1.SetType(IClient::Type::kLocalUser);
 
     EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg

@@ -7,14 +7,12 @@
 class PRIVMSGHandler : public CommandHandler
 {
     public:
-	
-    PRIVMSGHandler(IClientDatabase *client_database, IChannelDatabase *channel_database);
+    PRIVMSGHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~PRIVMSGHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
 
     private:
-
     IChannelDatabase *channel_database_;
 
     /**

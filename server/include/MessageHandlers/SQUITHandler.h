@@ -1,7 +1,6 @@
 #ifndef SQUIT_HANDLER_HPP
 #define SQUIT_HANDLER_HPP
 
-#include "IServerConfig.h"
 #include "CommandHandler.h"
 
 class SQUITHandler : public CommandHandler
@@ -24,7 +23,6 @@ public:
 
  private:
 
-	IServerConfig *server_config_;
     IClientDatabase *client_database_;
 
 };

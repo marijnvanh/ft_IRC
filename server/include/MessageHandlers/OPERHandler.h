@@ -1,7 +1,6 @@
 #ifndef OPER_HANDLER_HPP
 #define OPER_HANDLER_HPP
 
-#include "IServerConfig.h"
 #include "CommandHandler.h"
 
 /**
@@ -14,10 +13,6 @@ class OPERHandler : public CommandHandler
     ~OPERHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
-
-    private:
-
-	IServerConfig *server_config_;
 };
 
 #endif

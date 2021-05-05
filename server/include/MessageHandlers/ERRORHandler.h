@@ -6,7 +6,7 @@
 class ERRORHandler : public CommandHandler
 {
     public:
-    ERRORHandler(IClientDatabase *client_database);
+    ERRORHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~ERRORHandler();
 
     auto SafeHandle(IMessage &message) -> void override;

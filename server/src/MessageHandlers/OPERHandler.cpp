@@ -7,8 +7,7 @@
 
 OPERHandler::OPERHandler(IServerConfig *server_config,
 	IClientDatabase *client_database) :
-    CommandHandler(client_database, "OPER", 2),
-	server_config_(server_config)
+    CommandHandler(server_config, client_database, "OPER", 2)
 {}
 
 OPERHandler::~OPERHandler()
@@ -21,7 +20,7 @@ auto OPERHandler::SafeHandle(IMessage &message) -> void
 
 	if (client->GetType() == IClient::Type::kLocalServer)
 	{
-        client->Push(GetErrorMessage(ERR_NOOPERHOST, "OPER"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOOPERHOST, "OPER"));
 		return ;
 	}
 
@@ -31,7 +30,7 @@ auto OPERHandler::SafeHandle(IMessage &message) -> void
 	if (admin == administrators.end() ||
 		admin->second != params[PARAM_PASSWORD])
 	{
-        client->Push(GetErrorMessage(ERR_PASSWDMISMATCH, "OPER"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_PASSWDMISMATCH, "OPER"));
 		return ;
 	}
 	

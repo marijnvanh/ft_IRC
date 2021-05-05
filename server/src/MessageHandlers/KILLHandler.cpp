@@ -7,8 +7,8 @@
 
 #define DEFAULT_KILL_MESSAGE "Has been killed"
 
-KILLHandler::KILLHandler(IClientDatabase *client_database) :
-	CommandHandler(client_database, "KILL", 2)
+KILLHandler::KILLHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "KILL", 2)
 {}
 
 KILLHandler::~KILLHandler()
@@ -31,7 +31,7 @@ auto KILLHandler::SafeHandle(IMessage &message) -> void
 			HandleKillForLocalUser(client, *otherUser, params);
 	}
 	else
-		client->Push(GetErrorMessage(ERR_NOSUCHNICK, nickname));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, nickname));
 }
 
 auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
@@ -40,7 +40,7 @@ auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
 	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
@@ -58,7 +58,7 @@ auto KILLHandler::HandleKillForRemoteUser(IClient *client, IUser *otherUser,
 	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(ERR_NOPRIVILEGES, "KILL"));
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "KILL"));
 		return ;
 	}
 
@@ -76,13 +76,13 @@ auto KILLHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool
     
         if (remote_client_nickname == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(ERR_NONICKNAMEGIVEN));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return (false);
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(ERR_NOSUCHNICK , *remote_client_nickname));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
             return (false);
         }
         *client = *remote_client;

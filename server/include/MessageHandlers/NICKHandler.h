@@ -1,8 +1,6 @@
 #ifndef NICK_HANDLER_HPP
 #define NICK_HANDLER_HPP
 
-#include "Logger.h"
-#include "IServerConfig.h"
 #include "CommandHandler.h"
 
 class NICKHandler : public CommandHandler
@@ -15,8 +13,6 @@ class NICKHandler : public CommandHandler
     auto SafeHandle(IMessage &message) -> void override;
     
     private:
-
-    IServerConfig *server_config_;
 
     auto HandleNewRemoteUser(IClient* server, IMessage &message) -> void;
     auto HandleNICKFromUser(IClient* client, IMessage &message) -> void;

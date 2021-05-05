@@ -26,8 +26,8 @@
    NAMES                           ; list all visible channels and users
 */
 
-NAMESHandler::NAMESHandler(IClientDatabase *client_database, IChannelDatabase *channel_database) :
-    CommandHandler(client_database, "NAMES"),
+NAMESHandler::NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+	CommandHandler(server_config, client_database, "NAMES"),
     channel_database_(channel_database)
 {}
 

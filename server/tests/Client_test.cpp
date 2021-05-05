@@ -65,7 +65,7 @@ TEST_F(ClientTests, SendAllClosedIOHandlerException)
     client->Push("test");
 
     EXPECT_CALL(*io_handler, Send("test\r\n"))
-        .Times(1)
+        .Times(2)
         .WillOnce(Throw(IRC::IIOHandler::Closed("test\r\n")));
 
     ASSERT_THROW(client->SendAll(), IClient::Disconnected);

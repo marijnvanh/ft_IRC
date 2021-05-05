@@ -14,6 +14,13 @@ Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
 
 Client::~Client()
 {
+    try {
+        SendAll();
+    }
+    catch (IClient::Disconnected &ex)
+    {
+        (void)ex;
+    }
     logger.Log(LogLevel::DEBUG, "Client object destroyed");
 }
 

@@ -2,13 +2,12 @@
 #define QUIT_HANDLER_HPP
 
 #include "CommandHandler.h"
-#include "IClientDatabase.h"
 
 class QUITHandler : public CommandHandler
 {
     public:
     
-    QUITHandler(IClientDatabase *client_database);
+    QUITHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~QUITHandler();
     
     auto SafeHandle(IMessage &message) -> void override;

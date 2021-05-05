@@ -6,7 +6,7 @@
 class PINGHandler : public CommandHandler
 {
     public:
-    PINGHandler(IClientDatabase *client_database);
+    PINGHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~PINGHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
