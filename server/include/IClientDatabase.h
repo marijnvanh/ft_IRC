@@ -30,7 +30,7 @@ class IClientDatabase
 		std::optional<std::string> quit_message) -> void = 0;
 
     virtual auto GetClient(IRC::UUID uuid) -> std::optional<IClient*> = 0;
-    virtual auto GetClient(const std::string &nickname) -> std::optional<IClient*> = 0;
+    virtual auto GetClient(const std::string &name) -> std::optional<IClient*> = 0;
     virtual auto GetServer(const std::string &server_name) -> std::optional<IServer*> = 0;
     virtual auto GetServer(IRC::UUID uuid) -> std::optional<IServer*> = 0;
     virtual auto GetUser(const std::string &nickname) -> std::optional<IUser*> = 0;

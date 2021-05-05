@@ -260,18 +260,18 @@ auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::optional<IClient*>
     return std::nullopt;
 }
 
-auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<IClient*>
+auto ClientDatabase::GetClient(const std::string &name) -> std::optional<IClient*>
 {
-    auto client = FindNickname(clients_, nickname);
+    auto client = FindNickname(clients_, name);
     if (client)
         return client;
-    client = FindNickname(local_users_, nickname);
+    client = FindNickname(local_users_, name);
     if (client)
         return client;
-    client = FindNickname(remote_users_, nickname);
+    client = FindNickname(remote_users_, name);
     if (client)
         return client;
-    client = GetServer(nickname);
+    client = GetServer(name);
 	if (client)
 		return client;
     return std::nullopt;

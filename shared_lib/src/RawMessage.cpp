@@ -40,7 +40,6 @@ auto IRC::ParsePrefix(CharStream &s) -> RawPrefix {
   auto name = TryParseServername(s);
   if (name)
   {
-	  // Not sure if this works properly. Copy or clone?
 	  rawPrefix.name = (*name).value;
 	  rawPrefix.is_server_origin = true;
 	  return rawPrefix;
