@@ -49,7 +49,6 @@ auto IRCServer::RunOnce() -> void
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));
 
-			client->SetLastPing(true);
 			client->SetPingTime(GetCurrentSecond() + server_data_->server_config_.GetPingTime());
             server_data_->client_database_.AddClient(std::move(client));
             logger.Log(LogLevel::DEBUG, "New client on FD: %d", socket->GetFD());
@@ -115,14 +114,14 @@ auto IRCServer::PingClients() -> void
 				return ;
 			}
 			
-			if (!client->GetLastPing())
+			if (!client->RespondedToLastPing())
 			{
 				server_data_->client_database_.DisconnectClient(client->GetUUID(),
 					std::make_optional<std::string>("PING timeout"));
 				return ;
 			}
 
-			client->SetLastPing(false);
+			client->SetRespondedToLastPing(false);
 			client->SetPingTime(GetCurrentSecond() + server_data_->server_config_.GetPingTime());
 
 			client->Push("PING " + server_data_->server_config_.GetName());

@@ -67,12 +67,16 @@ class IClient
     /**
      * @brief Whether or not this client should be pinged.
      */
-	virtual auto ShouldPing(time_t current_time) -> bool { (void)current_time; return false; }
+	virtual auto ShouldPing(time_t current_time) -> bool
+	{
+		return ((type_ == Type::kUnRegistered || type_ == Type::kLocalUser) &&
+			current_time >= ping_time_);
+	}
 	virtual auto GetPingTime() -> time_t { return ping_time_; }
 	virtual auto SetPingTime(time_t ping_time) -> void { ping_time_ = ping_time; }
 
-	virtual auto GetLastPing() -> bool { return last_ping_ & 1; }
-	virtual auto SetLastPing(bool responded) -> void { last_ping_ = responded; }
+	virtual auto RespondedToLastPing() -> bool { return last_ping_responded_ & 1; }
+	virtual auto SetRespondedToLastPing(bool responded) -> void { last_ping_responded_ = responded; }
     
 	virtual auto GetType() const -> IClient::Type { return type_; }
     virtual auto SetType(IClient::Type type) -> void { type_ = type; }
@@ -108,7 +112,7 @@ class IClient
 	/**
 	 * @brief Whether or not the client responded to the last ping (0 = false, 1 = true).
 	 */
-	unsigned int last_ping_:1;
+	unsigned int last_ping_responded_:1;
 
     Type type_;
     RegisterState register_state_;

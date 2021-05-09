@@ -11,9 +11,10 @@ auto PONGHandler::SafeHandle(IMessage &message) -> void
 {
 	auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
-	if (client->GetType() == IClient::Type::kLocalUser)
+	if (client->GetType() == IClient::Type::kLocalUser ||
+		client->GetType() == IClient::Type::kUnRegistered)
 	{
 		// Could also do a PONG overload/spam protection here?
-		client->SetLastPing(true);
+		client->SetRespondedToLastPing(true);
 	}
 }
