@@ -41,6 +41,7 @@ class IClientDatabase
     
     virtual auto DoForEachServer(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void = 0;
     virtual auto DoForEachUser(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void = 0;
+    virtual auto DoForEachClient(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void = 0;
 
     class DuplicateClient : public std::runtime_error
     {

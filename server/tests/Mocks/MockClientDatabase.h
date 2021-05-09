@@ -28,6 +28,7 @@ class MockClientDatabase : public IClientDatabase {
     MOCK_METHOD(void, BroadcastToLocalServers, (const std::string &irc_message, std::optional<IRC::UUID> skip_uuid), ());
     MOCK_METHOD(void, DoForEachServer, (std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid), ());
     MOCK_METHOD(void, DoForEachUser, (std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid), ());
+    MOCK_METHOD(void, DoForEachClient, (std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid), ());
 
 };
 

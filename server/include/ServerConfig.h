@@ -23,6 +23,7 @@ private:
 	std::string config_file_;
 	Logger logger;
 
+	auto ParsePingData(nlohmann::json jf) -> void;
 	auto ParseServerData(nlohmann::json jf) -> void;
 	auto ParseHostingData(nlohmann::json jf) -> void;
 	auto ParseLogData(nlohmann::json jf) -> void;

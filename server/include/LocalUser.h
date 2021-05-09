@@ -19,6 +19,11 @@ class LocalUser : public Client, ILocalUser, User
         logger.Log(LogLevel::INFO, "Local User died");
     };
 
+    auto ShouldPing(time_t current_time) -> bool override
+	{
+		return (current_time >= ping_time_);
+	};
+
     private:
 };
 

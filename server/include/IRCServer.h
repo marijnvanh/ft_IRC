@@ -3,12 +3,13 @@
 
 #include <memory>
 #include <vector>
+#include <time.h>
 #include <optional>
 
-#include "IOController.h"
-#include "ServerData.h"
-#include "IMessageDispatcher.h"
 #include "Logger.h"
+#include "ServerData.h"
+#include "IOController.h"
+#include "IMessageDispatcher.h"
 
 using namespace IRC;
 
@@ -39,12 +40,21 @@ class IRCServer
      */
     auto CreateNewConnection(std::string &ip, std::string &port) -> std::optional<IClient*>;
 
+	auto GetCurrentSecond() -> time_t
+	{
+		return time_.tv_sec;
+	}
+
     private:
+
+	struct timespec time_;
 
     std::unique_ptr<ServerData> server_data_;
     std::unique_ptr<IMessageDispatcher> message_dispatcher_;
     TCP::IOController tcp_io_controller_;
     Logger logger;
+
+	auto PingClients() -> void;
 };
 
 #endif

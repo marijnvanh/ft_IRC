@@ -21,8 +21,19 @@ ServerConfig::ServerConfig(const std::string &file_path) :
 {
 	if (this->TryParseFrom(file_path) == false)
 	{
+		this->ping_time_ = DEFAULT_PING_TIME;
+
 		this->server_port_ = DEFAULT_SERVER_PORT;
 		this->server_address_ = DEFAULT_SERVER_ADDRESS;
+	}
+}
+
+auto ServerConfig::ParsePingData(json jf) -> void
+{
+	this->ping_time_ = DEFAULT_PING_TIME;
+	if (jf.contains("ping-time"))
+	{
+		this->ping_time_ = jf["ping-time"];
 	}
 }
 
@@ -102,6 +113,7 @@ auto ServerConfig::TryParseFrom(std::string file_path) -> bool
 	}
 	try {
 		json jf = json::parse(ifs);
+		ParsePingData(jf);
 		ParseServerData(jf);
 		ParseHostingData(jf);
 		ParseLogData(jf);

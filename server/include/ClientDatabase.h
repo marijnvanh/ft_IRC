@@ -62,6 +62,7 @@ class ClientDatabase : public IClientDatabase
      */
     auto DoForEachServer(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void override;
     auto DoForEachUser(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void override;
+    auto DoForEachClient(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void override;
 
     /**
      * @brief Empty all client send queus

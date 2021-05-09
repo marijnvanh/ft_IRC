@@ -28,5 +28,6 @@
 			["ChannelDatabase", "INFO"],
 			["IOController", "INFO"]
 		]
-	}
+	},
+	"ping-time": 15
 }
