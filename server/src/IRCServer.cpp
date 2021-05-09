@@ -38,7 +38,9 @@ auto IRCServer::Start() -> void
 };
 
 auto IRCServer::RunOnce() -> void
-{
+{	
+	time_.tv_sec = time(NULL);
+
     tcp_io_controller_.RunOnce();
 
     tcp_io_controller_.AcceptNewConnections(
@@ -47,6 +49,7 @@ auto IRCServer::RunOnce() -> void
             auto io_handler = std::make_unique<TCPIOHandler>(socket);
             auto client = std::make_unique<Client>(std::move(io_handler));
 
+			client->SetPingTime(GetCurrentSecond() + server_data_->server_config_.GetPingTime());
             server_data_->client_database_.AddClient(std::move(client));
             logger.Log(LogLevel::DEBUG, "New client on FD: %d", socket->GetFD());
         });
@@ -54,6 +57,9 @@ auto IRCServer::RunOnce() -> void
     server_data_->client_database_.PollClients(
         [this](IClient* client, std::string raw_message)
         {
+			// Reset ping time if we get activity from a client.
+			client->SetPingTime(GetCurrentSecond() + server_data_->server_config_.GetPingTime());
+
             try {
                 auto parsed_message = IRC::Parser::RunParser<IRC::RawMessage>(IRC::ParseRawMessage, raw_message);
                 auto message = Message(client->GetUUID(), parsed_message);
@@ -70,6 +76,8 @@ auto IRCServer::RunOnce() -> void
                 client->Push("ERROR :Could not parse message");
             }
         });
+
+	this->PingClients();
     server_data_->client_database_.SendAll();
 }
 
@@ -94,4 +102,28 @@ auto IRCServer::CreateNewConnection(std::string &ip, std::string &port) -> std::
     auto io_handler = std::make_unique<TCPIOHandler>(server_socket);
     auto client = std::make_unique<Client>(std::move(io_handler));
     return std::optional<IClient*>(server_data_->client_database_.AddClient(std::move(client)));
+}
+
+auto IRCServer::PingClients() -> void
+{
+	this->server_data_->client_database_.DoForEachClient(
+		[&](IClient* client)
+		{
+			if (!client->ShouldPing(GetCurrentSecond()))
+			{
+				return ;
+			}
+			
+			if (!client->RespondedToLastPing())
+			{
+				server_data_->client_database_.DisconnectClient(client->GetUUID(),
+					std::make_optional<std::string>("PING timeout"));
+				return ;
+			}
+
+			client->SetRespondedToLastPing(false);
+			client->SetPingTime(GetCurrentSecond() + server_data_->server_config_.GetPingTime());
+
+			client->Push("PING " + server_data_->server_config_.GetName());
+		}, std::nullopt);
 }

@@ -5,6 +5,8 @@
 
 #include "nlohmann/json.hpp"
 
+#define DEFAULT_PING_TIME 120
+
 #define DEFAULT_SERVER_PORT "5000"
 #define DEFAULT_SERVER_ADDRESS "0.0.0.0"
 
@@ -13,6 +15,7 @@ struct IServerConfig
 
 public:
 
+	auto SetPingTime(uint32_t ping_time) -> void { ping_time_ = ping_time; }
 	auto SetId(std::string server_id) -> void { server_id_ = server_id; }
 	auto SetName(std::string server_name) -> void { server_name_ = server_name; }
 	auto SetNetwork(std::string server_network) -> void { server_network_ = server_network; }
@@ -21,6 +24,7 @@ public:
 	auto SetPort(std::string server_port) -> void { server_port_ = server_port; }
 	auto SetAddress(std::string server_address) -> void { server_address_ = server_address; }
 
+	auto GetPingTime() -> uint32_t { return (ping_time_); }
 	auto GetId() -> const std::string { return (server_id_); }
 	auto GetName() -> const std::string { return (server_name_); }
 	auto GetNetwork() -> const std::string { return (server_network_); }
@@ -33,6 +37,11 @@ public:
 	auto GetAuthorizedServers() -> std::unordered_map<std::string, std::pair<std::string, std::string>>& { return (authorized_servers_); }
 
 protected:
+
+	/**
+	 * @brief Determines the time (in seconds) between pinging a client to check for liveness. 
+	 */
+	uint32_t ping_time_;
 
     /**
      * @brief ID of the server, 3 characters long.

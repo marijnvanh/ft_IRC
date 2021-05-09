@@ -63,9 +63,22 @@ class IClient
      * @exception IClient::Disconnected
      */
     virtual auto SendAll() -> void = 0;
-    
 
-    virtual auto GetType() const -> IClient::Type { return type_; }
+    /**
+     * @brief Whether or not this client should be pinged.
+     */
+	virtual auto ShouldPing(time_t current_time) -> bool
+	{
+		return ((type_ == Type::kUnRegistered || type_ == Type::kLocalUser) &&
+			current_time >= ping_time_);
+	}
+	virtual auto GetPingTime() -> time_t { return ping_time_; }
+	virtual auto SetPingTime(time_t ping_time) -> void { ping_time_ = ping_time; }
+
+	virtual auto RespondedToLastPing() -> bool { return last_ping_responded_ & 1; }
+	virtual auto SetRespondedToLastPing(bool responded) -> void { last_ping_responded_ = responded; }
+    
+	virtual auto GetType() const -> IClient::Type { return type_; }
     virtual auto SetType(IClient::Type type) -> void { type_ = type; }
     virtual auto GetRegisterState() const -> IClient::RegisterState { return register_state_; }
     virtual auto SetRegisterState(IClient::RegisterState state) -> void { register_state_ = state; }
@@ -91,6 +104,15 @@ class IClient
     };
 
     protected:
+
+	/**
+	 * @brief The time (in seconds) when this client should be pinged for activity.
+	 */
+	time_t ping_time_;
+	/**
+	 * @brief Whether or not the client responded to the last ping (0 = false, 1 = true).
+	 */
+	unsigned int last_ping_responded_:1;
 
     Type type_;
     RegisterState register_state_;

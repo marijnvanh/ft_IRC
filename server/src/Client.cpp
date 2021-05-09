@@ -10,6 +10,8 @@ Client::Client(std::unique_ptr<IRC::IIOHandler> io_handler) :
 
 {
     logger.Log(LogLevel::INFO, "Client connected");
+
+	SetRespondedToLastPing(true);
 }
 
 Client::~Client()

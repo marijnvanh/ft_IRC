@@ -1,5 +1,6 @@
 #include "MessageDispatcher.h"
 #include "MessageHandlers/PINGHandler.h"
+#include "MessageHandlers/PONGHandler.h"
 #include "MessageHandlers/PASSHandler.h"
 #include "MessageHandlers/NICKHandler.h"
 #include "MessageHandlers/USERHandler.h"
@@ -16,6 +17,7 @@
 #include "MessageHandlers/NUMERICHandler.h"
 #include "MessageHandlers/CONNECTHandler.h"
 #include "MessageHandlers/OPERHandler.h"
+#include "MessageHandlers/NOTICEHandler.h"
 
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_server) :
@@ -38,6 +40,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
     );
     command_handlers_.insert(std::make_pair("PING",
         std::make_unique<PINGHandler>(&server_data->server_config_, &server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("PONG",
+        std::make_unique<PONGHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("PASS",
         std::make_unique<PASSHandler>(&server_data->server_config_, &server_data->client_database_))
@@ -71,6 +76,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
     );
     command_handlers_.insert(std::make_pair("OPER",
         std::make_unique<OPERHandler>(&server_data->server_config_, &server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("NOTICE",
+        std::make_unique<NOTICEHandler>(&server_data->server_config_, &server_data->client_database_))
     );
 }
 
