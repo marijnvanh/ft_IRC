@@ -6,25 +6,18 @@
 #define REALNAME_PARAM 3
 
 USERHandler::USERHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-    server_config_(server_config),
-    client_database_(client_database),
-    logger("USERHandler")
+    CommandHandler(server_config, client_database, "USER", 4, true)
 {}
 
 USERHandler::~USERHandler()
 {}
 
-auto USERHandler::Handle(IMessage &message) -> void
+auto USERHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
     auto params = message.GetParams();
-    if (params.size() < 4)
-    {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "USER"));
-        return ;
-    }
 
+	// TOOD: Could we get this from a remote user?
     if (client->GetType() == IClient::Type::kLocalServer)
     {
         client->Push("ERROR: USER command not supported from server");

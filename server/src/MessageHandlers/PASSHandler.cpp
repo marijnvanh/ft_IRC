@@ -2,16 +2,14 @@
 #include "Numerics.h"
 #include "Utilities.h"
 
-PASSHandler::PASSHandler(IServerConfig *server_config, IClientDatabase *client_database)
-    : server_config_(server_config),
-    client_database_(client_database),
-    logger("PASSHandler")
+PASSHandler::PASSHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "PASS", 1, true)
 {}
 
 PASSHandler::~PASSHandler()
 {}
 
-auto PASSHandler::Handle(IMessage &message) -> void
+auto PASSHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
     
@@ -21,14 +19,9 @@ auto PASSHandler::Handle(IMessage &message) -> void
         return ;
     }
 
-    logger.Log(LogLevel::DEBUG, "Setting Password");
+    logger_.Log(LogLevel::DEBUG, "Setting Password");
     
     auto params = message.GetParams();
-    if (params.size() == 0)
-    {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "PASS"));
-        return ;
-    }
     //TODO Parse password
     client->SetPassword(params.front());
 }

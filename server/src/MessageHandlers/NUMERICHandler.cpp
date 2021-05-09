@@ -4,9 +4,8 @@
 
 #define PARAM_ERROR_MESSAGE 0
 
-NUMERICHandler::NUMERICHandler(IClientDatabase *client_database)
-	: client_database_(client_database),
-    logger("NUMERICHandler")
+NUMERICHandler::NUMERICHandler(IServerConfig* server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "NUMERIC")
 {}
 
 NUMERICHandler::~NUMERICHandler()
@@ -31,7 +30,7 @@ static auto FormNumericMessage(IMessage &message) -> std::string
     return numeric_message;
 }
 
-auto NUMERICHandler::Handle(IMessage &message) -> void
+auto NUMERICHandler::SafeHandle(IMessage &message) -> void
 {
 	/* If numeric does not come from a server we ignore it */
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
@@ -53,5 +52,5 @@ auto NUMERICHandler::Handle(IMessage &message) -> void
 	}
 
     (*receiver)->Push(FormNumericMessage(message));
-    logger.Log(LogLevel::DEBUG, "Forwarded numeric reply %s", message.GetCommand().c_str());
+    logger_.Log(LogLevel::DEBUG, "Forwarded numeric reply %s", message.GetCommand().c_str());
 }

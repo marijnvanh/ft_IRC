@@ -47,6 +47,10 @@ auto CharStream::Location() const -> size_t {
   return read_head_;
 }
 
+auto CharStream::SetLocation(size_t location) -> void {
+  read_head_ = location;
+}
+
 auto CharStream::DebugStream() const -> void {
   std::cout << "Debugging stream at " << read_head_ << "." << std::endl;
   std::cout << "Tail text: <<" << Tail() << ">>" << std::endl;

@@ -1,12 +1,9 @@
 #ifndef SQUIT_HANDLER_HPP
 #define SQUIT_HANDLER_HPP
 
-#include "Logger.h"
-#include "IServerConfig.h"
-#include "IClientDatabase.h"
-#include "MessageHandlers/ICommandHandler.h"
+#include "CommandHandler.h"
 
-class SQUITHandler : public ICommandHandler
+class SQUITHandler : public CommandHandler
 {
 
 public:
@@ -15,7 +12,7 @@ public:
 		IClientDatabase *client_database);
     ~SQUITHandler();
 
-    auto Handle(IMessage &message) -> void override;
+    auto SafeHandle(IMessage &message) -> void override;
 	
 	auto GetOriginalSender(IClient **client, IMessage &message) -> bool;
 
@@ -26,9 +23,7 @@ public:
 
  private:
 
-	IServerConfig *server_config_;
     IClientDatabase *client_database_;
-    Logger logger;
 
 };
 

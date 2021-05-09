@@ -34,28 +34,34 @@ ChannelDatabase_test.cpp
 package_add_test( PASSHandler_test
 ./HandlerTests/PASSHandler_test.cpp
 ../src/MessageHandlers/PASSHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( NICKHandler_test
 ./HandlerTests/NICKHandler_test.cpp
 ../src/MessageHandlers/NICKHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 ../src/RemoteUser.cpp
 ../src/User.cpp
 )
 package_add_test( USERHandler_test
 ./HandlerTests/USERHandler_test.cpp
 ../src/MessageHandlers/USERHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( JOINHandler_test
 ./HandlerTests/JOINHandler_test.cpp
 ../src/MessageHandlers/JOINHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( KILLHandler_test
 ./HandlerTests/KILLHandler_test.cpp
 ../src/MessageHandlers/KILLHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( MODEHandler_test
 ./HandlerTests/MODEHandler_test.cpp
 ../src/MessageHandlers/MODEHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( LocalServer_test
 LocalServer_test.cpp
@@ -71,6 +77,7 @@ User_test.cpp
 package_add_test( QUITHandler_test
 ./HandlerTests/QUITHandler_test.cpp
 ../src/MessageHandlers/QUITHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( ClientUpgrade_test
 ClientUpgrade_test.cpp
@@ -84,11 +91,13 @@ ClientUpgrade_test.cpp
 package_add_test( PRIVMSGHandler_test
 ./HandlerTests/PRIVMSGHandler_test.cpp
 ../src/MessageHandlers/PRIVMSGHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 
 package_add_test( NAMESHandler_test
 ./HandlerTests/NAMESHandler_test.cpp
 ../src/MessageHandlers/NAMESHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 )
 package_add_test( RemoteUser_test
 RemoteUser_test.cpp
@@ -98,6 +107,7 @@ RemoteUser_test.cpp
 package_add_test( SERVERHandler_test
 ./HandlerTests/SERVERHandler_test.cpp
 ../src/MessageHandlers/SERVERHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
 ../src/RemoteServer.cpp
 ../src/Server.cpp
 )

@@ -1,6 +1,6 @@
-#include "MessageHandlers/NAMESHandler.h"
 #include "Numerics.h"
 #include "Utilities.h"
+#include "MessageHandlers/NAMESHandler.h"
 
 #define CHANNEL_LIST 0
 /*
@@ -26,25 +26,17 @@
    NAMES                           ; list all visible channels and users
 */
 
-NAMESHandler::NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
-    : server_config_(server_config),
-    client_database_(client_database),
-    channel_database_(channel_database),
-    logger("NAMESHandler")
+NAMESHandler::NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+	CommandHandler(server_config, client_database, "NAMES"),
+    channel_database_(channel_database)
 {}
 
 NAMESHandler::~NAMESHandler()
 {}
 
-auto NAMESHandler::Handle(IMessage &message) -> void
+auto NAMESHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
-        return ;
-    }
     
     /* Names message can't come from a server, so we just ignore it if it does */
     if (client->GetType() == IClient::Type::kLocalServer)

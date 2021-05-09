@@ -1,27 +1,23 @@
-#ifndef __NAMES_HANDLER_H__
-#define __NAMES_HANDLER_H__
+#ifndef NAMES_HANDLER_H
+#define NAMES_HANDLER_H
 
-#include "MessageHandlers/ICommandHandler.h"
-#include "IClientDatabase.h"
+#include "CommandHandler.h"
 #include "IChannelDatabase.h"
-#include "IServerConfig.h"
-#include "Logger.h"
 
-class NAMESHandler : public ICommandHandler
+class NAMESHandler : public CommandHandler
 {
     public:
     NAMESHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~NAMESHandler();
 
-    auto Handle(IMessage &message) -> void override;
+    auto SafeHandle(IMessage &message) -> void override;
+   
     auto HandleNAMREPLY(IClient *receiver, std::vector<std::string> &channel_list) -> void;
     auto HandleNAMREPLY(IClient *receiver) -> void;
 
     private:
-    IServerConfig *server_config_;
-    IClientDatabase *client_database_;
+
     IChannelDatabase *channel_database_;
-    Logger logger;
 
 };
 

@@ -20,6 +20,8 @@ namespace IRC {
             auto Tail() const -> std::string;
             auto Location() const -> size_t;
             auto Remaining() const -> size_t;
+			
+			auto SetLocation(size_t location) -> void;
 
             auto DebugStream() const -> void;
 

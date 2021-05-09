@@ -7,17 +7,15 @@
 
 #define DEFAULT_QUIT_MESSAGE "Leaving"
 
-QUITHandler::QUITHandler(IServerConfig *server_config, IClientDatabase *client_database)
-    : server_config_(server_config),
-    client_database_(client_database),
-    logger("QUITHandler")
+QUITHandler::QUITHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "QUIT", 0, true)
 {}
 
 QUITHandler::~QUITHandler()
 {}
 
 //TODO Still a lot of todo's here
-auto QUITHandler::Handle(IMessage &message) -> void
+auto QUITHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 

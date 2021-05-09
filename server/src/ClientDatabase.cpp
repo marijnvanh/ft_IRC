@@ -232,6 +232,17 @@ auto ClientDatabase::AddServer(std::unique_ptr<IServer> new_server) -> void
     servers_.insert(std::make_pair(new_server->GetUUID(), std::move(new_server)));
 }
 
+static auto FindNickname(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, const std::string &nickname) ->
+    std::optional<IClient*>
+{
+    for (auto it = clients.begin(); it != clients.end(); it++)
+    {
+        if (it->second->GetNickname() == nickname)
+            return std::optional<IClient*>(it->second.get());
+    }
+    return std::nullopt;
+}
+
 auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::optional<IClient*>
 {
     auto client = clients_.find(uuid);
@@ -249,28 +260,20 @@ auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::optional<IClient*>
     return std::nullopt;
 }
 
-static auto FindNickname(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, const std::string &nickname) ->
-    std::optional<IClient*>
+auto ClientDatabase::GetClient(const std::string &name) -> std::optional<IClient*>
 {
-    for (auto it = clients.begin(); it != clients.end(); it++)
-    {
-        if (it->second->GetNickname() == nickname)
-            return std::optional<IClient*>(it->second.get());
-    }
-    return std::nullopt;
-}
-
-auto ClientDatabase::GetClient(const std::string &nickname) -> std::optional<IClient*>
-{
-    auto client = FindNickname(clients_, nickname);
+    auto client = FindNickname(clients_, name);
     if (client)
         return client;
-    client = FindNickname(local_users_, nickname);
+    client = FindNickname(local_users_, name);
     if (client)
         return client;
-    client = FindNickname(remote_users_, nickname);
+    client = FindNickname(remote_users_, name);
     if (client)
         return client;
+    client = GetServer(name);
+	if (client)
+		return client;
     return std::nullopt;
 }
 

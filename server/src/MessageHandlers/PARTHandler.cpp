@@ -1,18 +1,14 @@
 #include "Numerics.h"
 #include "Utilities.h"
-#include "ChannelDatabase.h"
 #include "MessageHandlers/PARTHandler.h"
 
 #define CHANNEL_NAME_PARAM 0
 #define PART_MESSAGE_PARAM 1
 
-PARTHandler::PARTHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
-	: server_config_(server_config),
-	client_database_(client_database),
-	channel_database_(channel_database),
-	logger("PARTHandler")
+PARTHandler::PARTHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+	CommandHandler(server_config, client_database, "PART", 1),
+	channel_database_(channel_database)
 {}
-
 PARTHandler::~PARTHandler()
 {}
 
@@ -55,23 +51,10 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 		client_database_->BroadcastToLocalServers(part_irc_msg, std::nullopt);
 }
 
-auto PARTHandler::Handle(IMessage &message) -> void
+auto PARTHandler::SafeHandle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-	// Handle unregistered client.
-	if (client->GetType() == IClient::Type::kUnRegistered)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
-		return;
-	}	
-	// Handle not enough parameters.
-	if (params.size() == 0)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "PART"));
-		return;
-	}
 
 	StartPartParsing(params, client);
 }

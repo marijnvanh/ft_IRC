@@ -2,19 +2,15 @@
 
 #include "Numerics.h"
 #include "Utilities.h"
-#include "ChannelDatabase.h"
 #include "MessageHandlers/JOINHandler.h"
 
 #define CHANNEL_NAME_PARAM 0
 #define CHANNEL_KEYS_PARAM 1
 
-JOINHandler::JOINHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
-	: server_config_(server_config),
-	client_database_(client_database),
-	channel_database_(channel_database),
-	logger("JOINHandler")
+JOINHandler::JOINHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+	CommandHandler(server_config, client_database, "JOIN", 1),
+	channel_database_(channel_database)
 {}
-
 JOINHandler::~JOINHandler()
 {}
 
@@ -105,23 +101,10 @@ auto JOINHandler::StartJoinParsing(const std::vector<std::string> &params,
 	}
 }
 
-auto JOINHandler::Handle(IMessage &message) -> void
+auto JOINHandler::SafeHandle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-	// Handle unregistered client.
-	if (client->GetType() == IClient::Type::kUnRegistered)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
-		return;
-	}	
-	// Handle not enough parameters.
-	if (params.size() == 0)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "JOIN"));
-		return;
-	}
 
 	// Handle server message.
 	if (client->GetType() == IClient::Type::kLocalServer)

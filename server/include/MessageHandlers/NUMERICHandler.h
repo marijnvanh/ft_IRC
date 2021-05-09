@@ -1,25 +1,20 @@
 #ifndef NUMERIC_HANDLER_HPP
 #define NUMERIC_HANDLER_HPP
 
-#include "Logger.h"
-#include "ICommandHandler.h"
-#include "IClientDatabase.h"
+#include "CommandHandler.h"
 
 /**
  * @brief Numeric handler is only used to forward numeric messages
  * 
  */
-class NUMERICHandler : public ICommandHandler
+class NUMERICHandler : public CommandHandler
 {
     public:
-    NUMERICHandler(IClientDatabase *client_database);
+    NUMERICHandler(IServerConfig* server_config_,
+		IClientDatabase *client_database);
     ~NUMERICHandler();
 
-    auto Handle(IMessage &message) -> void override;
-
-    private:
-    IClientDatabase *client_database_;
-    Logger logger;
+    auto SafeHandle(IMessage &message) -> void override;
 };
 
 #endif

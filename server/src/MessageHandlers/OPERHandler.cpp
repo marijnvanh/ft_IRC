@@ -7,32 +7,20 @@
 
 OPERHandler::OPERHandler(IServerConfig *server_config,
 	IClientDatabase *client_database) :
-    server_config_(server_config),
-    client_database_(client_database),
-    logger("OPERHandler")
+    CommandHandler(server_config, client_database, "OPER", 2)
 {}
 
 OPERHandler::~OPERHandler()
 {}
 
-auto OPERHandler::Handle(IMessage &message) -> void
+auto OPERHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
     auto params = message.GetParams();
 
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-        client->Push(GetErrorMessage(ERR_NOTREGISTERED));
-        return ;
-    }
-	if (params.size() < 2)
-	{
-        client->Push(GetErrorMessage(ERR_NEEDMOREPARAMS, "OPER"));
-        return ;		
-	}
 	if (client->GetType() == IClient::Type::kLocalServer)
 	{
-        client->Push(GetErrorMessage(ERR_NOOPERHOST, "OPER"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOOPERHOST, "OPER"));
 		return ;
 	}
 
@@ -42,7 +30,7 @@ auto OPERHandler::Handle(IMessage &message) -> void
 	if (admin == administrators.end() ||
 		admin->second != params[PARAM_PASSWORD])
 	{
-        client->Push(GetErrorMessage(ERR_PASSWDMISMATCH, "OPER"));
+        client->Push(GetErrorMessage(server_config_->GetName(), ERR_PASSWDMISMATCH, "OPER"));
 		return ;
 	}
 	

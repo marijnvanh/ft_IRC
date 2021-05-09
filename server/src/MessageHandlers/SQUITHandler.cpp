@@ -10,14 +10,9 @@
 #define SERVER_NAME		0
 #define SQUIT_MESSAGE	1
 
-SQUITHandler::SQUITHandler(IServerConfig *server_config,
-	IClientDatabase *client_database) :
-	server_config_(server_config),
-    client_database_(client_database),
-    logger("SQUITHandler")
-{
-	(void)server_config_;
-}
+SQUITHandler::SQUITHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "SQUIT", 2)
+{}
 
 SQUITHandler::~SQUITHandler()
 {}
@@ -82,21 +77,11 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 		server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 }
 
-auto SQUITHandler::Handle(IMessage &message) -> void
+auto SQUITHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 	auto params = message.GetParams();
-	
-	if (params.size() < 2)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "SQUIT"));
-		return;
-	}
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED, "SQUIT"));
-		return ;
-    }
+
 	if (!GetOriginalSender(&client, message))
 		return ;
 
@@ -113,33 +98,22 @@ auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> boo
 {
 	if ((*client)->GetType() == IClient::Type::kLocalServer)
 	{
-        auto remote_client_nickname = message.GetNickname();
+        auto prefix = message.GetPrefix();
 
-		// TODO: Make sure the following works in the parser/message.
-		/*		
-		message.GetPrefix();
-		if (message.GetOriginType() == OriginType::Server)
+		if (!prefix)
 		{
-			// Search in server DB.
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN, "SQUIT"));
+			return (false);
 		}
-		else // Remote user
-		{
-			// Search in remote user DB
-		}*/
 
-        if (remote_client_nickname == std::nullopt)
-        {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
-            return (false);
-        }
-		// TODO: Handle this properly for servers.
-        auto remote_client = client_database_->GetClient(*remote_client_nickname);
-        if (!remote_client)
-        {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
-            return (false);
-        }
-        *client = *remote_client;
+		auto original_client = client_database_->GetClient(*prefix);
+		if (!original_client)
+		{
+            (*client)->Push(GetErrorMessage(server_config_->GetName(),
+				message.GetOriginType() == OriginType::SERVER
+				? ERR_NOSUCHSERVER : ERR_NOSUCHNICK, *prefix));
+		}
+		*client = *original_client;
 	}
 	return (true);
 }

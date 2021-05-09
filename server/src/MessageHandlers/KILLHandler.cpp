@@ -7,30 +7,18 @@
 
 #define DEFAULT_KILL_MESSAGE "Has been killed"
 
-KILLHandler::KILLHandler(IServerConfig *server_config, IClientDatabase *client_database)
-    : server_config_(server_config),
-	client_database_(client_database),
-    logger("KILLHandler")
+KILLHandler::KILLHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+	CommandHandler(server_config, client_database, "KILL", 2)
 {}
 
 KILLHandler::~KILLHandler()
 {}
 
-auto KILLHandler::Handle(IMessage &message) -> void
+auto KILLHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 	auto params = message.GetParams();
 
-	if (params.size() < 2)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "KILL"));
-		return ;
-	}
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED, "KILL"));
-		return ;
-    }
 	if (!GetCorrectSender(&client, message))
 		return ;
 

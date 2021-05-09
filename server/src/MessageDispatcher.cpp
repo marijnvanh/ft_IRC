@@ -64,7 +64,7 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
         std::make_unique<ERRORHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("NUMERIC",
-        std::make_unique<NUMERICHandler>(&server_data->client_database_))
+        std::make_unique<NUMERICHandler>(&server_data->server_config_, &server_data->client_database_))
     );
     command_handlers_.insert(std::make_pair("CONNECT",
         std::make_unique<CONNECTHandler>(&server_data->server_config_, &server_data->client_database_, irc_server))

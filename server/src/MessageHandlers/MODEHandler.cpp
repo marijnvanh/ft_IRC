@@ -6,14 +6,9 @@
 #define MODE_CHANGES				1
 #define CHANNEL_TARGET_IDENTIFIER	2
 
-/*
-ERR_NEEDMOREPARAMS RPL_CHANNELMODEIS ERR_NOSUCHNICK*/
-
-MODEHandler::MODEHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database)
-	: server_config_(server_config),
-    client_database_(client_database),
-    channel_database_(channel_database),
-    logger("MODEHandler")
+MODEHandler::MODEHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+	CommandHandler(server_config, client_database, "MODE", 1),
+    channel_database_(channel_database)
 {}
 
 MODEHandler::~MODEHandler()
@@ -78,22 +73,10 @@ auto MODEHandler::HandleChannelOperatorSet(IUser *user, IChannel *channel,
 	}	
 }
 
-auto MODEHandler::Handle(IMessage &message) -> void
+auto MODEHandler::SafeHandle(IMessage &message) -> void
 {
     auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-    if (client->GetType() == IClient::Type::kUnRegistered)
-    {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
-        return ;
-    }
-
-    if (params.size() == 0)
-    {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
-        return ;
-    }
     
     if (client->GetType() == IClient::Type::kLocalServer)
     {

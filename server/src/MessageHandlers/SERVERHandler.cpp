@@ -7,16 +7,14 @@
 #define PARAM_HOPCOUNT 1
 #define PARAM_INFO 2
 
-SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database)
-	: server_config_(server_config),
-    client_database_(client_database),
-    logger("SERVERHandler")
+SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database) :
+    CommandHandler(server_config, client_database, "SERVER", 3, true)
 {}
 
 SERVERHandler::~SERVERHandler()
 {}
 
-auto SERVERHandler::Handle(IMessage &message) -> void
+auto SERVERHandler::SafeHandle(IMessage &message) -> void
 {
 	auto params = message.GetParams();
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
@@ -24,11 +22,6 @@ auto SERVERHandler::Handle(IMessage &message) -> void
 	if (client->GetType() == IClient::Type::kLocalUser)
 	{
 		client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
-		return;
-	}	
-	if (params.size() < 3)
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "SERVER"));
 		return;
 	}
     

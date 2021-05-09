@@ -1,25 +1,19 @@
 #ifndef PRIVMSG_HANDLER_HPP
 #define PRIVMSG_HANDLER_HPP
 
-#include "MessageHandlers/ICommandHandler.h"
-#include "IClientDatabase.h"
+#include "CommandHandler.h"
 #include "IChannelDatabase.h"
-#include "IServerConfig.h"
-#include "Logger.h"
 
-class PRIVMSGHandler : public ICommandHandler
+class PRIVMSGHandler : public CommandHandler
 {
     public:
     PRIVMSGHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~PRIVMSGHandler();
 
-    auto Handle(IMessage &message) -> void override;
+    auto SafeHandle(IMessage &message) -> void override;
 
     private:
-    IServerConfig *server_config_;
-    IClientDatabase *client_database_;
     IChannelDatabase *channel_database_;
-    Logger logger;
 
     /**
      * @brief 
