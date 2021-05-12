@@ -77,7 +77,7 @@ TEST_F(MODETests, SuccessTest)
 		.WillRepeatedly(Return(true));
 
 	EXPECT_CALL(mock_channel1, PushToLocal("MODE " + message_params[0] + " " +
-		message_params[1] + " " + message_params[2], _));
+		message_params[1], _));
 
 	// Act
     handler->Handle(message1);
@@ -85,19 +85,4 @@ TEST_F(MODETests, SuccessTest)
 	// Assert
 	ASSERT_EQ(mock_channel1.GetKey(), channel1_key);
 	ASSERT_EQ(mock_channel1.HasMode(ChannelMode::CM_TOPIC), false);
-}
-
-TEST_F(MODETests, FailureTest_WrongMode)
-{
-	// Arrange
-    message_params.push_back(channel1_name);
-	message_params.push_back("+gbnk");
-
-	EXPECT_CALL(mock_channel1, HasOperator(uuid1))
-		.WillRepeatedly(Return(true));
-
-	EXPECT_CALL(mock_localuser1, Push(GetErrorMessage("", ERR_UMODEUNKNOWNFLAG, std::string(1, 'g'))));
-
-	// Act
-    handler->Handle(message1);
 }

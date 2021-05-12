@@ -368,8 +368,9 @@ auto ClientDatabase::DoForEach(std::unordered_map<IRC::UUID, std::unique_ptr<ICl
         std::function<void(IClient*)> &action,
         std::optional<IRC::UUID> &skip_uuid) -> void
 {
-    for (auto it = clients.begin(); it != clients.end(); it++)
+    for (auto it = clients.begin(), next_it = it; it != clients.end(); it = next_it)
     {
+        ++next_it;
         if (!skip_uuid)
             action(it->second.get());
         else if (it->second->GetUUID() != *skip_uuid)

@@ -116,6 +116,7 @@ auto ServerConfig::TryParseFrom(std::string file_path) -> bool
 		ParsePingData(jf);
 		ParseServerData(jf);
 		ParseHostingData(jf);
+		ParseAdministrators(jf);
 		ParseLogData(jf);
 		ParseAuthorizedServers(jf);
 	}

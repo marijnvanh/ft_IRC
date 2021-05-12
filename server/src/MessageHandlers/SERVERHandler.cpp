@@ -67,7 +67,7 @@ auto SERVERHandler::HandleLocalServerRegistration(IClient *client, IMessage &mes
     else
     {
         new_server->SetRegisterState(IClient::RegisterState::kRegistered);
-        auto message = "SERVER " + server_config_->GetName() + " 1 :" + server_config_->GetDescription();
+        auto message = "SERVER " + server_config_->GetName() + " 0 :" + server_config_->GetDescription();
         new_server->Push(message);
     }
     HandleBroadcasting(new_server, message);
