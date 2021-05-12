@@ -44,5 +44,5 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
         return ;
     }
 	(*new_server)->SetRegisterState(IClient::RegisterState::kRegistering);
-	(*new_server)->Push("SERVER " + server_config_->GetName() + " 1 :" + server_config_->GetDescription());
+	(*new_server)->Push("SERVER " + server_config_->GetName() + " 0 :" + server_config_->GetDescription());
 }

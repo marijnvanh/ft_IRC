@@ -14,63 +14,45 @@ MODEHandler::MODEHandler(IServerConfig *server_config, IClientDatabase *client_d
 MODEHandler::~MODEHandler()
 {}
 
-auto MODEHandler::HandleChannelTopicSet(IUser *user, IChannel *channel,
-	std::vector<std::string> params, bool set) -> void
+auto MODEHandler::HandleChannelTopicSet(IChannel *channel,
+	std::optional<std::string> param, bool set) -> void
 {
-	if (params.size() < 3)
-	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
-		return ;
-	}
-
 	channel->SetMode(ChannelMode::CM_TOPIC, set);
-	if (set)
-	{
-		channel->SetTopic(params[CHANNEL_TARGET_IDENTIFIER]);
-	}	
+
+	// Don't try anything if we're trying to set, but don't have a parameter.
+	if (set && param)
+		channel->SetTopic(*param);
 }
 
-auto MODEHandler::HandleChannelKeySet(IUser *user, IChannel *channel,
-	std::vector<std::string> params, bool set) -> void
+auto MODEHandler::HandleChannelKeySet(IChannel *channel,
+	std::optional<std::string> param, bool set) -> void
 {
-	if (params.size() < 3)
-	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
+	// Don't try anything if we're trying to set, but don't have a parameter.
+	if (set && !param)
 		return ;
-	}
 
 	channel->SetMode(ChannelMode::CM_KEY, set);
 	if (set)
-	{
-		channel->SetKey(params[CHANNEL_TARGET_IDENTIFIER]);
-	}
+		channel->SetKey(*param);
 }
 
 auto MODEHandler::HandleChannelOperatorSet(IUser *user, IChannel *channel,
-	IClientDatabase *client_database, std::vector<std::string> params, bool set) -> void
+	std::optional<std::string> param, bool set) -> void
 {
-	if (params.size() < 3)
-	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "MODE"));
+	if (!param)
 		return ;
-	}
 
-	auto nick = params[CHANNEL_TARGET_IDENTIFIER];
-	auto other = client_database->GetClient(nick);
+	auto other = client_database_->GetClient(*param);
 	if (!other)
 	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, nick));
+		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, *param));
 		return ;
 	}
 	
 	if (set)
-	{
 		channel->AddOperator(user->GetUUID());
-	}
 	else
-	{
 		channel->RemoveOperator(user->GetUUID());
-	}	
 }
 
 auto MODEHandler::SafeHandle(IMessage &message) -> void
@@ -107,7 +89,7 @@ auto MODEHandler::SafeHandle(IMessage &message) -> void
 }
 
 auto MODEHandler::HandleMODEUser(IUser *user,
-		std::vector<std::string> params) -> void
+		std::vector<std::string> &params) -> void
 {
 	if (params[TARGET_IDENTIFIER] != user->GetNickname())
 	{
@@ -154,7 +136,7 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 }
 
 auto MODEHandler::HandleMODEChannel(IUser *user,
-		std::vector<std::string> params) -> void
+		std::vector<std::string> &params) -> void
 {
 	auto channel = channel_database_->GetChannel(params[TARGET_IDENTIFIER]);
 	if (!channel)
@@ -172,49 +154,53 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 	if (params.size() < 2)
 	{
 		user->Push(std::to_string(RPL_CHANNELMODEIS) +
-			" " + (*channel)->GetName() + " :" + FormatMode((*channel)->GetMode()));
+			" " + (*channel)->GetName() +
+			" :" + FormatMode((*channel)->GetMode()));
 		return ;
 	}
 
 	if (!(*channel)->HasOperator(user->GetUUID()))
 	{
 		user->Push(GetErrorMessage(server_config_->GetName(), ERR_CHANOPRIVSNEEDED, params[TARGET_IDENTIFIER]));
-	}
-
-	auto mode = params[MODE_CHANGES];
-	auto set = mode.at(0) == '+';
-	if (mode[0] != '+' && mode[0] != '-')
-	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
 		return ;
 	}
 
-	for (size_t i = 1; i < mode.size(); ++i)
+	bool set = true;
+	uint32_t param_index = 2;
+	auto mode = params[MODE_CHANGES];
+	for (auto it = mode.begin(); it != mode.end(); ++it)
 	{
-		if (mode[i] == 'k')
+		unsigned char letter = *it;
+		if (letter == '+' || letter == '-')
 		{
-			HandleChannelKeySet(user, *channel, params, set);
+			set = (letter == '+');
+			continue;
 		}
-		else if (mode[i] == 't')
+
+		std::optional<std::string> current_param = std::nullopt;
+		if (param_index < params.size())
+			current_param = std::make_optional<std::string>(params[param_index]);
+
+		if (letter == 'k')
 		{
-			HandleChannelTopicSet(user, *channel, params, set);
+			HandleChannelKeySet(*channel, current_param, set);
+			if (set)
+				param_index++;
 		}
-		else if (mode[i] == 'o')
+		else if (letter == 't')
 		{
-			HandleChannelOperatorSet(user, *channel, client_database_, params, set);
+			HandleChannelTopicSet(*channel, current_param, set);
+			if (set)
+				param_index++;
 		}
-		else if (mode[i] == '+' || mode[i] == '-')
-		{
-			set = mode[i] == '+';
-		}
+		else if (letter == 'o')
+			HandleChannelOperatorSet(user, *channel, current_param, set);
 		else
-		{
-			user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, mode[i])));
-			return ;
-		}
+			user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, letter)));
 	}
+
 	std::string mode_message = "MODE " + (*channel)->GetName() +
-		" " + params[MODE_CHANGES] + " " + params[CHANNEL_TARGET_IDENTIFIER];
+		" " + params[MODE_CHANGES];
 	(*channel)->PushToLocal(mode_message, std::optional<IRC::UUID>(user->GetUUID()));
 }
 

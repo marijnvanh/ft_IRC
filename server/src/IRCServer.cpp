@@ -116,6 +116,7 @@ auto IRCServer::PingClients() -> void
 			
 			if (!client->RespondedToLastPing())
 			{
+				logger.Log(LogLevel::WARNING, ("Client did not respond to ping " + client->GetNickname()).c_str());
 				server_data_->client_database_.DisconnectClient(client->GetUUID(),
 					std::make_optional<std::string>("PING timeout"));
 				return ;

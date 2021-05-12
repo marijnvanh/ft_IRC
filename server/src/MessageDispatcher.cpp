@@ -18,7 +18,7 @@
 #include "MessageHandlers/CONNECTHandler.h"
 #include "MessageHandlers/OPERHandler.h"
 #include "MessageHandlers/NOTICEHandler.h"
-
+#include "MessageHandlers/TOPICHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_server) :
     logger("MD")
@@ -79,6 +79,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
     );
     command_handlers_.insert(std::make_pair("NOTICE",
         std::make_unique<NOTICEHandler>(&server_data->server_config_, &server_data->client_database_))
+    );
+    command_handlers_.insert(std::make_pair("TOPIC",
+        std::make_unique<TOPICHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
 }
 
