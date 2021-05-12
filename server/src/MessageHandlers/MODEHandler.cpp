@@ -168,6 +168,11 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 	bool set = true;
 	uint32_t param_index = 2;
 	auto mode = params[MODE_CHANGES];
+	if (mode.at(0) != '+' && mode.at(0) != '-')
+	{
+		return;
+	}
+	
 	for (auto it = mode.begin(); it != mode.end(); ++it)
 	{
 		unsigned char letter = *it;
@@ -195,8 +200,6 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 		}
 		else if (letter == 'o')
 			HandleChannelOperatorSet(user, *channel, current_param, set);
-		else
-			user->Push(GetErrorMessage(server_config_->GetName(), ERR_UMODEUNKNOWNFLAG, std::string(1, letter)));
 	}
 
 	std::string mode_message = "MODE " + (*channel)->GetName() +
