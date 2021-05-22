@@ -2,9 +2,6 @@
 #define __LOCAL_SERVER_H__
 
 #include <string>
-#include <stdexcept>
-#include <optional>
-#include <queue>
 
 #include "Client.h"
 #include "Server.h"
@@ -12,7 +9,8 @@
 
 class LocalServer : public Client, ILocalServer, Server
 {
-    public:
+
+public:
 
     LocalServer() = delete;
     LocalServer(std::string server_name, Client &&old_client);
@@ -21,8 +19,6 @@ class LocalServer : public Client, ILocalServer, Server
     LocalServer (LocalServer& other) = delete;
     LocalServer &operator =(LocalServer& other) = delete;
     LocalServer &operator= (LocalServer&& other) = delete;
-
-    private:
 };
 
 #endif

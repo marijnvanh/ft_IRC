@@ -72,7 +72,7 @@ auto IRCServer::RunOnce() -> void
                 }
 
             } catch (ParseException &e) {
-                logger.Log(LogLevel::WARNING, "Failed to parse: %s ", raw_message.c_str());
+                logger.Log(LogLevel::WARNING, "Failed to parse: %s Reason: %s", raw_message.c_str(), e.what());
                 client->Push("ERROR :Could not parse message");
             }
         });

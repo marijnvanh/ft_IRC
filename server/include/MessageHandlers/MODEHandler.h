@@ -15,8 +15,7 @@ class MODEHandler : public CommandHandler
 
     auto SafeHandle(IMessage &message) -> void override;
 
-    auto HandleMODEUser(IUser *user,
-		std::vector<std::string> &params) -> void;
+    auto HandleMODEUser(IUser *user, IMessage &message) -> void;
     
 	  auto HandleMODEChannel(IUser *user,
 		std::vector<std::string> &params) -> void;

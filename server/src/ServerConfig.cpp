@@ -89,11 +89,22 @@ auto ServerConfig::ParseAuthorizedServers(json jf) -> void
 {
 	if (jf.contains("authorized-servers"))
 	{
-		auto authorized_servers = jf["authorized-servers"];
-		for (auto it = authorized_servers.cbegin(); it < authorized_servers.cend(); it++)
-		{
-			auto authorized_server = std::make_pair((*it)[IP], (*it)[PORT]);
-			authorized_servers_.insert(std::make_pair((*it)[SERVER_NAME], std::move(authorized_server)));
+		auto authorized_servers = jf["authorized-servers"].get<json::object_t>();
+        for (auto& kvp : authorized_servers)
+        {
+			auto conf = std::make_unique<ServerConnectData>();
+
+			conf->SetName(kvp.first);
+			conf->SetIP(kvp.second.at("ip"));
+			conf->SetPort(kvp.second.at("port"));
+			if (kvp.second.contains("recv_pass"))
+				conf->SetRecvPass(kvp.second.at("recv_pass"));
+			if (kvp.second.contains("send_pass"))
+				conf->SetRecvPass(kvp.second.at("send_pass"));
+			
+			authorized_servers_.insert(std::make_pair(
+				kvp.first,
+				std::move(conf)));
 		}
 	}
 }

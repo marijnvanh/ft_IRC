@@ -13,8 +13,8 @@ NUMERICHandler::~NUMERICHandler()
 
 static auto FormNumericMessage(IMessage &message) -> std::string
 {
-    auto nickname = *(message.GetNickname());
-    auto numeric_message = ":" + nickname + " " + message.GetCommand();
+    auto prefix = *(message.GetPrefix());
+    auto numeric_message = ":" + prefix + " " + message.GetCommand();
 
     auto message_params = message.GetParams();
     auto param_count = message_params.size();
@@ -37,17 +37,17 @@ auto NUMERICHandler::SafeHandle(IMessage &message) -> void
 	if (client->GetType() != IClient::Type::kLocalServer)
 		return;
 
-    auto nickname = message.GetNickname();
-    if (!nickname)
+    auto prefix = message.GetPrefix();
+    if (!prefix)
 	{
-		client->Push("ERROR :No nickname provided to numeric message");
+		client->Push("ERROR :No prefix provided to numeric message");
 		return;
 	}
     
-    auto receiver = client_database_->GetClient(*nickname);
+    auto receiver = client_database_->GetClient(*prefix);
     if (!receiver)
 	{
-		client->Push("ERROR :Unknown client with nickname: " + *nickname);
+		client->Push("ERROR :Unknown client with prefix: " + *prefix);
 		return;
 	}
 

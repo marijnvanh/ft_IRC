@@ -13,9 +13,14 @@
 		["rkuijper", "youshouldhashthis"],
 		["mavanhe", "mooiejongenenzo"]
 	],
-	"authorized-servers": [
-		["codam.irc.com", "0.0.0.0", "5001"]
-	],
+	"authorized-servers": {
+		"codam.irc.com": {
+			"ip": "0.0.0.0",
+			"port": "5005",
+			"recv_pass": "pass1",
+			"send_pass": "pass2"
+		}
+	},
 	"log-settings": {
 		"default-level": "DEBUG",
 		"log-levels": [
@@ -25,6 +30,7 @@
 			["MD", "DEBUG"],
 			["ClientDatabase", "DEBUG"],
 			["ChannelDatabase", "INFO"],
+			["SERVERHandler", "DEBUG"],
 			["IOController", "INFO"]
 		]
 	},

@@ -18,8 +18,6 @@ class LocalUser : public Client, ILocalUser, User
     {
         logger.Log(LogLevel::INFO, "Local User died");
     };
-
-    private:
 };
 
 #endif

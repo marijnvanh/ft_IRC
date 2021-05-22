@@ -15,5 +15,5 @@ auto PINGHandler::SafeHandle(IMessage &message) -> void
 	auto params = message.GetParams();
 
 	client->Push(":" + server_config_->GetName() +
-		" " + server_config_->GetName() + " :" + params[PARAM_SERVER_NAME]);
+		" PONG " + server_config_->GetName() + " :" + params[PARAM_SERVER_NAME]);
 }

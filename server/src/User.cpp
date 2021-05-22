@@ -1,7 +1,23 @@
 #include "User.h"
 #include "IServer.h"
+
 User::~User()
 {}
+
+auto User::FormatUserMode(void) const -> std::string
+{
+	std::string result = "+";
+
+	if (this->HasMode(UserMode::UM_INVISIBLE))
+		result += "i";
+	if (this->HasMode(UserMode::UM_OPERATOR))
+		result += "o";
+	if (this->HasMode(UserMode::UM_SNOMASK))
+		result += "s";
+	if (this->HasMode(UserMode::UM_WALLOPS))
+		result += "w";
+	return (result);
+}
 
 auto User::AddChannel(IChannel *channel) -> void
 {
@@ -23,7 +39,7 @@ auto User::RemoveUserFromAllChannels() -> void
     channels_.clear();
 }
 
-auto User::GetChannels() -> std::unordered_map<std::string, IChannel*>&
+auto User::GetChannels(void) -> std::unordered_map<std::string, IChannel*>&
 {
 	return (this->channels_);
 }
@@ -32,13 +48,15 @@ auto User::GetChannels() -> std::unordered_map<std::string, IChannel*>&
         NICK new_nick 1 username irc.codam.net 34 +i :Christophe Kalt */
 auto User::GenerateNickMessage(const std::string &this_server_name) const -> std::string
 {
-    auto nick_message = "NICK " + nickname_ + " 1 " + username_ + " ";
+    auto nick_message = ":" + this_server_name + " NICK " +
+		nickname_ + " " + std::to_string(hops_ + 1) + " " + username_ + " ";
+
     if (type_ == IClient::Type::kLocalUser)
-        nick_message = nick_message + this_server_name;
+        nick_message += this_server_name;
     else
-        nick_message = nick_message + remote_server_->GetServerName();
+        nick_message += remote_server_->GetServerName();
 
-    nick_message = nick_message + " ignored ignored :" + realname_;
+    nick_message += " " + std::to_string(our_token_) + " +i :" + realname_;
 
-    return nick_message;
+    return (nick_message);
 }

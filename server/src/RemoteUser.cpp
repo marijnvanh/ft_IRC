@@ -11,6 +11,7 @@ RemoteUser::RemoteUser( IServer* local_server, IServer *remote_server,
     realname_ = realname;
     type_ = IClient::Type::kRemoteUser;
     remote_server_->AddClient(this);
+	SetPrefix(nickname_ + "!" + username + "@" + remote_server_->GetServerName());
 
     logger.Log(LogLevel::INFO, "Remote user %s connected", GetNickname().c_str());
 };
@@ -22,7 +23,7 @@ RemoteUser::~RemoteUser()
 
 auto RemoteUser::Push(std::string irc_message) -> void
 {
-    local_server_->Push(":" + nickname_ + " " + irc_message);
+    local_server_->Push(":" + prefix_ + " " + irc_message);
 }
 
 /* Dummy implementation to meet IClient requirements */

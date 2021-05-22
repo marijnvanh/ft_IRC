@@ -56,27 +56,26 @@ auto ClientDatabase::DisconnectUser(IUser *user,
 {
     auto user_uuid = user->GetUUID();
 
-	if (quit_message)
+	if (!quit_message)
+		quit_message = std::make_optional<std::string>("\"leaving\"");
+	// Broadcast to user channels.
+	auto channels = user->GetChannels();
+	for (auto it = channels.cbegin(); it != channels.cend(); ++it)
 	{
-		// Broadcast to user channels.
-		auto channels = user->GetChannels();
-		for (auto it = channels.cbegin(); it != channels.cend(); ++it)
-		{
-			it->second->PushToLocal(":" + user->GetNickname() +
-				" QUIT :" + *quit_message, user->GetUUID());
-		}
+		it->second->PushToLocal(":" + user->GetNickname() +
+			" QUIT :" + *quit_message, user->GetUUID());
+	}
 
-		// Broadcast to all servers except local server is the user is remote.
-		if (user->GetType() == IClient::Type::kRemoteUser)
-		{
-            BroadcastToLocalServers(":" + user->GetNickname() +
-                " QUIT :" + *quit_message, user->GetLocalServer()->GetUUID());
-		}
-        else
-        {
-            BroadcastToLocalServers(":" + user->GetNickname() +
-                " QUIT :" + *quit_message, std::nullopt);
-        }
+	// Broadcast to all servers except local server is the user is remote.
+	if (user->GetType() == IClient::Type::kRemoteUser)
+	{
+		BroadcastToLocalServers(":" + user->GetNickname() +
+			" QUIT :" + *quit_message, user->GetLocalServer()->GetUUID());
+	}
+	else
+	{
+		BroadcastToLocalServers(":" + user->GetNickname() +
+			" QUIT :" + *quit_message, std::nullopt);
 	}
 
     logger.Log(LogLevel::INFO, "User with nickname: %s being disconnected", user->GetNickname().c_str());
@@ -176,6 +175,7 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
     clients_.erase(uuid);
 
     auto local_user = dynamic_cast<IUser*>(new_local_user.first->second.get());
+	local_user->SetPrefix(local_user->GetNickname() + "!" + local_user->GetUsername() + "@" + server_config_->GetName());
     BroadcastToLocalServers(local_user->GenerateNickMessage(server_config_->GetName()), std::nullopt);
     return new_local_user.first->second.get();
 }
@@ -200,6 +200,7 @@ auto ClientDatabase::RegisterLocalServer(std::string server_name, IRC::UUID uuid
     logger.Log(LogLevel::DEBUG, "Registering local server %s", server_name.c_str());
     auto tmp_unique_client = std::move(stored_client->second);
     tmp_unique_client.reset(new LocalServer(server_name, std::move(*client)));
+	tmp_unique_client->SetOurToken(GenerateOurServerToken());
     auto new_server = servers_.insert(std::make_pair(uuid, std::move(tmp_unique_client)));
     clients_.erase(uuid);
     return new_server.first->second.get();
@@ -229,6 +230,7 @@ auto ClientDatabase::AddServer(std::unique_ptr<IServer> new_server) -> void
     if (servers_.find(new_server->GetUUID()) != servers_.end())
         throw ClientDatabase::DuplicateClient();
 
+    new_server->SetOurToken(GenerateOurServerToken());
     servers_.insert(std::make_pair(new_server->GetUUID(), std::move(new_server)));
 }
 
@@ -294,6 +296,20 @@ auto ClientDatabase::GetServer(const std::string &server_name) -> std::optional<
         ++next_it;
         auto server = dynamic_cast<IServer*>(it->second.get());
         if (server->GetServerName() == server_name)
+            return std::optional<IServer*>(server);
+    }
+    return std::nullopt;
+}
+
+auto ClientDatabase::GetServer(const uint32_t token) -> std::optional<IServer*>
+{
+	logger.Log(LogLevel::DEBUG, "Searching for server with token: %d", token);
+    for (auto it = servers_.begin(), next_it = it; it != servers_.end(); it = next_it)
+    {
+        ++next_it;
+        auto server = dynamic_cast<IServer*>(it->second.get());
+		logger.Log(LogLevel::DEBUG, "Server token: %d", server->GetTheirToken());
+        if (server->GetTheirToken() == token)
             return std::optional<IServer*>(server);
     }
     return std::nullopt;
@@ -371,9 +387,22 @@ auto ClientDatabase::DoForEach(std::unordered_map<IRC::UUID, std::unique_ptr<ICl
     for (auto it = clients.begin(), next_it = it; it != clients.end(); it = next_it)
     {
         ++next_it;
-        if (!skip_uuid)
-            action(it->second.get());
-        else if (it->second->GetUUID() != *skip_uuid)
+        if (!skip_uuid || *skip_uuid != it->second->GetUUID())
             action(it->second.get());
     }
+}
+
+auto ClientDatabase::GenerateOurServerToken(void) -> uint32_t
+{
+	/* Token should always start at 2, since 0 is undefined and 1 is 'us'/current server. */
+	uint32_t token = 2;
+
+	for (;;)
+	{
+		if (!GetServer(token))
+			break;
+		token++;
+	}
+
+	return (token);
 }

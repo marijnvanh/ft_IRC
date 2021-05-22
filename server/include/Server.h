@@ -15,6 +15,9 @@ class Server : public virtual IServer
     auto Disconnect(IClientDatabase *client_database,
 		std::optional<std::string> message) -> void override;
 
+	auto GetPrefix() const -> const std::string& override
+	{ return server_name_; }
+
     /**
      * @brief 
      * 
