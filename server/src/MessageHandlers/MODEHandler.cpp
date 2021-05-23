@@ -134,10 +134,10 @@ auto MODEHandler::HandleMODEUser(IUser *user, IMessage &message) -> void
 
 	std::string prefix = "";
 	if (message.GetPrefix())
-		prefix = ":" + *(message.GetPrefix());
+		prefix = ":" + *(message.GetPrefix()) + " ";
 
 	auto msg = prefix +
-		" MODE " + user->GetNickname() +
+		"MODE " + user->GetNickname() +
 		" :" + FormatMode(user->GetMode());
 
 	std::optional<IRC::UUID> uuid_opt = std::nullopt;
