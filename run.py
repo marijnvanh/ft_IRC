@@ -8,6 +8,7 @@ def Build():
         options = "-DPACKAGE_TESTS=ON"
     else:
         options = "-DPACKAGE_TESTS=OFF"
+    options += f" -DENABLE_SSL={args.enable_ssl}"
     if subprocess.call([f"cmake -B build {options}"], shell=True):
         exit(-1)
 
@@ -41,6 +42,8 @@ if __name__ == "__main__":
         help='Name of specific test')
     arg_parser.add_argument('-c', '--config_file', default="./config.json",
         help='Config file')
+    arg_parser.add_argument('-ssl', '--enable_ssl', default="OFF",
+        help='Enable or disable SSL via ON/OFF')
     args = arg_parser.parse_args()
 
     if args.method != 'run':

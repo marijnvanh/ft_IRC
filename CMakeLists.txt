@@ -10,20 +10,24 @@ set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wunreachable-code -fsanitize=addres
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 
+# To use SSL the server requires OpenSSL to be installed
+# SSL can be disabled on machines without OpenSSL
+option(ENABLE_SSL "Enable SSL" ON)
+if(ENABLE_SSL)
+  add_definitions(-DENABLE_SSL=1)
+endif()
+
 add_subdirectory(shared_lib)
 add_subdirectory(server)
 add_subdirectory(client)
 add_subdirectory(extern/json)
 
-option(NIX "Use nix for dependencies" OFF)
 option(PACKAGE_TESTS "Build tests" OFF)
 
 if(PACKAGE_TESTS)
     enable_testing()
     include(GoogleTest)
-    if (NOT(NIX))
-        add_subdirectory(extern/googletest)
-    endif()
+    add_subdirectory(extern/googletest)
     add_subdirectory(shared_lib/tests)
     add_subdirectory(server/tests)
 endif()

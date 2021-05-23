@@ -7,23 +7,27 @@
 	},
 	"hosting-data": {
 		"port": "5000",
-		"address": "0.0.0.0"
+		"ssl_port": "5001",
+		"address": "0.0.0.0",
+		"ssl_crt": "./certs/domain.crt",
+		"ssl_key": "./certs/domain.key"
 	},
 	"administrators": [
 		["rkuijper", "youshouldhashthis"],
 		["mavanhe", "mooiejongenenzo"]
 	],
 	"authorized-servers": [
-		["codam.irc.com", "0.0.0.0", "5001"]
+		["codam.irc.com", "0.0.0.0", "5002"]
 	],
 	"log-settings": {
 		"default-level": "DEBUG",
 		"log-levels": [
-			["IRCServer", "DEBUG"],
+			["IRCServer", "INFO"],
 			["ServerConfig", "INFO"],
 			["Client", "INFO"],
-			["MD", "DEBUG"],
-			["ClientDatabase", "DEBUG"],
+			["SOCKET", "INFO"],
+			["MD", "INFO"],
+			["ClientDatabase", "INFO"],
 			["ChannelDatabase", "INFO"],
 			["IOController", "INFO"]
 		]

@@ -1,10 +1,16 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
+#include <memory>
+
 #include "AddressInfo.h"
 #include "ISocket.h"
+#include "Logger.h"
 
-#include <memory>
+#ifdef ENABLE_SSL
+    #include "SSL.h"
+    #include <openssl/err.h>
+#endif
 
 #define DEFAULT_BACKLOG 20
 #define BLOCKING true
@@ -17,13 +23,19 @@ namespace IRC::TCP
     private:
         socklen_t address_size_;
         struct sockaddr_storage address_;
+        Logger logger;
+
+#ifdef ENABLE_SSL
+        SSL* ssl_;
+        auto ValidateSSLReturn(int error) -> void;
+#endif
 
         auto InitSocket(struct addrinfo *addr_info, bool block) -> int;
         auto Clear() -> void;
         auto GetSockAddrIn(struct sockaddr *address) const -> void *;
 
     public:
-        Socket();
+        Socket(bool enable_ssl);
         ~Socket();
 
         auto Listen(AddressInfo &address_info,

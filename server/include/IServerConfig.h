@@ -9,6 +9,10 @@
 
 #define DEFAULT_SERVER_PORT "5000"
 #define DEFAULT_SERVER_ADDRESS "0.0.0.0"
+#define DEFAULT_SSL_SERVER_PORT "5001"
+#define DEFAULT_SSL_SERVER_ADDRESS "0.0.0.0"
+#define DEFAULT_SSL_CRT "./certs/domain.crt"
+#define DEFAULT_SSL_KEY "./certs/domain.key"
 
 struct IServerConfig
 {
@@ -22,6 +26,7 @@ public:
 	auto SetDescription(std::string server_description) -> void { server_description_ = server_description; }
 
 	auto SetPort(std::string server_port) -> void { server_port_ = server_port; }
+	auto SetSSLPort(std::string server_ssl_port) -> void { server_ssl_port_ = server_ssl_port; }
 	auto SetAddress(std::string server_address) -> void { server_address_ = server_address; }
 
 	auto GetPingTime() -> uint32_t { return (ping_time_); }
@@ -31,6 +36,9 @@ public:
 	auto GetDescription() -> const std::string { return (server_description_); }
 
 	auto GetPort() -> std::string { return (server_port_); }
+	auto GetSSLPort() -> std::string { return (server_ssl_port_); }
+	auto GetSSLcrt() -> std::string { return (server_ssl_crt_); }
+	auto GetSSLkey() -> std::string { return (server_ssl_key_); }
 	auto GetAddress() -> std::string { return (server_address_); }
 
 	auto GetAdministrators() -> std::unordered_map<std::string, std::string>& { return (administrators_); }
@@ -84,6 +92,14 @@ protected:
      * @brief List of authorized servers
      */
 	std::unordered_map<std::string, std::pair<std::string, std::string>> authorized_servers_;
+	
+	/**
+	 * @brief SSL config
+	 * 
+	 */
+	std::string server_ssl_port_;
+	std::string server_ssl_crt_;
+	std::string server_ssl_key_;
 };
 
 #endif

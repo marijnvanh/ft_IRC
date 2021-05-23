@@ -16,12 +16,34 @@ using namespace IRC;
 #define NOSIGPIPE_FLAG MSG_NOSIGNAL
 #endif
 
-TCP::Socket::Socket() : address_size_(kUnInitialized)
-{}
+TCP::Socket::Socket(bool enable_ssl) : address_size_(kUnInitialized),
+    logger("SOCKET")
+{
+#ifdef ENABLE_SSL
+    ssl_enabled_ = enable_ssl;
+    if (ssl_enabled_) {
+        logger.Log(LogLevel::DEBUG, "Created socket with SSL enabled", enable_ssl);
+        if (ctx_g == NULL) {
+            throw TCP::Socket::Error("SSL not initialized");
+        }
+    }
+    else
+        logger.Log(LogLevel::DEBUG, "Created socket with SSL disabled", enable_ssl);
+    ssl_ = NULL;
+#else
+    logger.Log(LogLevel::DEBUG, "Created socket", enable_ssl);
+    ssl_enabled_ = false;
+#endif
+
+}
 
 TCP::Socket::~Socket()
 {
 	this->Close();
+#ifdef ENABLE_SSL
+    if (ssl_ != NULL)
+        SSL_free (ssl_);
+#endif
 	socket_fd_ = -1;
 }
 
@@ -161,6 +183,29 @@ auto TCP::Socket::Accept(int listener_fd) -> void
         else
             throw TCP::Socket::Error(strerror(errno));
     }
+
+#ifdef ENABLE_SSL
+    if (ssl_enabled_) {
+        logger.Log(LogLevel::DEBUG, "Set SSL on socket %d", socket_fd_);
+        ssl_ = SSL_new (ctx_g);
+        if (ssl_ == NULL) {
+            ERR_print_errors_fp(stderr);
+            throw TCP::Socket::Error("SSLError");
+        }
+        SSL_set_fd(ssl_, socket_fd_);
+        int ret = SSL_accept(ssl_);
+        logger.Log(LogLevel::DEBUG, "SSL_accept return %d", ret);
+        try {
+            ValidateSSLReturn(ret);
+        }
+        catch (TCP::ISocket::WouldBlock &ex) {
+            ;
+        }
+    }
+    else
+        logger.Log(LogLevel::DEBUG, "Created socket without SSL");
+#endif
+
     state_ = kConnected;
 	type_ = kClientSocket;
 }
@@ -178,23 +223,32 @@ auto TCP::Socket::Accept(int listener_fd) -> void
 auto TCP::Socket::Recv() -> std::string
 {
     char buffer[BUFFER_SIZE];
-
+    int received_bytes = 0;
 	state_ = TCP::SocketState::kConnected;
 
-	int received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
-    if (received_bytes == 0)
-    {
-		this->Close();
-        throw TCP::Socket::Closed();
+    if (ssl_enabled_) {
+#ifdef ENABLE_SSL
+        received_bytes = SSL_read(ssl_, buffer, BUFFER_SIZE - 1);
+        logger.Log(LogLevel::DEBUG, "SSL_read received bytes: %d", received_bytes);
+        ValidateSSLReturn(received_bytes);
+#endif
     }
-    if (received_bytes == -1)
-    {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-            throw TCP::Socket::WouldBlock();
-        else
+    else {   
+        received_bytes = recv(socket_fd_, buffer, BUFFER_SIZE - 1, 0);
+        if (received_bytes == 0)
         {
-			this->Close();
-            throw TCP::Socket::Error(strerror(errno));
+            this->Close();
+            throw TCP::Socket::Closed();
+        }
+        if (received_bytes == -1)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                throw TCP::Socket::WouldBlock();
+            else
+            {
+                this->Close();
+                throw TCP::Socket::Error(strerror(errno));
+            }
         }
     }
     buffer[received_bytes] = '\0';
@@ -217,23 +271,33 @@ auto TCP::Socket::Send(const std::string &data) -> void
     size_t bytesleft = data_size;
     size_t total_send = 0;
     const char *raw_data = data.c_str();
+    int send_bytes = 0;
     while (total_send < data_size)
     {
-        /* Set NOSIGPIPE_FLAG to make sure that send doesn't send a signal on lost connection */
-        int send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
-        if (send_bytes == -1)
-        {            
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-                throw TCP::Socket::WouldBlock();
+        if (ssl_enabled_) {
+#ifdef ENABLE_SSL
+            send_bytes = SSL_write(ssl_, &raw_data[total_send], bytesleft);
+            logger.Log(LogLevel::DEBUG, "SSL_write send bytes: %d", send_bytes);
+            ValidateSSLReturn(send_bytes);
+#endif 
+        }
+        else {
+            /* Set NOSIGPIPE_FLAG to make sure that send doesn't send a signal on lost connection */
+            send_bytes = send(socket_fd_, &raw_data[total_send], bytesleft, NOSIGPIPE_FLAG);
+            if (send_bytes == -1)
+            {            
+                if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    throw TCP::Socket::WouldBlock();
 
-			/* Close the socket on send error */
-			this->Close();
+                /* Close the socket on send error */
+                this->Close();
 
-            /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */
-            if (errno == EPIPE || errno == EPROTOTYPE)
-                throw TCP::Socket::Closed();
+                /* Normally EPIPE gets set on a lost connection but Mac sometimes returns EPROTOTYPE */
+                if (errno == EPIPE || errno == EPROTOTYPE)
+                    throw TCP::Socket::Closed();
 
-            throw TCP::Socket::Error(strerror(errno));
+                throw TCP::Socket::Error(strerror(errno));
+            }
         }
 
         total_send += send_bytes;
@@ -272,3 +336,37 @@ auto TCP::operator<<(std::ostream& os, const TCP::Socket& socket) -> std::ostrea
         
     return os;
 }
+
+#ifdef ENABLE_SSL
+auto TCP::Socket::ValidateSSLReturn(int error) -> void
+{
+    if (error > 0){
+        return;
+    }
+
+    error = SSL_get_error(ssl_, error);
+    if (error == SSL_ERROR_WANT_READ)
+    {
+        logger.Log(LogLevel::DEBUG, "SSL error want read (would block)");
+        throw TCP::Socket::WouldBlock();
+    }
+    else if (error == SSL_ERROR_WANT_WRITE)
+    {
+        logger.Log(LogLevel::DEBUG, "SSL want write (would block)");
+        throw TCP::Socket::WouldBlock();
+    }
+    else if (error == SSL_ERROR_SYSCALL || error == SSL_ERROR_SSL)
+    {
+        this->Close();
+        logger.Log(LogLevel::WARNING, "SSL connection closed with an error");
+        ERR_print_errors_fp(stderr);
+        throw TCP::Socket::Error(strerror(errno));
+    }
+    else if (error == SSL_ERROR_ZERO_RETURN)
+    {
+        this->Close();
+        logger.Log(LogLevel::WARNING, "SSL connection closed");
+        throw TCP::Socket::Closed();
+    }
+}
+#endif

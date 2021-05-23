@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "Socket.h"
+#include "SSL.h"
 
 #define PORT "5000"
 
@@ -20,12 +21,16 @@ int main(int argc, char *argv[])
 
 	std::cout << "Attempting to start client..." << std::endl;
 
+#ifdef ENABLE_SSL
+    TCP::InitSSL("./certs/domain.crt", "./certs/domain.key");
+#endif
+
     try
 	{
         TCP::AddressInfo address_info(server_address, PORT);
         TCP::IOController io_controller;
 
-        auto client_socket = std::make_shared<TCP::Socket>();
+        auto client_socket = std::make_shared<TCP::Socket>(false);
         client_socket->Connect(address_info);
 
 		io_controller.AddSocket(client_socket);
