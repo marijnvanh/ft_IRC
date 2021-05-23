@@ -43,6 +43,7 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
         return ;
     }
 	(*new_server)->SetRegisterState(IClient::RegisterState::kRegistering);
+
 	(*new_server)->Push(":" + server_config_->GetName() + " PASS " +
 		(*s_data)->GetSendPass() + " 0210-IRC+ codIrcd|");
 	(*new_server)->Push(":" + server_config_->GetName() + " SERVER " +
