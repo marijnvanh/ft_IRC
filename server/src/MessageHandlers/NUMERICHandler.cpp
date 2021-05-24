@@ -37,17 +37,17 @@ auto NUMERICHandler::SafeHandle(IMessage &message) -> void
 	if (client->GetType() != IClient::Type::kLocalServer)
 		return;
 
-    auto prefix = message.GetPrefix();
-    if (!prefix)
+    auto nickname = message.GetNickname();
+    if (!nickname)
 	{
-		client->Push("ERROR :No prefix provided to numeric message");
+		client->Push("ERROR :No nickname provided to numeric message");
 		return;
 	}
     
-    auto receiver = client_database_->GetClient(*prefix);
+    auto receiver = client_database_->GetClient(*nickname);
     if (!receiver)
 	{
-		client->Push("ERROR :Unknown client with prefix: " + *prefix);
+		client->Push("ERROR :Unknown client with nickname: " + *nickname);
 		return;
 	}
 

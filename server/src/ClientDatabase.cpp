@@ -303,12 +303,10 @@ auto ClientDatabase::GetServer(const std::string &server_name) -> std::optional<
 
 auto ClientDatabase::GetServer(const uint32_t token) -> std::optional<IServer*>
 {
-	logger.Log(LogLevel::DEBUG, "Searching for server with token: %d", token);
     for (auto it = servers_.begin(), next_it = it; it != servers_.end(); it = next_it)
     {
         ++next_it;
         auto server = dynamic_cast<IServer*>(it->second.get());
-		logger.Log(LogLevel::DEBUG, "Server token: %d", server->GetTheirToken());
         if (server->GetTheirToken() == token)
             return std::optional<IServer*>(server);
     }

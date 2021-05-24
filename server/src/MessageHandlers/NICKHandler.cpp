@@ -71,7 +71,6 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
         //TODO send kill command to both users with nickname
         return ;
     }
-    logger_.Log(LogLevel::DEBUG, "Token: %d", server_token);
 
     auto remote_server = client_database_->GetServer(server_token);
     if (!remote_server)
