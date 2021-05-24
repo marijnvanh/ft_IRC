@@ -57,7 +57,13 @@ auto TCP::IOController::AcceptNewConnections(const std::function<void(std::share
 			listener_socket.second->SetState(SocketState::kConnected);
 			try
 			{
-				auto new_socket = std::make_shared<Socket>();
+				bool enable_ssl = false;
+#ifdef ENABLE_SSL
+				if (listener_socket.second->IsSSLEnabled())
+					enable_ssl = true;
+				logger.Log(LogLevel::DEBUG, "Accept new connect with SSL Enabled");
+#endif			
+				auto new_socket = std::make_shared<Socket>(enable_ssl);
 				new_socket->Accept(listener_socket.second->GetFD());
 			
 				this->AddSocket(new_socket);

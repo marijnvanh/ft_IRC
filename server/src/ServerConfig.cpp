@@ -22,9 +22,11 @@ ServerConfig::ServerConfig(const std::string &file_path) :
 	if (this->TryParseFrom(file_path) == false)
 	{
 		this->ping_time_ = DEFAULT_PING_TIME;
-
 		this->server_port_ = DEFAULT_SERVER_PORT;
+		this->server_ssl_port_ = DEFAULT_SSL_SERVER_PORT;
 		this->server_address_ = DEFAULT_SERVER_ADDRESS;
+		this->server_ssl_crt_ = DEFAULT_SSL_CRT;
+		this->server_ssl_key_ = DEFAULT_SSL_KEY;
 	}
 }
 
@@ -53,7 +55,10 @@ auto ServerConfig::ParseHostingData(json jf) -> void
 	if (jf.contains("hosting-data"))
 	{
 		this->server_port_ = jf["hosting-data"]["port"];
+		this->server_ssl_port_ = jf["hosting-data"]["ssl_port"];
 		this->server_address_ = jf["hosting-data"]["address"];
+		this->server_ssl_crt_ = jf["hosting-data"]["ssl_crt"];
+		this->server_ssl_key_ = jf["hosting-data"]["ssl_key"];
 	}
 }
 

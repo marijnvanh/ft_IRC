@@ -28,6 +28,7 @@ namespace IRC::TCP
         int socket_fd_;
 		SocketType type_;
         SocketState state_;
+        bool ssl_enabled_;
 
     public:
         ISocket() : socket_fd_(kUnInitialized),
@@ -48,6 +49,9 @@ namespace IRC::TCP
 		auto GetType() const -> int { return type_; };
         auto GetState() const -> int { return state_; };
 		auto SetState(SocketState state) -> void { this->state_ = state; }
+#ifdef ENABLE_SSL
+        auto IsSSLEnabled() const -> bool { return ssl_enabled_; };
+#endif
 
         class Error : public std::runtime_error
         {

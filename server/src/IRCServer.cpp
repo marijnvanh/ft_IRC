@@ -8,6 +8,9 @@
 #include "Socket.h"
 #include "Numerics.h"
 #include "Utilities.h"
+#ifdef ENABLE_SSL
+    #include "SSL.h"
+#endif
 
 IRCServer::IRCServer(const std::string &config_path) :
     server_data_(std::make_unique<ServerData>(config_path)),
@@ -23,16 +26,25 @@ IRCServer::~IRCServer()
 auto IRCServer::Start() -> void
 {
     logger.Log(LogLevel::INFO, "Attempting to start server...");
+#ifdef ENABLE_SSL
+    TCP::InitSSL(server_data_->server_config_.GetSSLcrt(), server_data_->server_config_.GetSSLkey());
+#endif
 
 	server_data_->client_database_.SetConfig(&server_data_->server_config_);
 
     TCP::AddressInfo address_info(server_data_->server_config_.GetAddress(),
 		server_data_->server_config_.GetPort());
-
-    auto server_socket = std::make_shared<TCP::Socket>();
+    auto server_socket = std::make_shared<TCP::Socket>(false);
     server_socket->Listen(address_info);
-
     tcp_io_controller_.AddSocket(server_socket);
+
+#ifdef ENABLE_SSL
+    TCP::AddressInfo address_info_ssl(server_data_->server_config_.GetAddress(),
+		server_data_->server_config_.GetSSLPort());
+    auto server_socket_ssl = std::make_shared<TCP::Socket>(true);
+    server_socket_ssl->Listen(address_info_ssl);
+    tcp_io_controller_.AddSocket(server_socket_ssl);
+#endif
 
     logger.Log(LogLevel::INFO, "Server started!");
 };
@@ -87,7 +99,7 @@ auto IRCServer::CreateNewConnection(std::string &ip, std::string &port) -> std::
 
     TCP::AddressInfo address_info(ip, port);
 
-    auto server_socket = std::make_shared<TCP::Socket>();
+    auto server_socket = std::make_shared<TCP::Socket>(false);
     try {
         server_socket->Connect(address_info);
         logger.Log(LogLevel::DEBUG, "Connected new client");
