@@ -2,13 +2,14 @@
 #define SERVER_HANDLER_HPP
 
 #include "IServer.h"
+#include "IChannelDatabase.h"
 #include "CommandHandler.h"
 
 class SERVERHandler : public CommandHandler
 {
     public:
 	
-    SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database);
+    SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database);
     ~SERVERHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
@@ -18,6 +19,8 @@ class SERVERHandler : public CommandHandler
     auto HandleBroadcasting(IClient *new_server, IMessage &message) -> void;
     auto HandleLocalServerRegistration(IClient *client, IMessage &message) -> void;
     auto HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, IMessage &message) -> void;
+
+    IChannelDatabase *channel_database_;
 };
 
 #endif

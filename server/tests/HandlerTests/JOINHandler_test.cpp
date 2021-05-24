@@ -79,10 +79,7 @@ TEST_F(JOINTests, SuccessTest)
     EXPECT_CALL(mock_channel1, HasUser(_))
         .WillOnce(Return(false));
 
-    EXPECT_CALL(mock_localuser1, AddChannel(_));
-
-	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1));
-	EXPECT_CALL(mock_channel1, AddOperator(uuid1));
+	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1, true));
 
     handler->Handle(message1);
 }

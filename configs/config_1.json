@@ -7,7 +7,10 @@
 	},
 	"hosting-data": {
 		"port": "5000",
-		"address": "0.0.0.0"
+		"ssl_port": "5001",
+		"address": "0.0.0.0",
+		"ssl_crt": "./certs/domain.crt",
+		"ssl_key": "./certs/domain.key"
 	},
 	"administrators": [
 		["rkuijper", "youshouldhashthis"],

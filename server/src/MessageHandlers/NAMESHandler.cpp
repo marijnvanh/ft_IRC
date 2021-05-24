@@ -56,7 +56,7 @@ auto NAMESHandler::SafeHandle(IMessage &message) -> void
 
 static auto SendNAMREPLY(IClient *receiver, IChannel *channel) -> void
 {
-    receiver->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString());
+    receiver->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString(' '));
     receiver->Push(std::to_string(RPL_ENDOFNAMES) + " " + channel->GetName() + " :End of /NAMES list");
 }
 

@@ -41,7 +41,7 @@ public:
 	 */
     virtual auto PushToLocal(const std::string &irc_message, std::optional<IRC::UUID> except_uuid) -> void = 0;
 
-    virtual auto AddUser(IUser* new_user) -> void = 0;
+    virtual auto AddUser(IUser* new_user, bool is_operator) -> void = 0;
 	/**
      * @brief Attempts to remove a user from the channel with the given UUID key.
      * 
@@ -51,7 +51,7 @@ public:
 
 	virtual auto HasUser(IRC::UUID uuid) -> bool = 0;
 	virtual auto CountUsers() -> uint32_t = 0;
-	virtual auto GetUserListAsString() -> const std::string = 0;
+	virtual auto GetUserListAsString(char delim) -> const std::string = 0;
 
 	virtual auto AddOperator(IRC::UUID uuid) -> bool = 0;
 	virtual auto HasOperator(IRC::UUID uuid) -> bool = 0;

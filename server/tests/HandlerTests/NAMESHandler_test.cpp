@@ -61,7 +61,7 @@ TEST_F(NAMESHandlerTests, NAMESWithChannelList)
 
     EXPECT_CALL(mock_channel_database, GetChannel(mock_channel_name))
         .WillOnce(Return(std::optional<IChannel*>(&mock_channel)));
-    EXPECT_CALL(mock_channel, GetUserListAsString())
+    EXPECT_CALL(mock_channel, GetUserListAsString(' '))
         .WillOnce(Return(localuser_name1));
 
     EXPECT_CALL(mock_localuser1, Push("353 #channel1 :nickname1")); //TODO fix this

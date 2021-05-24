@@ -19,6 +19,7 @@
 #include "MessageHandlers/OPERHandler.h"
 #include "MessageHandlers/NOTICEHandler.h"
 #include "MessageHandlers/TOPICHandler.h"
+#include "MessageHandlers/NJOINHandler.h"
 
 MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_server) :
     logger("MD")
@@ -57,7 +58,7 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
         std::make_unique<MODEHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
 	);
     command_handlers_.insert(std::make_pair("SERVER",
-        std::make_unique<SERVERHandler>(&server_data->server_config_, &server_data->client_database_))
+        std::make_unique<SERVERHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
     command_handlers_.insert(std::make_pair("NICK",
         std::make_unique<NICKHandler>(&server_data->server_config_, &server_data->client_database_))
@@ -82,6 +83,9 @@ MessageDispatcher::MessageDispatcher(ServerData* server_data, IRCServer *irc_ser
     );
     command_handlers_.insert(std::make_pair("TOPIC",
         std::make_unique<TOPICHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
+    );
+    command_handlers_.insert(std::make_pair("NJOIN",
+        std::make_unique<NJOINHandler>(&server_data->server_config_, &server_data->client_database_, &server_data->channel_database_))
     );
 }
 

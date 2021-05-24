@@ -49,23 +49,19 @@ auto JOINHandler::TryAddUserToChannel(IChannel* channel, const std::string key, 
 	// Undefined behaviour, since a user should never attempt this.
 	if (channel->HasUser(user->GetUUID()))
 	{
+		logger_.Log(LogLevel::ERROR, "Could not add %s to channel, user is already part of the channel.", user->GetNickname().c_str());
 		return (false);
 	}
 
-	channel->AddUser(user);
-	user->AddChannel(channel);
+	channel->AddUser(user, isOp);
 	std::string join_message = ":" + user->GetPrefix() + " JOIN :" + channel->GetName();
 	channel->PushToLocal(join_message, std::nullopt);
-	if (isOp)
-	{
-		channel->AddOperator(user->GetUUID());
-	}
 	
 	if (user->GetType() == IClient::Type::kLocalUser)
 	{
 		if (channel->HasMode(ChannelMode::CM_TOPIC))
 			user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_TOPIC) + " " + user->GetNickname() + " :" + channel->GetTopic());
-		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_NAMREPLY) + " " + user->GetNickname() + " = " + channel->GetName() + " :" + channel->GetUserListAsString());
+		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_NAMREPLY) + " " + user->GetNickname() + " = " + channel->GetName() + " :" + channel->GetUserListAsString(' '));
 		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_ENDOFNAMES) + " " + user->GetNickname() + " " + channel->GetName() + " :End of /NAMES list.");
 	}
 	return (true);

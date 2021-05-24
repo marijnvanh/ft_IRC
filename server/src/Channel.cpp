@@ -2,7 +2,8 @@
 #include "IClient.h"
 #include "LocalUser.h"
 
-Channel::Channel(std::string name, std::string key, ChannelType type)
+Channel::Channel(std::string name, std::string key, ChannelType type) :
+	logger("Channel")
 {
 	key_ = key;
 	name_ = name;
@@ -34,9 +35,13 @@ auto Channel::RemoveUser(IRC::UUID uuid) -> bool
 	return (result > 0);
 }
 
-auto Channel::AddUser(IUser* new_user) -> void
+auto Channel::AddUser(IUser* new_user, bool is_operator) -> void
 {
     auto uuid = new_user->GetUUID();
+	if (HasUser(uuid)) {
+		logger.Log(LogLevel::ERROR, "Failed to add user, user %s is already part of channel %s.", new_user->GetNickname().c_str(), name_.c_str());
+		return ;
+	}
 
 	if (new_user->GetType() == IClient::Type::kLocalUser)
 	{
@@ -45,6 +50,12 @@ auto Channel::AddUser(IUser* new_user) -> void
 	else
 	{
     	remote_users_.insert(std::make_pair(uuid, dynamic_cast<IRemoteUser*>(new_user)));	
+	}
+	new_user->AddChannel(this);
+
+	if (is_operator)
+	{
+		AddOperator(uuid);
 	}
 }
 
@@ -68,7 +79,7 @@ auto Channel::CountUsers() -> uint32_t
 	return (local_users_.size() + remote_users_.size());
 }
 
-auto Channel::GetUserListAsString() -> const std::string
+auto Channel::GetUserListAsString(char delim) -> const std::string
 {
 	std::string result;
 
@@ -79,7 +90,7 @@ auto Channel::GetUserListAsString() -> const std::string
 		result += it->second->GetNickname();
 		if (++it != local_users_.cend() || remote_users_.size() > 0)
 		{
-			result += ' ';
+			result += delim;
 		}
 	}
 
@@ -90,7 +101,7 @@ auto Channel::GetUserListAsString() -> const std::string
 		result += it->second->GetNickname();
 		if (++it != remote_users_.cend())
 		{
-			result += ' ';
+			result += delim;
 		}
 	}
 

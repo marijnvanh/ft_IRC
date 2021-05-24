@@ -7,6 +7,7 @@
 #include "MockServer.h"
 #include "MockServerConfig.h"
 #include "MockClientDatabase.h"
+#include "MockChannelDatabase.h"
 
 using ::testing::AtLeast;
 using ::testing::Throw;
@@ -29,6 +30,7 @@ class SERVERHandlerTests : public ::testing::Test
     std::vector<std::string> message_params;
 
     StrictMock<MockClientDatabase> mock_client_database;
+    StrictMock<MockChannelDatabase> mock_channel_database;
 
     MockServer mock_server1;
     IRC::UUID uuid2 = IRC::UUIDGenerator::GetInstance().Generate();
@@ -38,7 +40,7 @@ class SERVERHandlerTests : public ::testing::Test
 
     void SetUp() override
     {
-		server_handler_ = std::make_unique<SERVERHandler>(&mock_server_config_, &mock_client_database);
+		server_handler_ = std::make_unique<SERVERHandler>(&mock_server_config_, &mock_client_database, &mock_channel_database);
 
         EXPECT_CALL(mock_client_database, GetClient(uuid1))
             .WillRepeatedly(Return(std::optional<IClient*>(&mock_client1)));
@@ -128,6 +130,7 @@ TEST_F(SERVERHandlerTests, ClientRegisteringAsServer)
     EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_, std::make_optional<IRC::UUID>(uuid1)));
     EXPECT_CALL(mock_client_database, DoForEachServer(_, _));
     EXPECT_CALL(mock_client_database, DoForEachUser(_, _));
+    EXPECT_CALL(mock_channel_database, ForEachChannel(_));
 
     server_handler_->Handle(message1);
 }

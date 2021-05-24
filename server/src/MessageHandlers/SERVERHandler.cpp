@@ -8,8 +8,9 @@
 #define PARAM_TOKEN 2
 #define PARAM_INFO 3
 
-SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-    CommandHandler(server_config, client_database, "SERVER", 2, true)
+SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+    CommandHandler(server_config, client_database, "SERVER", 2, true),
+    channel_database_(channel_database)
 {}
 
 SERVERHandler::~SERVERHandler()
@@ -119,6 +120,12 @@ auto SERVERHandler::HandleBroadcasting(IClient *new_server, IMessage &message) -
             auto user = dynamic_cast<IUser*>(client);
             new_server->Push(user->GenerateNickMessage(this_server_name));
         }, std::nullopt);
+    channel_database_->ForEachChannel(
+        [this_server_name, new_server](IChannel* channel)
+        {
+            auto njoin_msg = ":" + this_server_name + " NJOIN " + channel->GetName() +
+                " :" + channel->GetUserListAsString(',');
+            new_server->Push(njoin_msg);
+        });
 
-	// Implement NJOIN command.
 }
