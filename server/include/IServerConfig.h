@@ -124,12 +124,8 @@ protected:
      * @brief List of administrators
      */
 	std::unordered_map<std::string, std::string> administrators_;
+    /**
 
-    /**
-     * @brief List of authorized servers
-     */
-  
-    /**
      * @brief SSL config
      * 
      */
@@ -137,7 +133,10 @@ protected:
 	std::string server_ssl_crt_;
 	std::string server_ssl_key_;
 
-	std::unordered_map<std::string, std::unique_ptr<ServerConnectData>> authorized_servers_;
+    /**
+     * @brief List of authorized servers
+     */
+  	std::unordered_map<std::string, std::unique_ptr<ServerConnectData>> authorized_servers_;
 
 };
 
