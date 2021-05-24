@@ -63,7 +63,7 @@ TEST_F(ChannelDatabaseTests, DeleteEmptyChannels)
 	IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
 	EXPECT_CALL(user1, GetUUID()).WillRepeatedly(ReturnRef(uuid1));
 
-	(*channel2)->AddUser(&user1);
+	(*channel2)->AddUser(&user1, false);
 
     channel_database->DeleteEmptyChannels();
 

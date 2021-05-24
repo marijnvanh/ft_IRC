@@ -111,3 +111,8 @@ package_add_test( SERVERHandler_test
 ../src/RemoteServer.cpp
 ../src/Server.cpp
 )
+package_add_test( NJOINHandler_test
+./HandlerTests/NJOINHandler_test.cpp
+../src/MessageHandlers/NJOINHandler.cpp
+../src/MessageHandlers/CommandHandler.cpp
+)

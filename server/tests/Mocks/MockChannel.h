@@ -11,11 +11,11 @@ class MockChannel : public virtual IChannel {
     MOCK_METHOD(void, PushToLocal, (const std::string &irc_message, std::optional<IRC::UUID> except_uuid), ());
 
     MOCK_METHOD(bool, RemoveUser, (IRC::UUID uuid), ());
-	MOCK_METHOD(void, AddUser, (IUser* new_user), ());
+	MOCK_METHOD(void, AddUser, (IUser* new_user, bool is_operator), ());
 
     MOCK_METHOD(bool, HasUser, (IRC::UUID uuid), ());
     MOCK_METHOD(uint32_t, CountUsers, (), ());
-	MOCK_METHOD(const std::string, GetUserListAsString, (), ());
+	MOCK_METHOD(const std::string, GetUserListAsString, (char delim), ());
 
 	MOCK_METHOD(bool, AddOperator, (IRC::UUID uuid), ());
 	MOCK_METHOD(bool, HasOperator, (IRC::UUID uuid), ());
