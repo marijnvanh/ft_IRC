@@ -16,7 +16,7 @@ class NJOINHandler : public CommandHandler
 
  	private:
 
-    auto AddUsersToChannel(IChannel* channel, std::vector<std::string> &usernames) -> void;
+    auto AddUsersToChannel(IChannel* channel, std::vector<std::string> &nicknames) -> void;
     auto AddUserToChannel(IChannel* channel, IUser* user, bool is_operator) -> void;
 
     IChannelDatabase *channel_database_;

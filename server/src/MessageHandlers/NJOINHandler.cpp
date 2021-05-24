@@ -3,7 +3,7 @@
 #include "MessageHandlers/NJOINHandler.h"
 
 #define CHANNEL_NAME_PARAM			0
-#define USERNAME_LIST_PARAM		    1
+#define NICKNAME_LIST_PARAM		    1
 
 /*
     Command: NJOIN
@@ -50,35 +50,36 @@ auto NJOINHandler::SafeHandle(IMessage &message) -> void
         channel = channel_database_->CreateChannel(params[CHANNEL_NAME_PARAM],"", ChannelType::kNetwork);
     }
     
-    auto usernames = split(params[USERNAME_LIST_PARAM], ",");
-    AddUsersToChannel(*channel, usernames);
+    auto nicknames = split(params[NICKNAME_LIST_PARAM], ",");
+    AddUsersToChannel(*channel, nicknames);
 
 	/* Broadcast to local servers */
     auto prefix = message.GetPrefix() ? *(message.GetPrefix()) : server_config_->GetName();
-	auto njoin_msg = ":" + prefix + " NJOIN " + params[CHANNEL_NAME_PARAM] +  " :" + params[USERNAME_LIST_PARAM];
+	auto njoin_msg = ":" + prefix + " NJOIN " + params[CHANNEL_NAME_PARAM] +  " :" + params[NICKNAME_LIST_PARAM];
 	client_database_->BroadcastToLocalServers(njoin_msg, message.GetClientUUID());
 }
 
-auto NJOINHandler::AddUsersToChannel(IChannel* channel, std::vector<std::string> &usernames) -> void
+auto NJOINHandler::AddUsersToChannel(IChannel* channel, std::vector<std::string> &nicknames) -> void
 {
-    for (std::string username : usernames) {
+    for (std::string nickname : nicknames) {
         bool is_operator = false;
-        if (username[0] == '+') {
-            username = username.substr(1); /* IGNORED */
+        if (nickname[0] == '+') {
+            nickname = nickname.substr(1); /* IGNORED */
         }
-        else if (username[0] == '@' && username[1] == '@') {
-            username = username.substr(2); /* IGNORED */
-        }
-        if (username[0] == '@') {
-            username = username.substr(1);
+        else if (nickname[0] == '@' && nickname[1] == '@') {
+            nickname = nickname.substr(2); /* IGNORED */
             is_operator = true;
         }
-        auto user = *(client_database_->GetUser(username));
+        if (nickname[0] == '@') {
+            nickname = nickname.substr(1);
+            is_operator = true;
+        }
+        auto user = *(client_database_->GetUser(nickname));
         if (user) {
             AddUserToChannel(channel, user, is_operator);
         }
         else {
-            logger_.Log(LogLevel::ERROR, "Could not add %s to channel, user does not exits.", username.c_str());
+            logger_.Log(LogLevel::ERROR, "Could not add %s to channel, user does not exits.", nickname.c_str());
         }
     }
 }
