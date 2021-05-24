@@ -17,10 +17,6 @@ struct ServerConnectData
 {
 
 public:
-
-	ServerConnectData(){};
-	~ServerConnectData(){};
-
 	auto SetIP(std::string ip) -> void { ip_ = ip; }
 	auto SetPort(std::string port) -> void { port_ = port; }
 	auto SetName(std::string name) -> void { name_ = name; }

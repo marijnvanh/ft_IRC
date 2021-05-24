@@ -39,4 +39,5 @@ auto OPERHandler::SafeHandle(IMessage &message) -> void
 	
     user->Push(":" + server_config_->GetName() + " MODE " + user->GetNickname() + " :+o");
     user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_YOUREOPER) + " " + user->GetNickname() + " :You are now an IRC operator");
+	// TODO: Broadcast to local servers.
 }

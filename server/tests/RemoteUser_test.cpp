@@ -6,6 +6,7 @@
 using ::testing::AtLeast;
 using ::testing::Throw;
 using ::testing::Return;
+using ::testing::ReturnRef;
 using ::testing::_;
 
 class RemoteUserTests : public ::testing::Test
@@ -18,11 +19,18 @@ class RemoteUserTests : public ::testing::Test
     std::string username1;
     std::string realname1;
 
+	std::string remote_server_name;
+
     void SetUp() override
     {
         nickname1 = "nickname1";
         username1 = "username1";
         realname1 = "realname1";
+
+		remote_server_name = "remote.server.com";
+
+		EXPECT_CALL(mock_server1, GetServerName())
+			.WillRepeatedly(ReturnRef(remote_server_name));
         remote_user1 = std::make_unique<RemoteUser>(&mock_server1, &mock_server1, nickname1, username1, realname1);
     }
 };

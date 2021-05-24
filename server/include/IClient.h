@@ -96,13 +96,13 @@ class IClient
 	virtual auto GetPrefix() const -> const std::string& { return prefix_; }
 
 	virtual auto SetHops(uint32_t hops) -> void { hops_ = hops; }
-	virtual auto GetHops(void) const -> const uint32_t { return hops_; }
+	virtual auto GetHops(void) const -> uint32_t { return hops_; }
 
 	virtual auto SetOurToken(uint32_t t) -> void { our_token_ = t; }
-	virtual auto GetOurToken(void) const -> const uint32_t { return our_token_; }
+	virtual auto GetOurToken(void) const -> uint32_t { return our_token_; }
 
 	virtual auto SetTheirToken(uint32_t t) -> void { their_token_ = t; }
-	virtual auto GetTheirToken(void) const -> const uint32_t { return their_token_; }
+	virtual auto GetTheirToken(void) const -> uint32_t { return their_token_; }
 
     IClient (IClient& other) = delete;
     IClient &operator =(IClient& other) = delete;

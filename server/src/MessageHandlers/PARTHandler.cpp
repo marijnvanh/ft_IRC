@@ -15,7 +15,7 @@ PARTHandler::~PARTHandler()
 auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* client) -> void
 {
 	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
-	std::string part_message("");
+	std::string part_message(":" + client->GetNickname() + " left");
 	if (params.size() > 1)
 	{
 		part_message.assign(" :" + params[PART_MESSAGE_PARAM]);

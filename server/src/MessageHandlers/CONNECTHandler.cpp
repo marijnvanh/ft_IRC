@@ -29,14 +29,17 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 		return ;
 	}
 
-	auto s_data = server_config_->GetAuthorizedServer(params[SERVER_NAME_PARAM]);
-    if (!s_data)
+	auto authorized_server_data =
+		server_config_->GetAuthorizedServer(params[SERVER_NAME_PARAM]);
+    if (!authorized_server_data)
 	{
 		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME_PARAM]));
         return ;
     }
 
-    auto new_server = irc_server_->CreateNewConnection((*s_data)->GetIP(), (*s_data)->GetPort());
+    auto new_server = irc_server_->CreateNewConnection(
+		(*authorized_server_data)->GetIP(),
+		(*authorized_server_data)->GetPort());
 	if (!new_server)
 	{
 		logger_.Log(LogLevel::WARNING, "Failed to connect to server: %s", params[SERVER_NAME_PARAM].c_str());
@@ -45,7 +48,7 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 	(*new_server)->SetRegisterState(IClient::RegisterState::kRegistering);
 
 	(*new_server)->Push(":" + server_config_->GetName() + " PASS " +
-		(*s_data)->GetSendPass() + " 0210-IRC+ codIrcd|");
+		(*authorized_server_data)->GetSendPass() + " 0210-IRC+ codIrcd|");
 	(*new_server)->Push(":" + server_config_->GetName() + " SERVER " +
 		server_config_->GetName() + " 1 :" + server_config_->GetDescription());
 }

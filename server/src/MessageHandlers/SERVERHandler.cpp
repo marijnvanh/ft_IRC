@@ -104,7 +104,8 @@ auto SERVERHandler::HandleBroadcasting(IClient *new_server, IMessage &message) -
 		std::to_string(new_server->GetOurToken()) +
 		" :" + params[params.size() - 1];
 	
-    client_database_->BroadcastToLocalServers(irc_message, message.GetClientUUID());
+    client_database_->BroadcastToLocalServers(irc_message,
+		std::make_optional<IRC::UUID>(message.GetClientUUID()));
     auto this_server_name = server_config_->GetName();
     client_database_->DoForEachServer(
         [this_server_name, new_server](IClient* client)

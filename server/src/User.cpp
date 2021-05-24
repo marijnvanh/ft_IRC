@@ -56,7 +56,8 @@ auto User::GenerateNickMessage(const std::string &this_server_name) const -> std
     else
         nick_message += remote_server_->GetServerName();
 
-    nick_message += " " + std::to_string(our_token_) + " +i :" + realname_;
+    nick_message += " " + std::to_string(our_token_) + " " +
+		FormatUserMode() + " :" + realname_;
 
     return (nick_message);
 }
