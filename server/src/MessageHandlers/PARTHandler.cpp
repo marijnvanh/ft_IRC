@@ -16,10 +16,9 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 {
 	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
 	std::string part_message(":" + client->GetNickname() + " left");
-
 	if (params.size() > 1)
 	{
-		part_message.assign(":" + params[PART_MESSAGE_PARAM]);
+		part_message.assign(" :" + params[PART_MESSAGE_PARAM]);
 	}
 
 	for (auto channel_name : channel_names)
@@ -32,19 +31,22 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 			continue;
 		}
 
-		if ((*channel)->RemoveUser(client->GetUUID()))
+		if ((*channel)->HasUser(client->GetUUID()))
 		{
 			auto user = dynamic_cast<IUser*>(client);
 			user->RemoveChannel(channel_name);
-			auto part_irc_msg = ":" + client->GetNickname() + " PART " + channel_name + " " + part_message;
+			
+			auto part_irc_msg = ":" + client->GetPrefix() + " PART " + channel_name + part_message;
 			(*channel)->PushToLocal(part_irc_msg, std::nullopt);
+			(*channel)->RemoveUser(client->GetUUID());
 		}
 		else
 		{
 			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTONCHANNEL, channel_name));			
 		}		
 	}
-	auto part_irc_msg = ":" + client->GetNickname() + " PART " + params[CHANNEL_NAME_PARAM] + " " + part_message;
+
+	auto part_irc_msg = ":" + client->GetPrefix() + " PART " + params[CHANNEL_NAME_PARAM] + part_message;
 	if (client->GetType() == IClient::Type::kLocalServer)
 		client_database_->BroadcastToLocalServers(part_irc_msg, client->GetUUID());
 	else

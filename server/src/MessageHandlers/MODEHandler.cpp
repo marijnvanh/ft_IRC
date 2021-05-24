@@ -85,12 +85,13 @@ auto MODEHandler::SafeHandle(IMessage &message) -> void
 		return ;
 	}
 
-	HandleMODEUser(dynamic_cast<IUser*>(client), params);
+	HandleMODEUser(dynamic_cast<IUser*>(client), message);
 }
 
-auto MODEHandler::HandleMODEUser(IUser *user,
-		std::vector<std::string> &params) -> void
+auto MODEHandler::HandleMODEUser(IUser *user, IMessage &message) -> void
 {
+	auto params = message.GetParams();
+
 	if (params[TARGET_IDENTIFIER] != user->GetNickname())
 	{
         user->Push(GetErrorMessage(server_config_->GetName(), ERR_USERSDONTMATCH));
@@ -131,8 +132,21 @@ auto MODEHandler::HandleMODEUser(IUser *user,
 		break ;
 	}
 
-	user->Push("MODE " + user->GetNickname() +
-		" :" + FormatMode(user->GetMode()));
+	std::string prefix = "";
+	if (message.GetPrefix())
+		prefix = ":" + *(message.GetPrefix()) + " ";
+
+	auto msg = prefix +
+		"MODE " + user->GetNickname() +
+		" :" + FormatMode(user->GetMode());
+
+	std::optional<IRC::UUID> uuid_opt = std::nullopt;
+	if (user->GetType() == IClient::Type::kLocalUser)
+		user->Push(msg);
+	else
+		uuid_opt = std::make_optional<IRC::UUID>(user->GetLocalServer()->GetUUID());
+
+	client_database_->BroadcastToLocalServers(msg, uuid_opt);
 }
 
 auto MODEHandler::HandleMODEChannel(IUser *user,
@@ -153,9 +167,10 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 
 	if (params.size() < 2)
 	{
-		user->Push(std::to_string(RPL_CHANNELMODEIS) +
-			" " + (*channel)->GetName() +
-			" :" + FormatMode((*channel)->GetMode()));
+		user->Push(":" + server_config_->GetName() + " " +
+			std::to_string(RPL_CHANNELMODEIS) + " " +
+			user->GetNickname() + " " +
+			(*channel)->GetName() +	" " + FormatMode((*channel)->GetMode()));
 		return ;
 	}
 

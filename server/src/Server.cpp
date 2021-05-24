@@ -57,11 +57,16 @@ auto Server::Disconnect(IClientDatabase *client_database,
  */
 auto Server::GenerateServerMessage(const std::string &this_server_name) const -> std::string
 {
-    std::string server_message;
+	std::string server_message;
+
     if (type_ == IClient::Type::kLocalServer)
         server_message = ":" + this_server_name;
     else
         server_message = ":" + remote_server_->GetServerName();
-    server_message + " SERVER 1 :Unknown description"; 
-    return server_name_;
+
+    server_message += " SERVER " +
+		std::to_string(GetHops() + 1) + " " + std::to_string(GetOurToken()) +
+		" :Unknown description"; 
+
+    return server_message;
 }

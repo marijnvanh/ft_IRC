@@ -229,6 +229,7 @@ TEST_F(ClientDatabaseTests, DisconnectUser)
 {
     std::string client_nickname("nickname1");
     std::string localuser_nickname("nickname2");
+	std::unordered_map<std::string, IChannel*> channels;
     
     unique_client1->SetNickname(client_nickname);
     local_user1->SetNickname(localuser_nickname);
@@ -240,6 +241,8 @@ TEST_F(ClientDatabaseTests, DisconnectUser)
 
     EXPECT_CALL(*local_user1, RemoveUserFromAllChannels())
         .Times(1);
+	EXPECT_CALL(*local_user1, GetChannels())
+		.WillOnce(ReturnRef(channels));
 
     client_database->DisconnectClient(local_user1->GetUUID());
 

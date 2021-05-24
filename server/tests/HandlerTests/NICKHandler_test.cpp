@@ -147,17 +147,17 @@ TEST_F(NICKHandlerTests, RemoteUserRegistration)
     server_params.push_back("fake_hop_count");
     server_params.push_back("new_username");
     server_params.push_back(servername);
-    server_params.push_back("randomtoken");
-    server_params.push_back("umode");
-    server_params.push_back("realname");
+    server_params.push_back("1");
+    server_params.push_back("+i");
+    server_params.push_back(":realname");
 
     /* Set ClientDatabase expectations */
     EXPECT_CALL(mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::nullopt));
-    EXPECT_CALL(mock_client_database, GetServer("servername"))
+    EXPECT_CALL(mock_client_database, GetServer(1))
         .WillOnce(Return(std::optional<IServer*>(&mock_server)));
     EXPECT_CALL(mock_server, GetServerName())
-        .WillOnce(ReturnRef(servername));
+        .WillRepeatedly(ReturnRef(servername));
     EXPECT_CALL(mock_client_database, AddRemoteUser(_))
         .Times(1);
     EXPECT_CALL(mock_client_database, BroadcastToLocalServers(_,_))

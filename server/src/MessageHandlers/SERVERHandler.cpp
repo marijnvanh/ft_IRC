@@ -5,10 +5,11 @@
 
 #define PARAM_SERVER_NAME 0
 #define PARAM_HOPCOUNT 1
-#define PARAM_INFO 2
+#define PARAM_TOKEN 2
+#define PARAM_INFO 3
 
 SERVERHandler::SERVERHandler(IServerConfig *server_config, IClientDatabase *client_database) :
-    CommandHandler(server_config, client_database, "SERVER", 3, true)
+    CommandHandler(server_config, client_database, "SERVER", 2, true)
 {}
 
 SERVERHandler::~SERVERHandler()
@@ -48,9 +49,11 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
             return ;
         }
         auto local_server = (*client_database_->GetServer(client->GetUUID()));
-        HandleRemoteServerRegistration(local_server, *remote_server, params[PARAM_SERVER_NAME]);
-        auto irc_message = ":" + *remote_server_name + " SERVER " + params[PARAM_SERVER_NAME]
-            + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
+        HandleRemoteServerRegistration(local_server, *remote_server, message);
+        auto irc_message = ":" + *remote_server_name + " SERVER " +
+			params[PARAM_SERVER_NAME] + " " +
+			std::to_string(atoi(params[PARAM_HOPCOUNT].c_str()) + 1) +
+			" :" + params[params.size() - 1];
         client_database_->BroadcastToLocalServers(irc_message, client->GetUUID());
     }
     else
@@ -63,29 +66,46 @@ auto SERVERHandler::HandleLocalServerRegistration(IClient *client, IMessage &mes
 {
     auto new_server = client_database_->RegisterLocalServer(message.GetParams()[PARAM_SERVER_NAME], client->GetUUID());
     if (new_server->GetRegisterState() == IClient::RegisterState::kRegistering)
-        new_server->SetRegisterState(IClient::RegisterState::kRegistered);
+	{
+		new_server->SetTheirToken(atoi(message.GetParams()[PARAM_HOPCOUNT].c_str()));
+	}
     else
     {
-        new_server->SetRegisterState(IClient::RegisterState::kRegistered);
-        auto message = "SERVER " + server_config_->GetName() + " 0 :" + server_config_->GetDescription();
+		new_server->SetTheirToken(1);
+		// TODO: Make sure to send the correct password to connect to remote.
+		new_server->Push("PASS pass2 0210-IRC+ |");
+        auto message = "SERVER " + server_config_->GetName() + " 1 :" +
+			server_config_->GetDescription();
         new_server->Push(message);
     }
+    new_server->SetRegisterState(IClient::RegisterState::kRegistered);
     HandleBroadcasting(new_server, message);
 }
 
-auto SERVERHandler::HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, const std::string &server_name) -> void
+auto SERVERHandler::HandleRemoteServerRegistration(IServer *local_server, IServer *remote_server, IMessage &message) -> void
 {
-    auto new_server = std::make_unique<RemoteServer>(local_server, remote_server, server_name);
+	auto params = message.GetParams();
+    auto new_server = std::make_unique<RemoteServer>(local_server,
+		remote_server, message.GetParams()[PARAM_SERVER_NAME]);
+	
+	new_server->SetHops(atoi(params[PARAM_HOPCOUNT].c_str()));
+	new_server->SetTheirToken(atoi(params[PARAM_TOKEN].c_str()));
+
     client_database_->AddServer(std::move(new_server));
 }
 
 auto SERVERHandler::HandleBroadcasting(IClient *new_server, IMessage &message) -> void
 {
     auto params = message.GetParams();
-    auto irc_message = ":" + server_config_->GetName() + " SERVER " + params[PARAM_SERVER_NAME]
-        + " " + params[PARAM_HOPCOUNT] + " :" + params[PARAM_INFO];
-    client_database_->BroadcastToLocalServers(irc_message, message.GetClientUUID());
-    
+
+	std::string irc_message = ":" + server_config_->GetName() + " SERVER " +
+		params[PARAM_SERVER_NAME] + " " +
+		std::to_string((new_server->GetHops() + 1)) + " " +
+		std::to_string(new_server->GetOurToken()) +
+		" :" + params[params.size() - 1];
+	
+    client_database_->BroadcastToLocalServers(irc_message,
+		std::make_optional<IRC::UUID>(message.GetClientUUID()));
     auto this_server_name = server_config_->GetName();
     client_database_->DoForEachServer(
         [this_server_name, new_server](IClient* client)
@@ -93,11 +113,12 @@ auto SERVERHandler::HandleBroadcasting(IClient *new_server, IMessage &message) -
             auto server = dynamic_cast<IServer*>(client);
             new_server->Push(server->GenerateServerMessage(this_server_name));
         }, std::make_optional<IRC::UUID>(new_server->GetUUID()));
-    
     client_database_->DoForEachUser(
         [this_server_name, new_server](IClient* client)
         {
             auto user = dynamic_cast<IUser*>(client);
             new_server->Push(user->GenerateNickMessage(this_server_name));
         }, std::nullopt);
+
+	// Implement NJOIN command.
 }

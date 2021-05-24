@@ -32,6 +32,8 @@ class IUser : public virtual IClient
 	virtual auto GetChannels() -> std::unordered_map<std::string, IChannel*>& = 0;
 	virtual auto GenerateNickMessage(const std::string &this_server_name) const -> std::string = 0;
 
+	virtual auto SetPrefix(std::string prefix) -> void { prefix_ = prefix; }
+
 	/**
 	 * @brief Mode specific functionality. Sets the given mode.
 	 */

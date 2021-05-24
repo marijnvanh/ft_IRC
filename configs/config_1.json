@@ -7,10 +7,7 @@
 	},
 	"hosting-data": {
 		"port": "5000",
-		"ssl_port": "5001",
-		"address": "0.0.0.0",
-		"ssl_crt": "./certs/domain.crt",
-		"ssl_key": "./certs/domain.key"
+		"address": "0.0.0.0"
 	},
 	"administrators": [
 		["rkuijper", "youshouldhashthis"],
@@ -27,12 +24,11 @@
 	"log-settings": {
 		"default-level": "DEBUG",
 		"log-levels": [
-			["IRCServer", "INFO"],
+			["IRCServer", "DEBUG"],
 			["ServerConfig", "INFO"],
 			["Client", "INFO"],
-			["SOCKET", "INFO"],
-			["MD", "INFO"],
-			["ClientDatabase", "INFO"],
+			["MD", "DEBUG"],
+			["ClientDatabase", "DEBUG"],
 			["ChannelDatabase", "INFO"],
 			["SERVERHandler", "DEBUG"],
 			["IOController", "INFO"]

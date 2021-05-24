@@ -2,6 +2,8 @@
 #define ISERVER_CONFIG_HPP
 
 #include <string>
+#include <memory>
+#include <optional>
 
 #include "nlohmann/json.hpp"
 
@@ -13,6 +15,33 @@
 #define DEFAULT_SSL_SERVER_ADDRESS "0.0.0.0"
 #define DEFAULT_SSL_CRT "./certs/domain.crt"
 #define DEFAULT_SSL_KEY "./certs/domain.key"
+
+
+struct ServerConnectData
+{
+
+public:
+	auto SetIP(std::string ip) -> void { ip_ = ip; }
+	auto SetPort(std::string port) -> void { port_ = port; }
+	auto SetName(std::string name) -> void { name_ = name; }
+	auto SetRecvPass(std::string pass) -> void { recv_pass_ = pass; }
+	auto SetSendPass(std::string pass) -> void { send_pass_ = pass; }
+	
+	auto GetIP() -> std::string& { return ip_; }
+	auto GetPort() -> std::string& { return port_; }
+	auto GetName() -> std::string& { return name_; }
+	auto GetRecvPass() -> std::string& { return recv_pass_; }
+	auto GetSendPass() -> std::string& { return send_pass_; }
+	
+private:
+
+	std::string ip_;
+	std::string port_;
+	std::string name_;
+	std::string recv_pass_;
+	std::string send_pass_;
+
+};
 
 struct IServerConfig
 {
@@ -42,7 +71,15 @@ public:
 	auto GetAddress() -> std::string { return (server_address_); }
 
 	auto GetAdministrators() -> std::unordered_map<std::string, std::string>& { return (administrators_); }
-	auto GetAuthorizedServers() -> std::unordered_map<std::string, std::pair<std::string, std::string>>& { return (authorized_servers_); }
+	auto GetAuthorizedServer(std::string& name) -> std::optional<ServerConnectData*>
+	{
+		auto server = authorized_servers_.find(name);
+		if (server != authorized_servers_.end())
+		{
+			return (std::make_optional<ServerConnectData*>(server->second.get()));
+		}
+		return (std::nullopt);
+	};
 
 protected:
 
@@ -91,15 +128,17 @@ protected:
     /**
      * @brief List of authorized servers
      */
-	std::unordered_map<std::string, std::pair<std::string, std::string>> authorized_servers_;
-	
-	/**
-	 * @brief SSL config
-	 * 
-	 */
+  
+    /**
+     * @brief SSL config
+     * 
+     */
 	std::string server_ssl_port_;
 	std::string server_ssl_crt_;
 	std::string server_ssl_key_;
+
+	std::unordered_map<std::string, std::unique_ptr<ServerConnectData>> authorized_servers_;
+
 };
 
 #endif
