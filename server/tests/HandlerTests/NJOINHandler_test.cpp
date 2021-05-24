@@ -89,7 +89,7 @@ class NJOINTests : public ::testing::Test
 TEST_F(NJOINTests, SuccessTest)
 {
     message_params.push_back(channel1_name);
-    message_params.push_back("@@" + nickname1 + ",@" + nickname2);
+    message_params.push_back("@@" + nickname1 + ",+" + nickname2);
 
 	EXPECT_CALL(mock_channel_database, GetChannel(channel1_name))
 			.WillOnce(Return(std::nullopt));
@@ -106,8 +106,8 @@ TEST_F(NJOINTests, SuccessTest)
         .Times(2)
         .WillRepeatedly(Return());
 
-	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1, false));
-	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser2, true));
+	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser1, true));
+	EXPECT_CALL(mock_channel1, AddUser(&mock_localuser2, false));
 
     njoin_handler_->SafeHandle(message1);
 }
