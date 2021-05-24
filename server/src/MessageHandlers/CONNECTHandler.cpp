@@ -28,21 +28,27 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "CONNECT"));
 		return ;
 	}
-	auto authorized_servers = server_config_->GetAuthorizedServers();
-    //TODO validate servername
-    auto server = authorized_servers.find(params[SERVER_NAME_PARAM]);
-    if (server == authorized_servers.end())
+
+	auto authorized_server_data =
+		server_config_->GetAuthorizedServer(params[SERVER_NAME_PARAM]);
+    if (!authorized_server_data)
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, "CONNECT")); // Not an authorized server
+		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME_PARAM]));
         return ;
     }
 
-    auto new_server = irc_server_->CreateNewConnection(server->second.first, server->second.second);
+    auto new_server = irc_server_->CreateNewConnection(
+		(*authorized_server_data)->GetIP(),
+		(*authorized_server_data)->GetPort());
 	if (!new_server)
 	{
 		logger_.Log(LogLevel::WARNING, "Failed to connect to server: %s", params[SERVER_NAME_PARAM].c_str());
         return ;
     }
 	(*new_server)->SetRegisterState(IClient::RegisterState::kRegistering);
-	(*new_server)->Push("SERVER " + server_config_->GetName() + " 0 :" + server_config_->GetDescription());
+
+	(*new_server)->Push(":" + server_config_->GetName() + " PASS " +
+		(*authorized_server_data)->GetSendPass() + " 0210-IRC+ codIrcd|");
+	(*new_server)->Push(":" + server_config_->GetName() + " SERVER " +
+		server_config_->GetName() + " 1 :" + server_config_->GetDescription());
 }

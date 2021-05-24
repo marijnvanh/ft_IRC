@@ -13,10 +13,12 @@ class User : public virtual IUser
 
     virtual ~User();
 
+	auto FormatUserMode(void) const -> std::string;
+
     auto AddChannel(IChannel *channel) -> void override;
     auto RemoveChannel(const std::string &channel_name) -> void override;
     auto RemoveUserFromAllChannels() -> void override;
-	auto GetChannels() -> std::unordered_map<std::string, IChannel*>& override;
+	auto GetChannels(void) -> std::unordered_map<std::string, IChannel*>& override;
 	auto GenerateNickMessage(const std::string &this_server_name) const -> std::string override;
 
     private:

@@ -74,6 +74,8 @@ auto Channel::GetUserListAsString() -> const std::string
 
 	for (auto it = local_users_.cbegin(); it != local_users_.cend();)
 	{
+		if (HasOperator(it->second->GetUUID()))
+			result += "@";
 		result += it->second->GetNickname();
 		if (++it != local_users_.cend() || remote_users_.size() > 0)
 		{
@@ -83,10 +85,10 @@ auto Channel::GetUserListAsString() -> const std::string
 
 	for (auto it = remote_users_.cbegin(); it != remote_users_.cend();)
 	{
+		if (HasOperator(it->second->GetUUID()))
+			result += "@";
 		result += it->second->GetNickname();
-		++it;
-
-		if (it != remote_users_.cend())
+		if (++it != remote_users_.cend())
 		{
 			result += ' ';
 		}

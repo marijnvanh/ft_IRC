@@ -3,6 +3,7 @@
 
 auto IsSpecial(char c) -> bool {
   return (c == '-')
+      || (c == '_')
       || (c == '[')
       || (c == ']')
       || (c == '\\')

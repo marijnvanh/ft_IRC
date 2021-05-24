@@ -3,7 +3,6 @@
 #include <queue>
 #include <memory>
 #include <unistd.h>
-#define PORT "5000"
 
 using namespace IRC;
 
@@ -22,8 +21,6 @@ int main(int argc, char *argv[])
 		while (1)
         {
 			server.RunOnce();
-
-            sleep(1);
         }
     }
     catch (TCP::AddressInfo::ResolveError &ex)

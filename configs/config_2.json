@@ -1,12 +1,12 @@
 {
 	"server-data": {
 		"id": "90L",
-		"name": "codam.mr.com",
+		"name": "codam.irc.com",
 		"network": "codam.mr.com",
 		"description": "The best server in the whole wide world."
 	},
 	"hosting-data": {
-		"port": "5000",
+		"port": "5005",
 		"address": "0.0.0.0"
 	},
 	"administrators": [
@@ -14,9 +14,9 @@
 		["mavanhe", "mooiejongenenzo"]
 	],
 	"authorized-servers": {
-		"codam.irc.com": {
+		"codam.mr.com": {
 			"ip": "0.0.0.0",
-			"port": "5005",
+			"port": "5000",
 			"recv_pass": "pass1",
 			"send_pass": "pass2"
 		}

@@ -89,9 +89,12 @@ class ClientDatabase : public IClientDatabase
     // Get Client by nickname currently returns both Registered and UnRegistered users
     // This might not be what we want because of Nick collisions on UnRegistered users
     auto GetClient(const std::string &name) -> std::optional<IClient*> override;
-    auto GetServer(const std::string &server_name) -> std::optional<IServer*> override;
+
     auto GetServer(IRC::UUID uuid) -> std::optional<IServer*> override;
-    auto GetUser(const std::string &nickname) -> std::optional<IUser*> override;
+    auto GetServer(const uint32_t token) -> std::optional<IServer*> override;
+    auto GetServer(const std::string &server_name) -> std::optional<IServer*> override;
+
+	auto GetUser(const std::string &nickname) -> std::optional<IUser*> override;
 
 	auto SetConfig(IServerConfig *server_config) -> void;
 
@@ -104,6 +107,8 @@ class ClientDatabase : public IClientDatabase
     auto DoForEach(std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> &clients, 
         std::function<void(IClient*)> &action,
         std::optional<IRC::UUID> &skip_uuid) -> void;
+		
+	auto GenerateOurServerToken(void) -> uint32_t;
 
 	IServerConfig *server_config_;
     std::unordered_map<IRC::UUID, std::unique_ptr<IClient>> clients_;

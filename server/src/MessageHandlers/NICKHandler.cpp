@@ -21,8 +21,10 @@ NICK from server:
 */
 
 #define PARAM_NICKNAME 0
+#define PARAM_HOPCOUNT 1
 #define PARAM_USERNAME 2
 #define PARAM_SERVERNAME 3
+#define PARAM_SERV_TOKEN 4
 #define PARAM_REALNAME 6
 
 NICKHandler::NICKHandler(IServerConfig *server_config, IClientDatabase *client_database) :
@@ -57,17 +59,20 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
 {
     //TODO validate params
     auto new_nickname = message.GetParams()[PARAM_NICKNAME];
+	auto hopcount = atoi(message.GetParams()[PARAM_HOPCOUNT].c_str());
     auto new_username = message.GetParams()[PARAM_USERNAME];
     auto server_name = message.GetParams()[PARAM_SERVERNAME];
+	auto server_token = atoi(message.GetParams()[PARAM_SERV_TOKEN].c_str());
     auto new_realname = message.GetParams()[PARAM_REALNAME];
-    
+
     auto client_with_same_nickname = client_database_->GetClient(new_nickname);
     if (client_with_same_nickname)
     {
         //TODO send kill command to both users with nickname
         return ;
     }
-    auto remote_server = client_database_->GetServer(server_name);
+
+    auto remote_server = client_database_->GetServer(server_token);
     if (!remote_server)
     {
         server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, server_name));
@@ -80,8 +85,14 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
         new_nickname,
         new_username,
         new_realname);
+
+	new_remote_user->SetHops(hopcount);
+	new_remote_user->SetTheirToken(server_token);
+	new_remote_user->SetOurToken((*remote_server)->GetOurToken());
+
     auto nick_msg = new_remote_user->GenerateNickMessage(server_config_->GetName());
-    client_database_->AddRemoteUser(std::move(new_remote_user));
+
+	client_database_->AddRemoteUser(std::move(new_remote_user));
     client_database_->BroadcastToLocalServers(nick_msg, server->GetUUID());
 }
 
@@ -133,6 +144,8 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
     }
 
     std::string old_nickname = client->GetNickname();
+	client->SetHops(0);
+	client->SetOurToken(1);
     client->SetNickname(nickname);
 
     if (client->GetType() != IClient::Type::kUnRegistered)

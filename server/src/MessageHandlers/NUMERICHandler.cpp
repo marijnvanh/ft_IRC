@@ -13,8 +13,8 @@ NUMERICHandler::~NUMERICHandler()
 
 static auto FormNumericMessage(IMessage &message) -> std::string
 {
-    auto nickname = *(message.GetNickname());
-    auto numeric_message = ":" + nickname + " " + message.GetCommand();
+    auto prefix = *(message.GetPrefix());
+    auto numeric_message = ":" + prefix + " " + message.GetCommand();
 
     auto message_params = message.GetParams();
     auto param_count = message_params.size();

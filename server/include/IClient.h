@@ -39,7 +39,7 @@ class IClient
     virtual ~IClient()
     {};
 
-    IClient (IClient&& other) = default; 
+    IClient (IClient&& other) = default;
 
     /**
      * @brief Push a message on to the send queue (later to be send by SendAll)
@@ -91,7 +91,18 @@ class IClient
     virtual auto SetUsername(std::string username) -> void { username_ = username; }
     virtual auto GetRealname() const -> const std::string& { return realname_; }
     virtual auto SetRealname(std::string realname) -> void { realname_ = realname; }
-    virtual auto GetLocalServer() const -> IServer* { return local_server_; };
+    virtual auto GetLocalServer() const -> IServer* { return local_server_; }
+
+	virtual auto GetPrefix() const -> const std::string& { return prefix_; }
+
+	virtual auto SetHops(uint32_t hops) -> void { hops_ = hops; }
+	virtual auto GetHops(void) const -> uint32_t { return hops_; }
+
+	virtual auto SetOurToken(uint32_t t) -> void { our_token_ = t; }
+	virtual auto GetOurToken(void) const -> uint32_t { return our_token_; }
+
+	virtual auto SetTheirToken(uint32_t t) -> void { their_token_ = t; }
+	virtual auto GetTheirToken(void) const -> uint32_t { return their_token_; }
 
     IClient (IClient& other) = delete;
     IClient &operator =(IClient& other) = delete;
@@ -117,12 +128,17 @@ class IClient
     Type type_;
     RegisterState register_state_;
     IRC::UUID uuid_;
+	std::string prefix_;
     std::string password_;
     std::string nickname_;
     std::string username_;
     std::string realname_;
     IServer* local_server_; /* The server which is directly connected to us */
     IServer* remote_server_; /* The server that has the local user */
+
+	uint32_t hops_;
+	uint32_t our_token_;
+	uint32_t their_token_;
 };
 
 #endif
