@@ -105,7 +105,7 @@ auto ServerConfig::ParseAuthorizedServers(json jf) -> void
 			if (kvp.second.contains("recv_pass"))
 				conf->SetRecvPass(kvp.second.at("recv_pass"));
 			if (kvp.second.contains("send_pass"))
-				conf->SetRecvPass(kvp.second.at("send_pass"));
+				conf->SetSendPass(kvp.second.at("send_pass"));
 			
 			authorized_servers_.insert(std::make_pair(
 				kvp.first,

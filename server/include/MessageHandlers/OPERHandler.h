@@ -13,6 +13,8 @@ class OPERHandler : public CommandHandler
     ~OPERHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
+
+	auto GetOriginalSender(IClient **client, IMessage &message) -> bool;
 };
 
 #endif

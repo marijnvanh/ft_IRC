@@ -19,6 +19,16 @@ public:
 
 	auto TryParseFrom(std::string file_path) -> bool;
 
+	auto GetAuthorizedServer(const std::string &name) -> std::optional<ServerConnectData*> override
+	{
+		auto server = authorized_servers_.find(name);
+		if (server != authorized_servers_.end())
+		{
+			return (std::make_optional<ServerConnectData*>(server->second.get()));
+		}
+		return (std::nullopt);
+	};
+
 private:
 	std::string config_file_;
 	Logger logger;

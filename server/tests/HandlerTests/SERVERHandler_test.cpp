@@ -23,7 +23,9 @@ class SERVERHandlerTests : public ::testing::Test
     MockServerConfig mock_server_config_;
 
 	StrictMock<MockClient> mock_client1;
+
 	std::string new_server_name1;
+	ServerConnectData new_server_connect_data;
     IRC::UUID uuid1 = IRC::UUIDGenerator::GetInstance().Generate();
     
     MockMessage message1;
@@ -41,6 +43,10 @@ class SERVERHandlerTests : public ::testing::Test
     void SetUp() override
     {
 		server_handler_ = std::make_unique<SERVERHandler>(&mock_server_config_, &mock_client_database, &mock_channel_database);
+
+		new_server_connect_data.SetName(new_server_name1);
+		EXPECT_CALL(mock_server_config_, GetAuthorizedServer(new_server_name1))
+			.WillRepeatedly(Return(std::optional<ServerConnectData*>(&new_server_connect_data)));
 
         EXPECT_CALL(mock_client_database, GetClient(uuid1))
             .WillRepeatedly(Return(std::optional<IClient*>(&mock_client1)));
