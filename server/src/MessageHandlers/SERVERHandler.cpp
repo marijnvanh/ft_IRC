@@ -65,6 +65,22 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
 
 auto SERVERHandler::HandleLocalServerRegistration(IClient *client, IMessage &message) -> void
 {
+	auto params = message.GetParams();
+	auto authorized_server = server_config_->GetAuthorizedServer(params[PARAM_SERVER_NAME]);
+
+	// TODO: In both of these cases the client is normally disconnected.
+	// Do we want to do that as well?
+	if (!authorized_server)
+	{
+		client->Push(":" + server_config_->GetName() + " ERROR :Server not configured here");
+		return ;
+	}
+	if ((*authorized_server)->GetRecvPass() != client->GetPassword())
+	{
+		client->Push(":" + server_config_->GetName() + " ERROR :Password mismatch");
+		return ;		
+	}
+
     auto new_server = client_database_->RegisterLocalServer(message.GetParams()[PARAM_SERVER_NAME], client->GetUUID());
     if (new_server->GetRegisterState() == IClient::RegisterState::kRegistering)
 	{
@@ -73,8 +89,8 @@ auto SERVERHandler::HandleLocalServerRegistration(IClient *client, IMessage &mes
     else
     {
 		new_server->SetTheirToken(1);
-		// TODO: Make sure to send the correct password to connect to remote.
-		new_server->Push("PASS pass2 0210-IRC+ |");
+		new_server->Push("PASS " + (*authorized_server)->GetSendPass() +
+			" 0210-IRC+ |");
         auto message = "SERVER " + server_config_->GetName() + " 1 :" +
 			server_config_->GetDescription();
         new_server->Push(message);
