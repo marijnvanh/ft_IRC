@@ -71,15 +71,7 @@ public:
 	auto GetAddress() -> std::string { return (server_address_); }
 
 	auto GetAdministrators() -> std::unordered_map<std::string, std::string>& { return (administrators_); }
-	auto GetAuthorizedServer(std::string& name) -> std::optional<ServerConnectData*>
-	{
-		auto server = authorized_servers_.find(name);
-		if (server != authorized_servers_.end())
-		{
-			return (std::make_optional<ServerConnectData*>(server->second.get()));
-		}
-		return (std::nullopt);
-	};
+	virtual auto GetAuthorizedServer(const std::string &name) -> std::optional<ServerConnectData*> = 0;
 
 protected:
 

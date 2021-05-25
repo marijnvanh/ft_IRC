@@ -57,7 +57,7 @@ auto OPERHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
 
 		if (!prefix)
 		{
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN, "SQUIT"));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN, "OPER"));
 			return (false);
 		}
 
