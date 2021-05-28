@@ -56,8 +56,28 @@ auto NAMESHandler::SafeHandle(IMessage &message) -> void
 
 static auto SendNAMREPLY(IClient *receiver, IChannel *channel) -> void
 {
-    receiver->Push(std::to_string(RPL_NAMREPLY) + " " + channel->GetName() + " :" + channel->GetUserListAsString(' '));
+    receiver->Push(std::to_string(RPL_NAMREPLY) + " = " + channel->GetName() + " :" + channel->GetUserListAsString(' '));
     receiver->Push(std::to_string(RPL_ENDOFNAMES) + " " + channel->GetName() + " :End of /NAMES list");
+}
+
+auto NAMESHandler::GetUsersNotInAChannel(std::optional<IRC::UUID> skip_uuid) -> std::string
+{
+    logger_.Log(LogLevel::DEBUG, "Get users not in a channel");
+    std::string user_list;
+    client_database_->DoForEachUser([&user_list](IClient* client)
+        {
+            auto user = dynamic_cast<IUser*>(client);
+            auto channels = user->GetChannels();
+            if (channels.empty() == true) {
+                user_list = user_list + user->GetNickname() + " ";
+            }
+
+        }, skip_uuid);
+
+    /* Remove extra space at end */
+    if (user_list.empty() == false)
+        user_list.pop_back();
+    return user_list;
 }
 
 auto NAMESHandler::HandleNAMREPLY(IClient *receiver, std::vector<std::string> &channel_list) -> void
@@ -73,7 +93,6 @@ auto NAMESHandler::HandleNAMREPLY(IClient *receiver, std::vector<std::string> &c
     }
 }
 
-//TODO add list of users not in a channel
 auto NAMESHandler::HandleNAMREPLY(IClient *receiver) -> void
 {
     channel_database_->ForEachChannel(
@@ -81,4 +100,9 @@ auto NAMESHandler::HandleNAMREPLY(IClient *receiver) -> void
         {
             SendNAMREPLY(receiver, channel);
         });
+    auto user_list = GetUsersNotInAChannel(std::make_optional<IRC::UUID>(receiver->GetUUID()));
+    if (user_list.empty() == false) {
+        receiver->Push(std::to_string(RPL_NAMREPLY) + " * :" + user_list);
+        receiver->Push(std::to_string(RPL_ENDOFNAMES) + " * :End of /NAMES list");
+    }
 }
