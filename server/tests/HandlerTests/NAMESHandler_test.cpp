@@ -64,8 +64,8 @@ TEST_F(NAMESHandlerTests, NAMESWithChannelList)
     EXPECT_CALL(mock_channel, GetUserListAsString(' '))
         .WillOnce(Return(localuser_name1));
 
-    EXPECT_CALL(mock_localuser1, Push("353 #channel1 :nickname1")); //TODO fix this
-    EXPECT_CALL(mock_localuser1, Push("366 #channel1 :End of /NAMES list")); //TODO fix this
+    EXPECT_CALL(mock_localuser1, Push("353 = #channel1 :nickname1"));
+    EXPECT_CALL(mock_localuser1, Push("366 #channel1 :End of /NAMES list"));
 
     NAMES_handler.Handle(message1);
 }
@@ -75,6 +75,7 @@ TEST_F(NAMESHandlerTests, NAMESCommandForAllChannels)
     NAMESHandler NAMES_handler(&mock_server_config, &mock_client_database, &mock_channel_database);
 
     EXPECT_CALL(mock_channel_database, ForEachChannel(_));
+    EXPECT_CALL(mock_client_database, DoForEachUser(_, _));
 
     NAMES_handler.Handle(message1);
 }

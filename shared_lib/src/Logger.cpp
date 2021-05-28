@@ -45,7 +45,7 @@ auto Logger::Log(LogLevel level, const char *format, ...) -> void
 {
     std::lock_guard<std::mutex> lock(log_mutex_);
 
-    if (disable_logs_ || format == NULL || (log_settings_[prefix_] > level))
+    if (disable_logs_ || format == NULL || (log_settings_[prefix_] > level && default_level_ > level))
         return;
 
     va_list arg;
