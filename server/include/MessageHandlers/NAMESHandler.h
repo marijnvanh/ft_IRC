@@ -17,6 +17,8 @@ class NAMESHandler : public CommandHandler
 
     private:
 
+    auto GetUsersNotInAChannel(std::optional<IRC::UUID> skip_uuid) -> std::string;
+
     IChannelDatabase *channel_database_;
 
 };
