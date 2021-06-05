@@ -15,6 +15,7 @@ class PARTHandler : public CommandHandler
     private:
     IChannelDatabase *channel_database_;
 
+	auto GetOriginalSender(IClient **client, IMessage &message) -> bool;
     auto StartPartParsing(std::vector<std::string> params, IClient* client) -> void;
 };
 
