@@ -4,7 +4,8 @@ RUN apt-get update && apt-get upgrade -y && \
 	apt-get install -y \
 	wget \
 	build-essential \
-	python3
+	python3 \
+	libssl-dev
 
 RUN wget https://cmake.org/files/v3.20/cmake-3.20.0-linux-x86_64.sh && \
 	mkdir /opt/cmake && \
@@ -15,9 +16,8 @@ WORKDIR /irc
 
 COPY . /irc
 
-# Define USESSL as an environment variable if we want to build with ssl.
 RUN rm -rf build bin && \
-	./run.py ${USESSL:+"-ssl ON -ssl_path ./certs/"} -m build
+	./run.py -ssl ON -m build
 
 # No ENTRYPOINT/CMD specified.
 # It's most useful to start this image in a detached state,

@@ -9,7 +9,7 @@ def Build():
     else:
         options = "-DPACKAGE_TESTS=OFF"
     options += f" -DENABLE_SSL={args.enable_ssl}"
-    if args.enable_ssl == "ON":
+    if args.ssl_path != None:
         options += f" -DOPENSSL_ROOT_DIR={args.ssl_path}"
     if subprocess.call([f"cmake -B build {options}"], shell=True):
         exit(-1)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         help='Config file')
     arg_parser.add_argument('-ssl', '--enable_ssl', default="OFF",
         help='Enable or disable SSL via ON/OFF')
-    arg_parser.add_argument('-ssl_path', '--ssl_path', default="/usr/local/opt/openssl@1.1/",
+    arg_parser.add_argument('-ssl_path', '--ssl_path', default=None,
         help='Enable or disable SSL via ON/OFF')
     args = arg_parser.parse_args()
 
