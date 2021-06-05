@@ -5,17 +5,30 @@
 #define CHANNEL_NAME_PARAM 0
 #define PART_MESSAGE_PARAM 1
 
-PARTHandler::PARTHandler(IServerConfig *server_config, IClientDatabase *client_database, IChannelDatabase *channel_database) :
+PARTHandler::PARTHandler(IServerConfig *server_config,
+	IClientDatabase *client_database, IChannelDatabase *channel_database) :
 	CommandHandler(server_config, client_database, "PART", 1),
 	channel_database_(channel_database)
 {}
+
 PARTHandler::~PARTHandler()
 {}
+
+auto PARTHandler::SafeHandle(IMessage &message) -> void
+{
+	auto params = message.GetParams();
+    auto client = *(client_database_->GetClient(message.GetClientUUID()));
+
+	if (!GetOriginalSender(&client, message))
+		return ;
+
+	StartPartParsing(params, client);
+}
 
 auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* client) -> void
 {
 	auto channel_names = split(params[CHANNEL_NAME_PARAM], ",");
-	std::string part_message(":" + client->GetNickname() + " left");
+	std::string part_message(" :" + client->GetNickname() + " left");
 	if (params.size() > 1)
 	{
 		part_message.assign(" :" + params[PART_MESSAGE_PARAM]);
@@ -53,10 +66,24 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 		client_database_->BroadcastToLocalServers(part_irc_msg, std::nullopt);
 }
 
-auto PARTHandler::SafeHandle(IMessage &message) -> void
+auto PARTHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
 {
-	auto params = message.GetParams();
-    auto client = *(client_database_->GetClient(message.GetClientUUID()));
-
-	StartPartParsing(params, client);
+	if ((*client)->GetType() == IClient::Type::kLocalServer)
+	{
+        auto remote_client_nickname = message.GetNickname();
+    
+        if (remote_client_nickname == std::nullopt)
+        {
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
+            return (false);
+        }
+        auto remote_client = client_database_->GetClient(*remote_client_nickname);
+        if (remote_client == std::nullopt)
+        {
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
+            return (false);
+        }
+        *client = *remote_client;
+	}
+	return (true);
 }
