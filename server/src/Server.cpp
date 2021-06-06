@@ -38,8 +38,6 @@ auto Server::Disconnect(IClientDatabase *client_database,
         Remove server from local and remote server lists
         Only remote servers will have local_server_ and remote_server_ set
         local_server_ and remote_server_ can be the same so we only delete a server once in that case
-
-		TODO: Maybe remove this?
     */
     if (local_server_)
     {

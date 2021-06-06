@@ -36,7 +36,6 @@ auto USERHandler::HandleUSERFromUser(IMessage &message) -> void
         return ;
     }
 
-    //TODO validate user name and realname
     auto new_username = message.GetParams()[USERNAME_PARAM];
     auto new_realname = message.GetParams()[REALNAME_PARAM];
     client->SetUsername(new_username);

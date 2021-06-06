@@ -178,7 +178,6 @@ TEST_F(NICKHandlerTests, RemoteUserRegistration)
     nick_handler_->Handle(server_message1);
 }
 
-//TODO
 TEST_F(NICKHandlerTests, UserRegistrationCollision)
 {
     server_params.push_back("new_nickname");
@@ -192,7 +191,7 @@ TEST_F(NICKHandlerTests, UserRegistrationCollision)
     /* Set ClientDatabase expectations */
     EXPECT_CALL(mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::optional<IClient*>(&user_client1)));
+    EXPECT_CALL(mock_client_database, DisconnectClient(uuid3, _));
 
-    //Expect some kill commands
     nick_handler_->Handle(server_message1);
 }

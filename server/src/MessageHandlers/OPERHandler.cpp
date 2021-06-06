@@ -33,7 +33,7 @@ auto OPERHandler::SafeHandle(IMessage &message) -> void
 	if (admin == administrators.end() ||
 		admin->second != params[PARAM_PASSWORD])
 	{
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_PASSWDMISMATCH, "OPER"));
+        client->Push(GetErrorMessage(client->GetPrefix(), ERR_PASSWDMISMATCH, "OPER"));
 		return ;
 	}
 	

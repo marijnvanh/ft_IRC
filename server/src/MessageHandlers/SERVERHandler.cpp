@@ -68,16 +68,16 @@ auto SERVERHandler::HandleLocalServerRegistration(IClient *client, IMessage &mes
 	auto params = message.GetParams();
 	auto authorized_server = server_config_->GetAuthorizedServer(params[PARAM_SERVER_NAME]);
 
-	// TODO: In both of these cases the client is normally disconnected.
-	// Do we want to do that as well?
 	if (!authorized_server)
 	{
 		client->Push(":" + server_config_->GetName() + " ERROR :Server not configured here");
+        client_database_->DisconnectClient(client->GetUUID(), "Not an authorized server");
 		return ;
 	}
 	if ((*authorized_server)->GetRecvPass() != client->GetPassword())
 	{
 		client->Push(":" + server_config_->GetName() + " ERROR :Password mismatch");
+        client_database_->DisconnectClient(client->GetUUID(), "Invalid server password");
 		return ;		
 	}
 

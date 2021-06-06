@@ -32,7 +32,6 @@ class UserTests : public ::testing::Test
     }
 };
 
-// TODO when we implement user coce
 TEST_F(UserTests, todo)
 {
     FakeUser hello;

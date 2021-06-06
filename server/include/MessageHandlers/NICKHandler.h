@@ -17,6 +17,7 @@ class NICKHandler : public CommandHandler
     auto HandleNewRemoteUser(IClient* server, IMessage &message) -> void;
     auto HandleNICKFromUser(IClient* client, IMessage &message) -> void;
     auto HandleNicknameChangeFromServer(IClient* server, IMessage &message) -> void;
+    auto HandleNickCollision(IClient* server, IClient* client_with_same_nickname) -> void;
 
 };
 

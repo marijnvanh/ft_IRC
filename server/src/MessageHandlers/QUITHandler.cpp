@@ -14,7 +14,6 @@ QUITHandler::QUITHandler(IServerConfig *server_config, IClientDatabase *client_d
 QUITHandler::~QUITHandler()
 {}
 
-//TODO Still a lot of todo's here
 auto QUITHandler::SafeHandle(IMessage &message) -> void
 {
     auto client = *(client_database_->GetClient(message.GetClientUUID()));

@@ -229,7 +229,7 @@ auto TCP::Socket::Recv() -> std::string
     if (ssl_enabled_) {
 #ifdef ENABLE_SSL
         received_bytes = SSL_read(ssl_, buffer, BUFFER_SIZE - 1);
-        logger.Log(LogLevel::DEBUG, "SSL_read received bytes: %d", received_bytes);
+        logger.Log(LogLevel::DEBUG, "SSL_read received %d bytes", received_bytes);
         ValidateSSLReturn(received_bytes);
 #endif
     }
@@ -252,6 +252,7 @@ auto TCP::Socket::Recv() -> std::string
         }
     }
     buffer[received_bytes] = '\0';
+    logger.Log(LogLevel::DEBUG, "Received: %s", buffer);
     return std::string(buffer, received_bytes);
 }
 

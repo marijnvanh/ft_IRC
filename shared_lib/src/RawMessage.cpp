@@ -49,7 +49,7 @@ auto IRC::ParsePrefix(CharStream &s) -> RawPrefix {
   rawPrefix.name = ParseNickname(s);
   rawPrefix.username = Maybe<std::string>([](CharStream& s) {
     ParseSymbol('!', s);
-    return ParseNickname(s); // TODO: This should probably be *more* lenient
+    return ParseNickname(s);
   }, s);
   rawPrefix.hostname = Maybe<Hostname>([](CharStream& s) {
     ParseSymbol('@', s);
@@ -116,7 +116,6 @@ auto IRC::TryParseServername(CharStream& s) -> std::optional<Hostname> {
 	return (hostname);
 }
 
-// TODO: implement this in a better (read: more strict, see RFC 952) way
 auto IRC::ParseHostname(CharStream& s) -> Hostname {
   return Hostname(ConsumeWhile1([](char c){
     return std::isalpha(c)

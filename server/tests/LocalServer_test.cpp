@@ -27,7 +27,6 @@ class LocalServerTests : public ::testing::Test
     }
 };
 
-//TODO when we implement server stuff
 TEST_F(LocalServerTests, Todo)
 {
     LocalServer server("ServerName", std::move(*client.get()));

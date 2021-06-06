@@ -5,7 +5,7 @@
 #define PARAM_ERROR_MESSAGE 0
 
 NUMERICHandler::NUMERICHandler(IServerConfig* server_config, IClientDatabase *client_database) :
-	CommandHandler(server_config, client_database, "NUMERIC")
+	CommandHandler(server_config, client_database, "NUMERIC", 0, true)
 {}
 
 NUMERICHandler::~NUMERICHandler()

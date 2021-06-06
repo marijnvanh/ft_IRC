@@ -37,52 +37,44 @@ auto KILLHandler::SafeHandle(IMessage &message) -> void
 auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
 	std::vector<std::string> &params) -> void
 {
-	auto user = dynamic_cast<IUser*>(client);
-	if (!user->HasMode(UserMode::UM_OPERATOR))
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "KILL"));
-		return ;
+	if (client->GetType() == IClient::Type::kLocalUser || client->GetType() == IClient::Type::kRemoteUser) {
+		auto user = dynamic_cast<IUser*>(client);
+		if (!user->HasMode(UserMode::UM_OPERATOR))
+		{
+			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOPRIVILEGES, "KILL"));
+			return ;
+		}
 	}
 
 	auto message = params.size() <= MESSAGE_PARAM ?
 		DEFAULT_KILL_MESSAGE : params[MESSAGE_PARAM];
 
-	// Disconnecting the client should broadcast all required messages.
 	client_database_->DisconnectClient(otherUser->GetUUID(),
-		std::make_optional<std::string>(message));	
+		std::make_optional<std::string>(message));
 }
 
 auto KILLHandler::HandleKillForRemoteUser(IClient *client, IUser *otherUser,
 	std::vector<std::string> &params) -> void
 {
-	auto user = dynamic_cast<IUser*>(client);
-	if (!user->HasMode(UserMode::UM_OPERATOR))
-	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "KILL"));
-		return ;
-	}
-
 	auto message = params.size() <= MESSAGE_PARAM ?
 		DEFAULT_KILL_MESSAGE : params[MESSAGE_PARAM];
 
-	otherUser->Push(":" + client->GetNickname() + " KILL :" + message);
+	otherUser->Push(":" + client->GetPrefix() + " KILL " + otherUser->GetNickname() + " :" + message);
 }
 
 auto KILLHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool
 {
 	if ((*client)->GetType() == IClient::Type::kLocalServer)
 	{
-        auto remote_client_nickname = message.GetNickname();
+        auto remote_sender = message.GetPrefix();
     
-        if (remote_client_nickname == std::nullopt)
-        {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
-            return (false);
+        if (remote_sender == std::nullopt) {
+            return (true);
         }
-        auto remote_client = client_database_->GetClient(*remote_client_nickname);
+        auto remote_client = client_database_->GetClient(*remote_sender);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
+            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_sender));
             return (false);
         }
         *client = *remote_client;

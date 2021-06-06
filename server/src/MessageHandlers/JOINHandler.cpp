@@ -77,7 +77,6 @@ auto JOINHandler::StartJoinParsing(const std::vector<std::string> &params,
 	for (auto kvp : channel_pairs)
 	{
 		bool channel_created = false;
-		// TODO: The length and prefix check should probably be part of the parser(?)
 		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
 			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, kvp.first));
@@ -112,7 +111,6 @@ auto JOINHandler::SafeHandle(IMessage &message) -> void
             client->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return ;
         }
-        //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {

@@ -57,7 +57,6 @@ auto NICKHandler::SafeHandle(IMessage &message) -> void
 
 auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> void
 {
-    //TODO validate params
     auto new_nickname = message.GetParams()[PARAM_NICKNAME];
 	auto hopcount = atoi(message.GetParams()[PARAM_HOPCOUNT].c_str());
     auto new_username = message.GetParams()[PARAM_USERNAME];
@@ -68,7 +67,7 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
     auto client_with_same_nickname = client_database_->GetClient(new_nickname);
     if (client_with_same_nickname)
     {
-        //TODO send kill command to both users with nickname
+        HandleNickCollision(server, *client_with_same_nickname);
         return ;
     }
 
@@ -98,7 +97,6 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
 
 auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &message) -> void
 {
-    //TODO validate nickname
     auto new_nickname = message.GetParams()[PARAM_NICKNAME];
     auto old_nickname = message.GetNickname();
 
@@ -117,8 +115,7 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
     auto client_with_same_nickname = client_database_->GetClient(new_nickname);
     if (client_with_same_nickname)
     {
-        //TODO send kill command to both users with nickname
-        //Do after we finish kill command
+        HandleNickCollision(server, *client_with_same_nickname);
         return ;
     }
 
@@ -131,7 +128,6 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
 
 auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
 {
-    //TODO validate nickname
     auto nickname = message.GetParams()[PARAM_NICKNAME];
     if (client->GetNickname() == nickname)
     {
@@ -168,5 +164,21 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
         } catch (IClientDatabase::UnableToRegister &ex) {
             ;
         }
+    }
+}
+
+auto NICKHandler::HandleNickCollision(IClient* server, IClient* client_with_same_nickname) -> void
+{
+    auto nickname = client_with_same_nickname->GetNickname();
+    auto kill_msg = ":" + server_config_->GetName() + " KILL " + nickname + " :Nick collision";
+    server->Push(kill_msg);
+
+    if (client_with_same_nickname->GetType() == IClient::Type::kUnRegistered ||
+        client_with_same_nickname->GetType() == IClient::Type::kLocalUser)
+    {
+        client_database_->DisconnectClient(client_with_same_nickname->GetUUID(), "Nick collision");
+    }
+    else if (client_with_same_nickname->GetType() == IClient::Type::kRemoteUser) {
+        client_with_same_nickname->Push(kill_msg);
     }
 }
