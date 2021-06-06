@@ -25,6 +25,7 @@ class IUser : public virtual IClient
 {
     public:
 
+	IUser() { mode_.reset(); }
     virtual ~IUser() {};
     virtual auto AddChannel(IChannel *channel) -> void = 0;
     virtual auto RemoveChannel(const std::string &channel_name) -> void = 0;

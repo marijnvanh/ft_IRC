@@ -25,7 +25,7 @@
 		}
 	},
 	"log-settings": {
-		"default-level": "DEBUG",
+		"default-level": "ERROR",
 		"log-levels": [
 			["IRCServer", "DEBUG"],
 			["ServerConfig", "INFO"],

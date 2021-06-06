@@ -32,7 +32,7 @@ auto ClientDatabase::DisconnectClient(IRC::UUID uuid,
     }
     if ((*client)->GetType() == IClient::Type::kUnRegistered)
     {
-        logger.Log(LogLevel::INFO, "Client with nickname: %s being disconnected", (*client)->GetNickname().c_str());
+        logger.Log(LogLevel::INFO, "Disconnecting unregistered client");
         clients_.erase(uuid);
         return ;
     }
