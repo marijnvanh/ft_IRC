@@ -62,19 +62,19 @@ auto ClientDatabase::DisconnectUser(IUser *user,
 	auto channels = user->GetChannels();
 	for (auto it = channels.cbegin(); it != channels.cend(); ++it)
 	{
-		it->second->PushToLocal(":" + user->GetNickname() +
+		it->second->PushToLocal(":" + user->GetPrefix() +
 			" QUIT :" + *quit_message, user->GetUUID());
 	}
 
 	// Broadcast to all servers except local server is the user is remote.
 	if (user->GetType() == IClient::Type::kRemoteUser)
 	{
-		BroadcastToLocalServers(":" + user->GetNickname() +
+		BroadcastToLocalServers(":" + user->GetPrefix() +
 			" QUIT :" + *quit_message, user->GetLocalServer()->GetUUID());
 	}
 	else
 	{
-		BroadcastToLocalServers(":" + user->GetNickname() +
+		BroadcastToLocalServers(":" + user->GetPrefix() +
 			" QUIT :" + *quit_message, std::nullopt);
 	}
 
@@ -82,6 +82,8 @@ auto ClientDatabase::DisconnectUser(IUser *user,
     user->RemoveUserFromAllChannels();
     local_users_.erase(user_uuid);
     remote_users_.erase(user_uuid);
+
+
 }
 
 auto ClientDatabase::DisconnectServer(IServer *server,
@@ -175,7 +177,7 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
     clients_.erase(uuid);
 
     auto local_user = dynamic_cast<IUser*>(new_local_user.first->second.get());
-	local_user->SetPrefix(local_user->GetNickname() + "!" + local_user->GetUsername() + "@" + server_config_->GetName());
+	local_user->CachePrefix(server_config_->GetName());
     BroadcastToLocalServers(local_user->GenerateNickMessage(server_config_->GetName()), std::nullopt);
     return new_local_user.first->second.get();
 }

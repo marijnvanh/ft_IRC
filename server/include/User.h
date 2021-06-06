@@ -7,7 +7,7 @@
 
 #include "IUser.h"
 
-class User : public virtual IUser 
+class User : public virtual IUser
 {
     public:
 

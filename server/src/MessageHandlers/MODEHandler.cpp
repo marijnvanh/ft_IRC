@@ -217,7 +217,7 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 			HandleChannelOperatorSet(user, *channel, current_param, set);
 	}
 
-	std::string mode_message = ":" + user->GetNickname() + " MODE " +
+	std::string mode_message = ":" + user->GetPrefix() + " MODE " +
 		(*channel)->GetName() + " " + params[MODE_CHANGES];
 	(*channel)->PushToLocal(mode_message, std::optional<IRC::UUID>(user->GetUUID()));
 

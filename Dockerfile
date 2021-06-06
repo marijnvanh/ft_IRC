@@ -17,7 +17,8 @@ WORKDIR /irc
 COPY . /irc
 
 RUN rm -rf build bin && \
-	./run.py -ssl ON -m build
+	./run.py -ssl ON -m build && \
+	cp ./bin/irc_server /bin/irc_server
 
 # No ENTRYPOINT/CMD specified.
 # It's most useful to start this image in a detached state,
@@ -27,8 +28,7 @@ RUN rm -rf build bin && \
 # docker build -t ft_irc .
 
 # RUN
-# docker run --rm -p8080:<irc_port> ft_irc
+# docker run --rm -dt -p8080:<irc_port> ft_irc
 
 # EXEC
 # docker exec -it <container_id> /bin/bash
-

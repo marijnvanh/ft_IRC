@@ -11,7 +11,7 @@ RemoteUser::RemoteUser( IServer* local_server, IServer *remote_server,
     realname_ = realname;
     type_ = IClient::Type::kRemoteUser;
     remote_server_->AddClient(this);
-	SetPrefix(nickname_ + "!" + username + "@" + remote_server_->GetServerName());
+	CachePrefix(remote_server_->GetServerName());
 
     logger.Log(LogLevel::INFO, "Remote user %s connected", GetNickname().c_str());
 };

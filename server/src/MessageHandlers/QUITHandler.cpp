@@ -45,7 +45,6 @@ auto QUITHandler::GetQuitMessage(IMessage &message) -> std::string
 auto QUITHandler::DisconnectLocalUser(IMessage &message) -> void
 {
     auto quit_message = GetQuitMessage(message);
-    //TODO remove from IServer it is connected to
     client_database_->DisconnectClient(message.GetClientUUID(),
 		std::make_optional<std::string>(quit_message));
 }
@@ -58,14 +57,11 @@ auto QUITHandler::DisconnectRemoteUser(IClient* remote_user, IMessage &message) 
         remote_user->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
         return ;
     }
-    //TODO validate nickname    
 
     auto quit_message = GetQuitMessage(message);
-    
     auto remote_client = client_database_->GetClient(*nickname);
     if (remote_client && (*remote_client)->GetType() == IClient::Type::kRemoteUser)
     {
-        //TODO remove from IServer it is connected to
         client_database_->DisconnectClient((*remote_client)->GetUUID(),
 			std::make_optional<std::string>(quit_message));
     }

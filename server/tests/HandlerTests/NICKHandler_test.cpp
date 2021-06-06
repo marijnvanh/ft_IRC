@@ -32,6 +32,8 @@ class NICKHandlerTests : public ::testing::Test
     StrictMock<MockMessage> server_message1;
     std::vector<std::string> server_params;
 
+	std::string server1_name;
+
     StrictMock<MockClientDatabase> mock_client_database;
     MockServerConfig mock_server_config;
     MockServer mock_server;
@@ -42,6 +44,8 @@ class NICKHandlerTests : public ::testing::Test
         server_client1.SetType(IClient::Type::kLocalServer);
         user_client1.SetType(IClient::Type::kLocalUser);
 
+		server1_name = std::string("test.test.tst");
+
         EXPECT_CALL(mock_client1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid1));
         EXPECT_CALL(mock_client_database, GetClient(uuid1))
@@ -49,6 +53,8 @@ class NICKHandlerTests : public ::testing::Test
 
         EXPECT_CALL(server_client1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid2));
+		EXPECT_CALL(server_client1, GetServerName())
+			.WillRepeatedly(ReturnRef(server1_name));
         EXPECT_CALL(mock_client_database, GetClient(uuid2))
             .WillRepeatedly(Return(std::optional<IClient*>(&server_client1)));
 
@@ -115,6 +121,8 @@ TEST_F(NICKHandlerTests, NicknameChangeFromRemoteUser)
         .WillOnce(Return(std::optional<IUser*>(&user_client1)));
     EXPECT_CALL(mock_client_database, GetClient("new_nickname"))
         .WillOnce(Return(std::nullopt));
+	EXPECT_CALL(user_client1, GetRemoteServer())
+		.WillOnce(Return(&server_client1));
 
     /* Init client with old_nickname */
     user_client1.SetNickname("old_nickname");

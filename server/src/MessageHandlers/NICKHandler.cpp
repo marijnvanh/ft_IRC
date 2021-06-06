@@ -101,6 +101,7 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
     //TODO validate nickname
     auto new_nickname = message.GetParams()[PARAM_NICKNAME];
     auto old_nickname = message.GetNickname();
+
     if (old_nickname == std::nullopt)
     {
         server->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
@@ -122,6 +123,8 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
     }
 
     (*remote_user)->SetNickname(new_nickname);
+	(*remote_user)->CachePrefix((*remote_user)->GetRemoteServer()->GetServerName());
+	
     auto nick_msg = ":" + *old_nickname + " NICK " + new_nickname;
     client_database_->BroadcastToLocalServers(nick_msg, server->GetUUID());
 }
@@ -151,12 +154,14 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
     if (client->GetType() != IClient::Type::kUnRegistered)
     {
         auto nick_msg = ":" + old_nickname + " NICK " + nickname;
+		dynamic_cast<IUser*>(client)->CachePrefix(server_config_->GetName());
         client_database_->BroadcastToLocalServers(nick_msg, std::nullopt);
     }
     else if (client->GetType() == IClient::Type::kUnRegistered)
     {
         try {
-            client = client_database_->RegisterLocalUser(client->GetUUID());
+			client = client_database_->RegisterLocalUser(client->GetUUID());
+
             auto welcome_message = ":" + server_config_->GetName() + " 001 " + 
                 client->GetNickname() + " :Welcome to " + server_config_->GetDescription();
             client->Push(welcome_message);
