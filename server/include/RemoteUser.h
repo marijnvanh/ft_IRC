@@ -23,8 +23,8 @@ class RemoteUser : public IRemoteUser, public User
     /* Fake IClient functionality */
     auto SendAll() -> void override;
     auto Receive() -> std::optional<std::string> override;
-
-    private:
+    
+	private:
 
     Logger logger;
 };

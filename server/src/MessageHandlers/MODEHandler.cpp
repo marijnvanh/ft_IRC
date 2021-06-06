@@ -216,9 +216,14 @@ auto MODEHandler::HandleMODEChannel(IUser *user,
 			HandleChannelOperatorSet(user, *channel, current_param, set);
 	}
 
-	std::string mode_message = "MODE " + (*channel)->GetName() +
-		" " + params[MODE_CHANGES];
+	std::string mode_message = ":" + user->GetPrefix() + " MODE " +
+		(*channel)->GetName() + " " + params[MODE_CHANGES];
 	(*channel)->PushToLocal(mode_message, std::optional<IRC::UUID>(user->GetUUID()));
+
+	std::optional<IRC::UUID> ignore_uuid = std::nullopt;
+	if (user->GetType() == IClient::Type::kRemoteUser)
+		ignore_uuid = std::make_optional<IRC::UUID>(user->GetLocalServer()->GetUUID());
+	client_database_->BroadcastToLocalServers(mode_message, ignore_uuid);
 }
 
 

@@ -58,7 +58,6 @@ auto QUITHandler::DisconnectRemoteUser(IClient* remote_user, IMessage &message) 
     }
 
     auto quit_message = GetQuitMessage(message);
-    
     auto remote_client = client_database_->GetClient(*nickname);
     if (remote_client && (*remote_client)->GetType() == IClient::Type::kRemoteUser)
     {
