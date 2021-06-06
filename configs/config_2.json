@@ -20,8 +20,8 @@
 		"codam.mr.com": {
 			"ip": "0.0.0.0",
 			"port": "5000",
-			"recv_pass": "pass1",
-			"send_pass": "pass2"
+			"recv_pass": "pass2",
+			"send_pass": "pass1"
 		}
 	},
 	"log-settings": {

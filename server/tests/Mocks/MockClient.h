@@ -13,6 +13,7 @@ class MockClient : public virtual IClient {
     MOCK_METHOD0(SendAll, void());
     MOCK_CONST_METHOD0(GetUUID, const IRC::UUID&());
     MOCK_METHOD(IServer*, GetLocalServer, (), (const));
+    MOCK_METHOD(IServer*, GetRemoteServer, (), (const));
 };
 
 #endif

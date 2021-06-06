@@ -32,6 +32,8 @@ class IUser : public virtual IClient
 	virtual auto GetChannels() -> std::unordered_map<std::string, IChannel*>& = 0;
 	virtual auto GenerateNickMessage(const std::string &this_server_name) const -> std::string = 0;
 
+	virtual auto CachePrefix(const std::string &server_name) -> void
+	{ prefix_ = nickname_ + "!" + username_ + "@" + server_name; }
 	virtual auto SetPrefix(std::string prefix) -> void { prefix_ = prefix; }
 
 	/**

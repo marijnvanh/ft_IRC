@@ -92,6 +92,7 @@ class IClient
     virtual auto GetRealname() const -> const std::string& { return realname_; }
     virtual auto SetRealname(std::string realname) -> void { realname_ = realname; }
     virtual auto GetLocalServer() const -> IServer* { return local_server_; }
+	virtual auto GetRemoteServer() const -> IServer* { return remote_server_; }
 
 	virtual auto GetPrefix() const -> const std::string& { return prefix_; }
 

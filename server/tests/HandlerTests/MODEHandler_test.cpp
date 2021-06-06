@@ -32,6 +32,8 @@ class MODETests : public ::testing::Test
     std::string channel1_key;
     std::string channel1_name;
 
+	std::string localuser1_nick;
+
     MockMessage message1;
     std::vector<std::string> message_params;
 
@@ -50,6 +52,7 @@ class MODETests : public ::testing::Test
 
         EXPECT_CALL(mock_localuser1, GetUUID())
             .WillRepeatedly(ReturnRef(uuid1));
+		mock_localuser1.SetNickname(localuser1_nick);
 
         EXPECT_CALL(mock_channel_database, GetChannel(channel1_name))
             .WillRepeatedly(Return(std::optional<IChannel*>(&mock_channel1)));
@@ -76,8 +79,8 @@ TEST_F(MODETests, SuccessTest)
 	EXPECT_CALL(mock_channel1, HasOperator(uuid1))
 		.WillRepeatedly(Return(true));
 
-	EXPECT_CALL(mock_channel1, PushToLocal("MODE " + message_params[0] + " " +
-		message_params[1], _));
+	EXPECT_CALL(mock_channel1, PushToLocal(":" + localuser1_nick +
+		" MODE " + message_params[0] + " " + message_params[1], _));
 
 	// Act
     handler->Handle(message1);
