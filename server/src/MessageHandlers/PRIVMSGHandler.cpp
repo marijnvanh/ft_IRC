@@ -50,7 +50,6 @@ auto PRIVMSGHandler::SafeHandle(IMessage &message) -> void
             client->Push("ERROR :No Nickname given");
             return ;
         }
-        //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
@@ -104,7 +103,6 @@ auto PRIVMSGHandler::SendMessages(IClient *sender, IMessage &message) -> void
 
     for (std::string receiver : receivers)
     {
-        //TODO validate nickname / channel (receiver)
         if (receiver[0] == '#')
         {
             PRIVMSGToChannel(sender, receiver, params[MESSAGE_CONTENT]);

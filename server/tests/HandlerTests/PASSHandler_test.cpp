@@ -48,7 +48,7 @@ TEST_F(PASSTests, SuccessTest)
 TEST_F(PASSTests, InvalidParams)
 {
     PASSHandler PASS_handler(&mock_server_config, &mock_client_database);
-    EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
+    EXPECT_CALL(mock_client1, Push(_));
 
     PASS_handler.Handle(message1);
 }
@@ -58,7 +58,7 @@ TEST_F(PASSTests, AlreadyRegisteredClient)
     PASSHandler PASS_handler(&mock_server_config, &mock_client_database);
     mock_client1.SetType(IClient::Type::kLocalUser);
 
-    EXPECT_CALL(mock_client1, Push(_)); //TODO add exact invalid msg
+    EXPECT_CALL(mock_client1, Push(_));
 
     PASS_handler.Handle(message1);
 }

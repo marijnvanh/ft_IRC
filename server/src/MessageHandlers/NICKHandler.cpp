@@ -57,7 +57,6 @@ auto NICKHandler::SafeHandle(IMessage &message) -> void
 
 auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> void
 {
-    //TODO validate params
     auto new_nickname = message.GetParams()[PARAM_NICKNAME];
 	auto hopcount = atoi(message.GetParams()[PARAM_HOPCOUNT].c_str());
     auto new_username = message.GetParams()[PARAM_USERNAME];
@@ -98,7 +97,6 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
 
 auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &message) -> void
 {
-    //TODO validate nickname
     auto new_nickname = message.GetParams()[PARAM_NICKNAME];
     auto old_nickname = message.GetNickname();
     if (old_nickname == std::nullopt)
@@ -128,7 +126,6 @@ auto NICKHandler::HandleNicknameChangeFromServer(IClient* server, IMessage &mess
 
 auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
 {
-    //TODO validate nickname
     auto nickname = message.GetParams()[PARAM_NICKNAME];
     if (client->GetNickname() == nickname)
     {

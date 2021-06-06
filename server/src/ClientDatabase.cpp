@@ -150,7 +150,6 @@ auto ClientDatabase::SendAll() -> void
 }
 
 /* Note that this only works with REAL Client objects */
-//TODO add check if nickname already exists ?
 auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
 {
     auto stored_client = clients_.find(uuid);
@@ -181,7 +180,6 @@ auto ClientDatabase::RegisterLocalUser(IRC::UUID uuid) -> IClient*
 }
 
 /* Note that this only works with REAL Client objects */
-//TODO add check if server already exists ?
 auto ClientDatabase::RegisterLocalServer(std::string server_name, IRC::UUID uuid) -> IClient*
 {
     auto stored_client = clients_.find(uuid);

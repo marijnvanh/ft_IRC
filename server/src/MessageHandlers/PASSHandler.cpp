@@ -22,6 +22,5 @@ auto PASSHandler::SafeHandle(IMessage &message) -> void
     logger_.Log(LogLevel::DEBUG, "Setting Password");
     
     auto params = message.GetParams();
-    //TODO Parse password
     client->SetPassword(params.front());
 }

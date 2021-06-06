@@ -33,15 +33,16 @@ auto TCPIOHandler::Send(const std::string data) -> void
 }
 
 auto SpliceToCRLF(std::string &buf) -> std::optional<std::string> {
-    //TODO FIXME: this performs pretty badly, but the logic should be as simple as this function exposes.
     auto f = buf.find("\r\n");
     if (f == std::string::npos) {
         return std::nullopt;
-    } else if (f >= 512) {
-        // there's too many bytes here for a valid IRC message, try find after CRLF
+    }
+    else if (f >= 512) {
+        /* There's too many bytes here for a valid IRC message, try find after CRLF */
         buf = buf.substr(f + 2);
         return SpliceToCRLF(buf);
-    } else {
+    }
+    else {
         auto ret = buf.substr(0, f);
         buf = buf.substr(f + 2);
         return std::optional{ret};

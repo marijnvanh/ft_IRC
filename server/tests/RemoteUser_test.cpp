@@ -35,7 +35,6 @@ class RemoteUserTests : public ::testing::Test
     }
 };
 
-//TODO
 TEST_F(RemoteUserTests, todo)
 {
     remote_user1->Push("hallo");

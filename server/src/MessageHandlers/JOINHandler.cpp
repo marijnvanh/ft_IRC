@@ -112,7 +112,6 @@ auto JOINHandler::SafeHandle(IMessage &message) -> void
             client->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
             return ;
         }
-        //TODO validate nickname
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {

@@ -42,7 +42,7 @@ if __name__ == "__main__":
         help='Options: server, client, tests.')
     arg_parser.add_argument('-n', '--name_test', default=None,
         help='Name of specific test')
-    arg_parser.add_argument('-c', '--config_file', default="./config.json",
+    arg_parser.add_argument('-c', '--config_file', default="./configs/config_1.json",
         help='Config file')
     arg_parser.add_argument('-ssl', '--enable_ssl', default="OFF",
         help='Enable or disable SSL via ON/OFF')

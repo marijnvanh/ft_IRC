@@ -14,7 +14,7 @@
 	},
 	"administrators": [
 		["rkuijper", "youshouldhashthis"],
-		["mavanhe", "mooiejongenenzo"]
+		["mavanhe", "pass"]
 	],
 	"authorized-servers": {
 		"codam.irc.com": {
@@ -37,5 +37,5 @@
 			["IOController", "INFO"]
 		]
 	},
-	"ping-time": 120
+	"ping-time": 300
 }
