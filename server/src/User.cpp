@@ -61,3 +61,18 @@ auto User::GenerateNickMessage(const std::string &this_server_name) const -> std
 
     return (nick_message);
 }
+
+auto User::SetModeFromString(std::string const &mode) -> void
+{
+	auto set = mode.at(0) == '+';
+
+	for (size_t i = 1; i < mode.size(); ++i)
+	{
+		auto c = mode.at(i);
+
+		if (c == '+' || c == '-')
+			set = c == '+';
+		else if (c == 's' || c == 'w' || c == 'i' || c == 'o')
+			SetMode(static_cast<UserMode>(c - 65), set);
+	}
+}

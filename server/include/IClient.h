@@ -94,6 +94,11 @@ class IClient
     virtual auto GetLocalServer() const -> IServer* { return local_server_; }
 	virtual auto GetRemoteServer() const -> IServer* { return remote_server_; }
 
+	virtual auto IsUser() const -> bool
+	{ return (type_ == Type::kLocalUser || type_ == Type::kRemoteUser); }
+	virtual auto IsServer() const -> bool
+	{ return (type_ == Type::kLocalServer || type_ == Type::kRemoteServer); }
+
 	virtual auto GetPrefix() const -> const std::string& { return prefix_; }
 
 	virtual auto SetHops(uint32_t hops) -> void { hops_ = hops; }
