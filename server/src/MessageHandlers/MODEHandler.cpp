@@ -191,7 +191,7 @@ auto MODEHandler::HandleMODEChannel(IClient *origin,
 
 	if (!channel)
 	{
-		origin->Push(GetErrorMessage(server_config_->GetName(),
+		origin->Push(GetErrorMessage(origin->GetPrefix(),
 			ERR_NOSUCHCHANNEL, params[TARGET_IDENTIFIER]));
 		return ;
 	}
@@ -214,7 +214,7 @@ auto MODEHandler::HandleMODEChannel(IClient *origin,
 
 	if (!origin->IsServer() && !(*channel)->HasOperator(origin->GetUUID()))
 	{
-		origin->Push(GetErrorMessage(server_config_->GetName(),
+		origin->Push(GetErrorMessage(origin->GetPrefix(),
 			ERR_CHANOPRIVSNEEDED, params[TARGET_IDENTIFIER]));
 		return ;
 	}
@@ -319,7 +319,8 @@ auto MODEHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
         auto remote_client = client_database_->GetClient(*remote_sender);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_sender));
+            (*client)->Push(":" + server_config_->GetName() +
+				" ERROR :Message prefix spoofed?!");
             return (false);
         }
         *client = *remote_client;
