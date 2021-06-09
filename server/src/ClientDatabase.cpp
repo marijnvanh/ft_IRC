@@ -197,7 +197,7 @@ auto ClientDatabase::RegisterLocalServer(std::string server_name, IRC::UUID uuid
         our list with servers_ and remove the empty pointer from the clients_ list.
     */
 
-    logger.Log(LogLevel::DEBUG, "Registering local server %s", server_name.c_str());
+    logger.Log(LogLevel::INFO, "Registering local server [%s]", server_name.c_str());
     auto tmp_unique_client = std::move(stored_client->second);
     tmp_unique_client.reset(new LocalServer(server_name, std::move(*client)));
 	tmp_unique_client->SetOurToken(GenerateOurServerToken());
@@ -226,7 +226,7 @@ auto ClientDatabase::AddRemoteUser(std::unique_ptr<IRemoteUser> new_remoteuser) 
 
 auto ClientDatabase::AddServer(std::unique_ptr<IServer> new_server) -> void
 {
-    logger.Log(LogLevel::DEBUG, "Added remote server %s to database", new_server->GetServerName().c_str());
+    logger.Log(LogLevel::INFO, "Added remote server %s to database", new_server->GetServerName().c_str());
     if (servers_.find(new_server->GetUUID()) != servers_.end())
         throw ClientDatabase::DuplicateClient();
 

@@ -25,6 +25,7 @@ NICK from server:
 #define PARAM_USERNAME 2
 #define PARAM_SERVERNAME 3
 #define PARAM_SERV_TOKEN 4
+#define PARAM_USERMODE 5
 #define PARAM_REALNAME 6
 
 NICKHandler::NICKHandler(IServerConfig *server_config, IClientDatabase *client_database) :
@@ -62,6 +63,7 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
     auto new_username = message.GetParams()[PARAM_USERNAME];
     auto server_name = message.GetParams()[PARAM_SERVERNAME];
 	auto server_token = atoi(message.GetParams()[PARAM_SERV_TOKEN].c_str());
+	auto user_mode = message.GetParams()[PARAM_USERMODE];
     auto new_realname = message.GetParams()[PARAM_REALNAME];
 
     auto client_with_same_nickname = client_database_->GetClient(new_nickname);
@@ -88,6 +90,7 @@ auto NICKHandler::HandleNewRemoteUser(IClient* server, IMessage &message) -> voi
 	new_remote_user->SetHops(hopcount);
 	new_remote_user->SetTheirToken(server_token);
 	new_remote_user->SetOurToken((*remote_server)->GetOurToken());
+	new_remote_user->SetModeFromString(user_mode);
 
     auto nick_msg = new_remote_user->GenerateNickMessage(server_config_->GetName());
 

@@ -21,6 +21,8 @@ class User : public virtual IUser
 	auto GetChannels(void) -> std::unordered_map<std::string, IChannel*>& override;
 	auto GenerateNickMessage(const std::string &this_server_name) const -> std::string override;
 
+	auto SetModeFromString(std::string const &mode) -> void override;
+
     private:
     
     std::unordered_map<std::string, IChannel*> channels_;
