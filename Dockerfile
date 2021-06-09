@@ -20,15 +20,19 @@ RUN rm -rf build bin && \
 	./run.py -ssl ON -m build && \
 	cp ./bin/irc_server /bin/irc_server
 
-# No ENTRYPOINT/CMD specified.
-# It's most useful to start this image in a detached state,
-# use docker exec to enter a shell and run the IRC binary.
+# Run the server with 'default' config.
+# This config can be mounted with different values as described below.
+CMD ["irc_server" "/irc/config.json"]
 
 # BUILD
 # docker build -t ft_irc .
 
 # RUN
-# docker run --rm -dt -p8080:<irc_port> ft_irc
+# docker run --rm -dt -p<link_port>:<irc_port> ft_irc
+
+# RUN WITH MOUNTED (DIFFERENT) CONFIG
+# docker run --rm -d -p<link_port>:<irc_port> \
+# --mount type=bind,source="$(pwd)"/config.json,target=/irc/config.json ft_irc
 
 # EXEC
 # docker exec -it <container_id> /bin/bash
