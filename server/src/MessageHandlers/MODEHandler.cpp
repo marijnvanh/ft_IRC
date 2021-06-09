@@ -32,22 +32,22 @@ auto MODEHandler::HandleChannelOperatorSet(IClient *client, IChannel *channel,
 	if (!param)
 		return (false);
 
-	auto other = client_database_->GetClient(*param);
-	if (!other)
+	auto target_user = client_database_->GetUser(*param);
+	if (!target_user)
 	{
 		client->Push(GetErrorMessage(server_config_->GetName(),
 			ERR_NOSUCHNICK, *param));
 		return (false);
 	}
 
-	/* No error necessary if the other client is not on the channel. */
-	if (!channel->HasUser((*other)->GetUUID()))
+	/* No error necessary if the target client is not on the channel. */
+	if (!channel->HasUser((*target_user)->GetUUID()))
 		return (false);
 	
 	if (set)
-		channel->AddOperator((*other)->GetUUID());
+		channel->AddOperator((*target_user)->GetUUID());
 	else
-		channel->RemoveOperator((*other)->GetUUID());
+		channel->RemoveOperator((*target_user)->GetUUID());
 	return (true);
 }
 
