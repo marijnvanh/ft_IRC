@@ -24,7 +24,7 @@ auto TOPICHandler::SafeHandle(IMessage &message) -> void
 	auto channel = channel_database_->GetChannel(params[PARAM_CHANNEL_NAME]);
 	if (!channel || !(*channel)->HasUser(client->GetUUID()))
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTONCHANNEL, params[PARAM_CHANNEL_NAME]));
+		client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOTONCHANNEL, params[PARAM_CHANNEL_NAME]));
 		return ;
 	}
 
@@ -43,7 +43,7 @@ auto TOPICHandler::SafeHandle(IMessage &message) -> void
 
 	if (!(*channel)->HasOperator(client->GetUUID()))
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_CHANOPRIVSNEEDED, params[PARAM_CHANNEL_NAME]));		
+		client->Push(GetErrorMessage(client->GetPrefix(), ERR_CHANOPRIVSNEEDED, params[PARAM_CHANNEL_NAME]));		
 		return ;
 	}
 
@@ -59,13 +59,13 @@ auto TOPICHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool
     
         if (remote_client_nickname == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "TOPIC No nickname given"));
             return (false);
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "TOPIC No such nickname: " + *remote_client_nickname));
             return (false);
         }
         *client = *remote_client;

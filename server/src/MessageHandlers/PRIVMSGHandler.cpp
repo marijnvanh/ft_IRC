@@ -47,13 +47,13 @@ auto PRIVMSGHandler::SafeHandle(IMessage &message) -> void
     
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push("ERROR :No Nickname given");
+            client->Push(FormatERRORMessage(client->GetPrefix(), "PRIVMSG No Nickname given"));
             return ;
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push("ERROR :No such nick: " + *remote_client_nickname);
+            client->Push(FormatERRORMessage(client->GetPrefix(), "No such nick: " + *remote_client_nickname));
             return ;
         }
         client = *remote_client;
@@ -79,17 +79,17 @@ auto PRIVMSGHandler::ValidateParams(IClient *client, IMessage &message) -> bool
     if (params.size() < 2)
     {
         if (client->GetType() == IClient::Type::kLocalUser)
-            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, "PRIVMSG"));
+            client->Push(GetErrorMessage(client->GetPrefix(), ERR_NEEDMOREPARAMS, "PRIVMSG"));
         else if (client->GetType() == IClient::Type::kLocalServer)
-            client->Push("ERROR :PRIVMSG needs more params");
+            client->Push(FormatERRORMessage(client->GetPrefix(), "PRIVMSG needs more params"));
         return false;
     }
     if (params[MESSAGE_CONTENT] == "") 
     {
         if (client->GetType() == IClient::Type::kLocalUser)
-            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTEXTTOSEND, "PRIVMSG"));
+            client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOTEXTTOSEND, "PRIVMSG"));
         else if (client->GetType() == IClient::Type::kLocalServer)
-            client->Push("ERROR :PRIVMSG no text to send");
+            client->Push(FormatERRORMessage(client->GetPrefix(), "PRIVMSG no text to send"));
         return false;
     }
     return true;
@@ -127,7 +127,7 @@ auto PRIVMSGHandler::PRIVMSGToUser(IClient *sender, const std::string &nickname,
     auto user = client_database_->GetUser(nickname);
     if (user == std::nullopt)
     {
-        sender->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, nickname));
+        sender->Push(GetErrorMessage(sender->GetPrefix(), ERR_NOSUCHNICK, nickname));
         return true;
     }
     else if ((*user)->GetType() == IClient::Type::kLocalUser)
@@ -146,19 +146,19 @@ auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, const std::string &channe
 
     if (channel == std::nullopt)
     {
-        sender->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, channel_name));
+        sender->Push(GetErrorMessage(sender->GetPrefix(), ERR_NOSUCHCHANNEL, channel_name));
         return ;
     }
     else
     {
         if ((*channel)->HasUser(sender->GetUUID()))
         {
-            auto privmsg = ":" + sender->GetNickname() + " PRIVMSG " + channel_name +  " :" + message_content;
+            auto privmsg = ":" + sender->GetPrefix() + " PRIVMSG " + channel_name +  " :" + message_content;
             (*channel)->PushToLocal(privmsg, std::optional<IRC::UUID>(sender->GetUUID()));
         }
         else
         {
-            sender->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTONCHANNEL, channel_name));
+            sender->Push(GetErrorMessage(sender->GetPrefix(), ERR_NOTONCHANNEL, channel_name));
         }
     }
 }

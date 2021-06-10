@@ -40,7 +40,7 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 
 		if (!channel)
 		{
-			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, channel_name));
+			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHCHANNEL, channel_name));
 			continue;
 		}
 
@@ -55,7 +55,7 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 		}
 		else
 		{
-			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTONCHANNEL, channel_name));			
+			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOTONCHANNEL, channel_name));			
 		}		
 	}
 
@@ -74,13 +74,13 @@ auto PARTHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
     
         if (remote_client_nickname == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "PART No nickname given"));
             return (false);
         }
-        auto remote_client = client_database_->GetClient(*remote_client_nickname);
+        auto remote_client = client_database_->GetUser(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "PART No suck nick " + *remote_client_nickname));
             return (false);
         }
         *client = *remote_client;

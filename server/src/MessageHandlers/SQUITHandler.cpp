@@ -24,7 +24,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "SQUIT"));
+		user->Push(GetErrorMessage(user->GetPrefix(), ERR_NOPRIVILEGES, "SQUIT"));
 		return ;
 	}
 	if (params[SERVER_NAME] == server_config_->GetName())
@@ -34,7 +34,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 	}
 	if (!server)
 	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		user->Push(GetErrorMessage(user->GetPrefix(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 		return ;		
 	}
 
@@ -73,8 +73,10 @@ auto SQUITHandler::HandleServerMessage(IServer *server,
 		server->Disconnect(client_database_,
 			std::make_optional<std::string>(params[SQUIT_MESSAGE]));
 	}
-	else
-		server->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
+	else {
+
+		server->Push(FormatERRORMessage(server->GetPrefix(), "SQUIT No such server: " + params[SERVER_NAME]));
+	}
 }
 
 auto SQUITHandler::SafeHandle(IMessage &message) -> void
@@ -102,16 +104,14 @@ auto SQUITHandler::GetOriginalSender(IClient **client, IMessage &message) -> boo
 
 		if (!prefix)
 		{
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN, "SQUIT"));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "SQUIT No nickname given"));
 			return (false);
 		}
 
 		auto original_client = client_database_->GetClient(*prefix);
 		if (!original_client)
 		{
-            (*client)->Push(GetErrorMessage(server_config_->GetName(),
-				message.GetOriginType() == OriginType::SERVER
-				? ERR_NOSUCHSERVER : ERR_NOSUCHNICK, *prefix));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "SQUIT Client could not be resolved: " + *prefix));
 		}
 		*client = *original_client;
 	}

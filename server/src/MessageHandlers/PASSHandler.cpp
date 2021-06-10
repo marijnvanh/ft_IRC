@@ -15,7 +15,12 @@ auto PASSHandler::SafeHandle(IMessage &message) -> void
     
     if (client->GetType() != IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
+        if (client->IsServer()) {
+            client->Push(FormatERRORMessage(client->GetPrefix(), "PASS Already registered"));
+        }
+        else {
+            client->Push(GetErrorMessage(client->GetPrefix(), ERR_ALREADYREGISTERED));
+        }
         return ;
     }
 

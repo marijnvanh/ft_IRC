@@ -48,12 +48,12 @@ auto QUITHandler::DisconnectLocalUser(IMessage &message) -> void
 		std::make_optional<std::string>(quit_message));
 }
 
-auto QUITHandler::DisconnectRemoteUser(IClient* remote_user, IMessage &message) -> void
+auto QUITHandler::DisconnectRemoteUser(IClient* server, IMessage &message) -> void
 {
     auto nickname = message.GetNickname();
     if (nickname == std::nullopt)
     {
-        remote_user->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
+        server->Push(FormatERRORMessage(server->GetPrefix(), "QUIT No nickname given"));
         return ;
     }
 
@@ -66,7 +66,7 @@ auto QUITHandler::DisconnectRemoteUser(IClient* remote_user, IMessage &message) 
     }
     else
     {
-        remote_user->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK));
+        server->Push(FormatERRORMessage(server->GetPrefix(), "QUIT No such nick: " + *nickname));
         return ;
     }
 }

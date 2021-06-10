@@ -21,10 +21,7 @@ auto OPERHandler::SafeHandle(IMessage &message) -> void
 	if (!GetOriginalSender(&client, message))
 		return ;
 
-	if (client->GetType() == IClient::Type::kLocalServer ||
-		client->GetType() == IClient::Type::kRemoteServer)
-	{
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOOPERHOST, "OPER"));
+	if (client->IsServer()) {
 		return ;
 	}
 
@@ -42,8 +39,8 @@ auto OPERHandler::SafeHandle(IMessage &message) -> void
 		return ;
 
 	user->SetMode(UserMode::UM_OPERATOR, true);
-	user->Push(":" + server_config_->GetName() + " MODE " + user->GetNickname() + " :+o");
-	user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_YOUREOPER) + " " + user->GetNickname() + " :You are now an IRC operator");
+	user->Push(":" + user->GetPrefix() + " MODE " + user->GetNickname() + " :+o");
+	user->Push(":" + user->GetPrefix() + " " + std::to_string(RPL_YOUREOPER) + " " + user->GetNickname() + " :You are now an IRC operator");
 	
 	client_database_->BroadcastToLocalServers(":" + user->GetPrefix() +
 		" MODE " + user->GetNickname() + " :+o", message.GetClientUUID());
@@ -57,16 +54,15 @@ auto OPERHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
 
 		if (!prefix)
 		{
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN, "OPER"));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "OPER No nickname given"));
 			return (false);
 		}
 
 		auto original_client = client_database_->GetClient(*prefix);
 		if (!original_client)
 		{
-            (*client)->Push(GetErrorMessage(server_config_->GetName(),
-				message.GetOriginType() == OriginType::SERVER
-				? ERR_NOSUCHSERVER : ERR_NOSUCHNICK, *prefix));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "OPER Could not resolve client " + *prefix));
+			return (false);
 		}
 		*client = *original_client;
 	}

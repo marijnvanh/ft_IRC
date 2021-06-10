@@ -41,3 +41,8 @@ auto GetErrorMessage(const std::string &prefix, int error, std::string param) ->
     else
         return formatted_prefix + std::to_string(error) + " :" + error_pair->second;
 }
+
+auto FormatERRORMessage(const std::string &target_server, const std::string message) -> std::string
+{
+    return ":" + target_server + " ERROR :" + message;
+}

@@ -27,16 +27,19 @@ auto MODEHandler::HandleChannelKeySet(IChannel *channel,
 }
 
 auto MODEHandler::HandleChannelOperatorSet(IClient *client, IChannel *channel,
-	std::optional<std::string> param, bool set) -> bool
+	std::optional<std::string> nickname, bool set) -> bool
 {
-	if (!param)
+	if (!nickname)
 		return (false);
 
-	auto target_user = client_database_->GetUser(*param);
+	auto target_user = client_database_->GetUser(*nickname);
 	if (!target_user)
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			ERR_NOSUCHNICK, *param));
+		if (client->IsServer()) {
+			client->Push(FormatERRORMessage(client->GetPrefix(), "MODE No suck nick: " + *nickname));
+		}
+		else
+			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHNICK, *nickname));
 		return (false);
 	}
 
@@ -319,8 +322,7 @@ auto MODEHandler::GetOriginalSender(IClient **client, IMessage &message) -> bool
         auto remote_client = client_database_->GetClient(*remote_sender);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(":" + server_config_->GetName() +
-				" ERROR :Message prefix spoofed?!");
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "Message prefix spoofed?!"));
             return (false);
         }
         *client = *remote_client;
