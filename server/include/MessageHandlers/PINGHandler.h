@@ -10,6 +10,16 @@ class PINGHandler : public CommandHandler
     ~PINGHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
+
+	/**
+	*	@brief Handles PING when a target parameter is specified.
+	*
+	*	@returns Whether or not the PING has been forwarded.
+	*	Will therefore return `false` if the target is the current server.
+	*/
+	auto HandleForTarget(IClient* client, IMessage &message) -> bool;
+
+	auto HandleForThisServer(IClient* client, IMessage &message) -> void;
 };
 
 #endif
