@@ -24,7 +24,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		user->Push(GetErrorMessage(user->GetPrefix(), ERR_NOPRIVILEGES, "SQUIT"));
+		user->Push(GetErrorMessage(server_config_->GetName(), user->GetPrefix(), ERR_NOPRIVILEGES, "SQUIT"));
 		return ;
 	}
 	if (params[SERVER_NAME] == server_config_->GetName())
@@ -34,7 +34,7 @@ auto SQUITHandler::HandleUserMessage(IUser *user,
 	}
 	if (!server)
 	{
-		user->Push(GetErrorMessage(user->GetPrefix(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
+		user->Push(GetErrorMessage(server_config_->GetName(), user->GetPrefix(), ERR_NOSUCHSERVER, params[SERVER_NAME]));
 		return ;		
 	}
 

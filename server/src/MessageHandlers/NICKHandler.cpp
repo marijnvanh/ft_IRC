@@ -134,14 +134,14 @@ auto NICKHandler::HandleNICKFromUser(IClient* client, IMessage &message) -> void
     auto nickname = message.GetParams()[PARAM_NICKNAME];
     if (client->GetNickname() == nickname)
     {
-        client->Push(GetErrorMessage(client->GetPrefix(), ERR_NICKCOLLISION));
+        client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NICKCOLLISION));
         return ;
     }
 
     auto client_with_nickname = client_database_->GetClient(nickname);
     if (client_with_nickname)
     {
-        client->Push(GetErrorMessage(client->GetPrefix(), ERR_NICKNAMEINUSE));
+        client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NICKNAMEINUSE));
         return ;
     }
 

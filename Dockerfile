@@ -22,7 +22,7 @@ RUN rm -rf build bin && \
 
 # Run the server with 'default' config.
 # This config can be mounted with different values as described below.
-CMD ["irc_server" "/irc/config.json"]
+ENTRYPOINT irc_server /irc/config.json
 
 # BUILD
 # docker build -t ft_irc .
@@ -31,8 +31,7 @@ CMD ["irc_server" "/irc/config.json"]
 # docker run --rm -dt -p<link_port>:<irc_port> ft_irc
 
 # RUN WITH MOUNTED (DIFFERENT) CONFIG
-# docker run --rm -d -p<link_port>:<irc_port> \
-# --mount type=bind,source="$(pwd)"/config.json,target=/irc/config.json ft_irc
+# docker run --rm -dt -p 8080:5000 -p 8081:5001 --mount type=bind,source="$(pwd)"/configs/config_1.json,target=/irc/config.json ft_irc
 
 # EXEC
 # docker exec -it <container_id> /bin/bash

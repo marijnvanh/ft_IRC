@@ -30,7 +30,7 @@ auto VERSIONHandler::SafeHandle(IMessage &message) -> void
 	auto target = client_database_->GetClient(target_name);
 	if (!target)
 	{
-		client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
+		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
 		return ;
 	}
 	(*target)->Push(client->GetPrefix() + " VERSION " + target_name);

@@ -36,7 +36,7 @@ auto KILLHandler::SafeHandle(IMessage &message) -> void
 			client->Push(FormatERRORMessage(client->GetPrefix(),  "KILL Could not find nickname: " + nickname));
 		}
 		else
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHNICK, nickname));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHNICK, nickname));
 	}
 }
 
@@ -47,7 +47,7 @@ auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
 		auto user = dynamic_cast<IUser*>(client);
 		if (!user->HasMode(UserMode::UM_OPERATOR))
 		{
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOPRIVILEGES, "KILL"));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOPRIVILEGES, "KILL"));
 			return ;
 		}
 	}

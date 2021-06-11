@@ -79,7 +79,7 @@ auto PRIVMSGHandler::ValidateParams(IClient *client, IMessage &message) -> bool
     if (params.size() < 2)
     {
         if (client->GetType() == IClient::Type::kLocalUser)
-            client->Push(GetErrorMessage(client->GetPrefix(), ERR_NEEDMOREPARAMS, "PRIVMSG"));
+            client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NEEDMOREPARAMS, "PRIVMSG"));
         else if (client->GetType() == IClient::Type::kLocalServer)
             client->Push(FormatERRORMessage(client->GetPrefix(), "PRIVMSG needs more params"));
         return false;
@@ -87,7 +87,7 @@ auto PRIVMSGHandler::ValidateParams(IClient *client, IMessage &message) -> bool
     if (params[MESSAGE_CONTENT] == "") 
     {
         if (client->GetType() == IClient::Type::kLocalUser)
-            client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOTEXTTOSEND, "PRIVMSG"));
+            client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOTEXTTOSEND, "PRIVMSG"));
         else if (client->GetType() == IClient::Type::kLocalServer)
             client->Push(FormatERRORMessage(client->GetPrefix(), "PRIVMSG no text to send"));
         return false;
@@ -127,7 +127,7 @@ auto PRIVMSGHandler::PRIVMSGToUser(IClient *sender, const std::string &nickname,
     auto user = client_database_->GetUser(nickname);
     if (user == std::nullopt)
     {
-        sender->Push(GetErrorMessage(sender->GetPrefix(), ERR_NOSUCHNICK, nickname));
+        sender->Push(GetErrorMessage(server_config_->GetName(), sender->GetPrefix(), ERR_NOSUCHNICK, nickname));
         return true;
     }
     else if ((*user)->GetType() == IClient::Type::kLocalUser)
@@ -146,7 +146,7 @@ auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, const std::string &channe
 
     if (channel == std::nullopt)
     {
-        sender->Push(GetErrorMessage(sender->GetPrefix(), ERR_NOSUCHCHANNEL, channel_name));
+        sender->Push(GetErrorMessage(server_config_->GetName(), sender->GetPrefix(), ERR_NOSUCHCHANNEL, channel_name));
         return ;
     }
     else
@@ -158,7 +158,7 @@ auto PRIVMSGHandler::PRIVMSGToChannel(IClient *sender, const std::string &channe
         }
         else
         {
-            sender->Push(GetErrorMessage(sender->GetPrefix(), ERR_NOTONCHANNEL, channel_name));
+            sender->Push(GetErrorMessage(server_config_->GetName(), sender->GetPrefix(), ERR_NOTONCHANNEL, channel_name));
         }
     }
 }

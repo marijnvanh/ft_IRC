@@ -17,8 +17,11 @@ auto ERRORHandler::SafeHandle(IMessage &message) -> void
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
 
 	/* If ERROR does not come from a server we ignore it */
-	if (client->GetType() != IClient::Type::kLocalServer)
+	if (client->GetType() != IClient::Type::kLocalServer) {
+
+    	logger_.Log(LogLevel::ERROR, "Received ERROR from non server: %s", params[PARAM_ERROR_MESSAGE].c_str());
 		return;
+	}
 
     logger_.Log(LogLevel::ERROR, "Received ERROR: %s", params[PARAM_ERROR_MESSAGE].c_str());
 }

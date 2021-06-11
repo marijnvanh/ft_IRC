@@ -39,7 +39,7 @@ auto MODEHandler::HandleChannelOperatorSet(IClient *client, IChannel *channel,
 			client->Push(FormatERRORMessage(client->GetPrefix(), "MODE No suck nick: " + *nickname));
 		}
 		else
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHNICK, *nickname));
+			client->Push(GetErrorMessage(server_config_->GetName(),client->GetPrefix(), ERR_NOSUCHNICK, *nickname));
 		return (false);
 	}
 
@@ -79,7 +79,7 @@ auto MODEHandler::HandleMODEUser_PreCheck(IClient *origin,
 
 	/* Target user not found, abort. */
 	if (!target_opt) {
-		origin->Push(GetErrorMessage(origin->GetPrefix(), ERR_NOSUCHNICK,
+		origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(), ERR_NOSUCHNICK,
 			params[TARGET_IDENTIFIER]));
 		return (false);
 	}
@@ -87,7 +87,7 @@ auto MODEHandler::HandleMODEUser_PreCheck(IClient *origin,
 	*target = *target_opt;
 	/* Check if origin client is allowed to request or change the mode. */
 	if (origin->IsUser() && origin->GetUUID() != (*target)->GetUUID()) {
-		origin->Push(GetErrorMessage(origin->GetPrefix(), ERR_USERSDONTMATCH,
+		origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(), ERR_USERSDONTMATCH,
 			origin->GetNickname()));
 		return (false);
 	}
@@ -102,7 +102,7 @@ auto MODEHandler::HandleMODEUser_PreCheck(IClient *origin,
 	auto mode = params[MODE_CHANGES];
 	if (mode[0] != '+' && mode[0] != '-')
 	{
-		origin->Push(GetErrorMessage(origin->GetPrefix(),
+		origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 			ERR_UMODEUNKNOWNFLAG, std::string(1, mode[0])));
 		return (false);
 	}
@@ -147,7 +147,7 @@ auto MODEHandler::HandleMODEUser(IClient *origin, IMessage &message) -> void
 			if (!set || allow_admin_changes) {
 				change = 'o';
 			} else {
-				origin->Push(GetErrorMessage(origin->GetPrefix(),
+				origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 					ERR_NOPRIVILEGES, "MODE"));
 			}
 			break ;
@@ -156,7 +156,7 @@ auto MODEHandler::HandleMODEUser(IClient *origin, IMessage &message) -> void
 			break ;
 		default:
 			if (origin->GetType() == IClient::Type::kLocalUser) {
-				origin->Push(GetErrorMessage(origin->GetPrefix(),
+				origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 					ERR_UMODEUNKNOWNFLAG, std::string(1, letter)));
 			}
 			break ;
@@ -174,7 +174,7 @@ auto MODEHandler::HandleMODEUser(IClient *origin, IMessage &message) -> void
 		if (mode_result.back() == '+' || mode_result.back() == '-')
 			mode_result.pop_back();
 
-		auto mode_msg = origin->GetPrefix() + " MODE " +
+		auto mode_msg = ":" + origin->GetPrefix() + " MODE " +
 			target->GetNickname() + " :" + mode_result;
 
 		std::optional<IRC::UUID> uuid_opt = std::nullopt;
@@ -194,7 +194,7 @@ auto MODEHandler::HandleMODEChannel(IClient *origin,
 
 	if (!channel)
 	{
-		origin->Push(GetErrorMessage(origin->GetPrefix(),
+		origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 			ERR_NOSUCHCHANNEL, params[TARGET_IDENTIFIER]));
 		return ;
 	}
@@ -210,14 +210,14 @@ auto MODEHandler::HandleMODEChannel(IClient *origin,
 
 	if (!origin->IsServer() && !(*channel)->HasUser(origin->GetUUID()))
 	{
-		origin->Push(GetErrorMessage(origin->GetPrefix(),
+		origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 			ERR_NOTONCHANNEL, (*channel)->GetName()));
 		return ;
 	}
 
 	if (!origin->IsServer() && !(*channel)->HasOperator(origin->GetUUID()))
 	{
-		origin->Push(GetErrorMessage(origin->GetPrefix(),
+		origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 			ERR_CHANOPRIVSNEEDED, params[TARGET_IDENTIFIER]));
 		return ;
 	}
@@ -272,7 +272,7 @@ auto MODEHandler::HandleMODEChannel(IClient *origin,
 			break ;
 		default:
 			if (origin->GetType() == IClient::Type::kLocalUser) {
-				origin->Push(GetErrorMessage(origin->GetPrefix(),
+				origin->Push(GetErrorMessage(server_config_->GetName(),origin->GetPrefix(),
 					ERR_UMODEUNKNOWNFLAG, std::string(1, letter)));
 			}
 			break ;

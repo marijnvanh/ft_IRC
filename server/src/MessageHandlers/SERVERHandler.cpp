@@ -23,7 +23,7 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
 
 	if (client->GetType() == IClient::Type::kLocalUser)
 	{
-		client->Push(GetErrorMessage(client->GetPrefix(), ERR_ALREADYREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_ALREADYREGISTERED));
 		return;
 	}
     
@@ -31,6 +31,7 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
     auto server = client_database_->GetServer(params[PARAM_SERVER_NAME]);
     if (server)
     {
+        logger_.Log(LogLevel::ERROR, "Server tried to connect twice");
 		client_database_->DisconnectClient(message.GetClientUUID(), std::nullopt);
         return ;
     }
@@ -40,6 +41,7 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
         auto remote_server_name = message.GetServername();
         if (!remote_server_name)
         {
+            logger_.Log(LogLevel::ERROR, "Invalid msg, need more params");
     		client->Push(FormatERRORMessage(client->GetPrefix(), "SERVER Need more params"));
             return ;
         }

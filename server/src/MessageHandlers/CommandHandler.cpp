@@ -26,7 +26,7 @@ auto CommandHandler::Handle(IMessage &message) -> void
 			client->Push(FormatERRORMessage(client->GetPrefix(), "Need more params for " + command_name_));
 		}
 		else {
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NEEDMOREPARAMS, command_name_));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NEEDMOREPARAMS, command_name_));
 		}
 		return;
 	}
@@ -34,7 +34,7 @@ auto CommandHandler::Handle(IMessage &message) -> void
 	// Preliminary client registered check.
 	if (!allow_unregistered_ && client->GetType() == IClient::Type::kUnRegistered)
 	{		
-		client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOTREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOTREGISTERED));
 		return;
 	}
 

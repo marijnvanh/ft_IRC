@@ -40,7 +40,7 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 
 		if (!channel)
 		{
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHCHANNEL, channel_name));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHCHANNEL, channel_name));
 			continue;
 		}
 
@@ -55,7 +55,7 @@ auto PARTHandler::StartPartParsing(std::vector<std::string> params, IClient* cli
 		}
 		else
 		{
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOTONCHANNEL, channel_name));			
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOTONCHANNEL, channel_name));			
 		}		
 	}
 

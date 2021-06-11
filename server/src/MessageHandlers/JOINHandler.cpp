@@ -41,7 +41,7 @@ auto JOINHandler::TryAddUserToChannel(IChannel* channel, const std::string key, 
 {
 	if (channel->HasMode(ChannelMode::CM_KEY) && channel->GetKey() != key)
 	{
-		user->Push(GetErrorMessage(user->GetPrefix(), ERR_BADCHANNELKEY, channel->GetName()));
+		user->Push(GetErrorMessage(server_config_->GetName(), user->GetPrefix(), ERR_BADCHANNELKEY, channel->GetName()));
 		return (false);
 	}
 
@@ -79,7 +79,7 @@ auto JOINHandler::StartJoinParsing(const std::vector<std::string> &params,
 		bool channel_created = false;
 		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOSUCHCHANNEL, kvp.first));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHCHANNEL, kvp.first));
 			continue;
 		}
 
