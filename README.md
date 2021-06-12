@@ -19,7 +19,7 @@ As part of the Codam Advanced curriculum, students are expected to create a simp
 - [Supported client commands](#supported-client-commands)
 - [Shared Lib](#shared-lib)
 - [To be improved](#to-be-improved)
-- [Authors](#authors)
+- [Contributors](#contributors)
 - [Resources](#resources)
   - [IRC Documentation](#irc-documentation)
   - [Network programming](#network-programming)
@@ -153,9 +153,10 @@ The code included in shared lib mostly contains code related to handling sockets
 * Integration testing of different message flows
 * And probably a lot more
 
-# Authors
+# Contributors
 - [Marijn van Heesewijk](https://github.com/marijnvanh)
 - [Rob Kuijper](https://github.com/robkuijper)
+- [Emily Martins](https://github.com/emiflake)
 
 # Resources
 
