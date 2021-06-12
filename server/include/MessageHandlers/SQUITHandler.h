@@ -21,10 +21,6 @@ public:
 	auto HandleServerMessage(IServer *server,
 		std::vector<std::string> params) -> void;
 
- private:
-
-    IClientDatabase *client_database_;
-
 };
 
 #endif

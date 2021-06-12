@@ -62,7 +62,7 @@ auto Server::GenerateServerMessage(const std::string &this_server_name) const ->
     else
         server_message = ":" + remote_server_->GetServerName();
 
-    server_message += " SERVER " +
+    server_message += " SERVER " + server_name_ + " " +
 		std::to_string(GetHops() + 1) + " " + std::to_string(GetOurToken()) +
 		" :Unknown description"; 
 

@@ -26,14 +26,14 @@
 		"codam.s3.com": {
 			"ip": "0.0.0.0",
 			"port": "5004",
-			"recv_pass": "pass1",
-			"send_pass": "pass2"
+			"recv_pass": "pass2",
+			"send_pass": "pass1"
 		}
 	},
 	"log-settings": {
 		"default-level": "ERROR",
 		"log-levels": [
-			["IRCServer", "INFO"],
+			["IRCServer", "DEBUG"],
 			["ServerConfig", "INFO"]
 		]
 	},
