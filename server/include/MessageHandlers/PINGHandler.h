@@ -5,12 +5,14 @@
 
 class PINGHandler : public CommandHandler
 {
-    public:
+
+public:
     PINGHandler(IServerConfig *server_config, IClientDatabase *client_database);
     ~PINGHandler();
 
     auto SafeHandle(IMessage &message) -> void override;
 
+private:
 	/**
 	*	@brief Handles PING when a target parameter is specified.
 	*

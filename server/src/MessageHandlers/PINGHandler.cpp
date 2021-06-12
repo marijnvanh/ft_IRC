@@ -26,7 +26,7 @@ auto PINGHandler::HandleForTarget(IClient *client, IMessage &message) -> bool
 	auto target = client_database_->GetServer(target_name);
 	if (!target) {
 		client->Push(GetErrorMessage(server_config_->GetName(),
-			ERR_NOSUCHSERVER, target_name));
+			client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
 		return (true);
 	}
 
@@ -34,7 +34,7 @@ auto PINGHandler::HandleForTarget(IClient *client, IMessage &message) -> bool
 	if (client->IsServer()) {
 		if (!message.GetPrefix()) {
 			client->Push(GetErrorMessage(client->GetPrefix(),
-				ERR_NEEDMOREPARAMS, "PING"));
+				client->GetPrefix(), ERR_NEEDMOREPARAMS, "PING"));
 			return (true);
 		}
 		origin = *(message.GetPrefix());
@@ -44,7 +44,7 @@ auto PINGHandler::HandleForTarget(IClient *client, IMessage &message) -> bool
 
 	if (origin.empty()) {
 		client->Push(GetErrorMessage(server_config_->GetName(),
-			ERR_NOSUCHSERVER, *(message.GetPrefix())));
+			client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
 		return (true);
 	}
 
@@ -71,7 +71,7 @@ auto PINGHandler::HandleForThisServer(IClient* client, IMessage &message) -> voi
 
 	if (origin.empty()) {
 		client->Push(GetErrorMessage(server_config_->GetName(),
-			ERR_NOSUCHSERVER, *(message.GetPrefix())));
+			client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
 		return ;
 	}
 
@@ -86,8 +86,8 @@ auto PINGHandler::SafeHandle(IMessage &message) -> void
 
 	/* No origin specified, push error. */
 	if (params.size() < 1) {
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOORIGIN,
-			client->GetPrefix()));
+		client->Push(GetErrorMessage(server_config_->GetName(),
+				client->GetPrefix(), ERR_NOORIGIN, client->GetPrefix()));
 		return ;
 	}
 
