@@ -73,7 +73,7 @@ TEST_F(SERVERHandlerTests, RegularUserTryingToSendSERVERMessage)
 
     mock_client1.SetType(IClient::Type::kLocalUser);
 
-    EXPECT_CALL(mock_client1, Push(": 462 :You may not reregister"));
+    EXPECT_CALL(mock_client1, Push(": 462  :You may not reregister"));
 
     server_handler_->Handle(message1);
 }
@@ -109,8 +109,6 @@ TEST_F(SERVERHandlerTests, ServerRegisteringRemoteServer)
         .WillOnce(Return(std::optional<std::string>(remote_server_name)));
     EXPECT_CALL(mock_client_database, GetServer(remote_server_name))
         .WillOnce(Return(std::optional<IServer*>(&mock_remote_server)));
-    EXPECT_CALL(mock_client_database, GetServer(uuid1))
-        .WillOnce(Return(std::optional<IServer*>(&mock_server1)));
     EXPECT_CALL(mock_client_database, AddServer(_));
     EXPECT_CALL(mock_remote_server, AddClient(_));
     EXPECT_CALL(mock_remote_server, RemoveClient(_));

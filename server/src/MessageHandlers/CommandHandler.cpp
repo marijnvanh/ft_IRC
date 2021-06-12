@@ -22,14 +22,19 @@ auto CommandHandler::Handle(IMessage &message) -> void
 	// Preliminary parameter amount check.
 	if (min_params_ && message.GetParams().size() < min_params_)
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS, command_name_));
+		if (client->IsServer()) {
+			client->Push(FormatERRORMessage(client->GetPrefix(), "Need more params for " + command_name_));
+		}
+		else {
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NEEDMOREPARAMS, command_name_));
+		}
 		return;
 	}
 
 	// Preliminary client registered check.
 	if (!allow_unregistered_ && client->GetType() == IClient::Type::kUnRegistered)
 	{		
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOTREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOTREGISTERED));
 		return;
 	}
 

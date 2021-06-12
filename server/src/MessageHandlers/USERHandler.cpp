@@ -17,10 +17,9 @@ auto USERHandler::SafeHandle(IMessage &message) -> void
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
     auto params = message.GetParams();
 
-	// TOOD: Could we get this from a remote user?
     if (client->GetType() == IClient::Type::kLocalServer)
     {
-        client->Push("ERROR: USER command not supported from server");
+        client->Push(FormatERRORMessage(client->GetPrefix(), "USER command not supported from server"));
     }
     
     HandleUSERFromUser(message);
@@ -32,7 +31,7 @@ auto USERHandler::HandleUSERFromUser(IMessage &message) -> void
 
     if (client->GetType() != IClient::Type::kUnRegistered)
     {
-        client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
+        client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_ALREADYREGISTERED));
         return ;
     }
 

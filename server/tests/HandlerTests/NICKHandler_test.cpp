@@ -94,7 +94,7 @@ TEST_F(NICKHandlerTests, SimpleNicknameFromUnregisteredClient)
 
 TEST_F(NICKHandlerTests, NoNickNameGiven)
 {
-    EXPECT_CALL(mock_client1, Push(": 461 NICK :Not enough parameters"));
+    EXPECT_CALL(mock_client1, Push(": 461  NICK :Not enough parameters"));
 
     nick_handler_->Handle(client_message1);
 }
@@ -104,7 +104,7 @@ TEST_F(NICKHandlerTests, ClientNickCollision)
     client_params.push_back("same_nickname");
     mock_client1.SetNickname("same_nickname");
 
-    EXPECT_CALL(mock_client1, Push(": 436 :Nickname collision KILL"));
+    EXPECT_CALL(mock_client1, Push(": 436  :Nickname collision KILL"));
 
     nick_handler_->Handle(client_message1);
 }
@@ -143,7 +143,7 @@ TEST_F(NICKHandlerTests, NoOrigin)
     EXPECT_CALL(server_message1, GetNickname())
         .WillOnce(Return(std::nullopt));
 
-    EXPECT_CALL(server_client1, Push(": 431 :No nickname given"));
+    EXPECT_CALL(server_client1, Push(_));
 
     nick_handler_->Handle(server_message1);
 }

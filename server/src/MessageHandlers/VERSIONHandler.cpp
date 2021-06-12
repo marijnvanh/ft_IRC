@@ -30,8 +30,7 @@ auto VERSIONHandler::SafeHandle(IMessage &message) -> void
 	auto target = client_database_->GetClient(target_name);
 	if (!target)
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			ERR_NOSUCHSERVER, target_name));
+		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
 		return ;
 	}
 	(*target)->Push(client->GetPrefix() + " VERSION " + target_name);
@@ -45,13 +44,13 @@ auto VERSIONHandler::GetOriginalSender(IClient **client, IMessage &message) -> b
     
         if (remote_client_nickname == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "VERSION No nickname given"));
             return (false);
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_client_nickname));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), "VERSION No such nick: " + *remote_client_nickname));
             return (false);
         }
         *client = *remote_client;

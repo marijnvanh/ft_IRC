@@ -41,7 +41,7 @@ auto JOINHandler::TryAddUserToChannel(IChannel* channel, const std::string key, 
 {
 	if (channel->HasMode(ChannelMode::CM_KEY) && channel->GetKey() != key)
 	{
-		user->Push(GetErrorMessage(server_config_->GetName(), ERR_BADCHANNELKEY, channel->GetName()));
+		user->Push(GetErrorMessage(server_config_->GetName(), user->GetPrefix(), ERR_BADCHANNELKEY, channel->GetName()));
 		return (false);
 	}
 
@@ -60,9 +60,9 @@ auto JOINHandler::TryAddUserToChannel(IChannel* channel, const std::string key, 
 	if (user->GetType() == IClient::Type::kLocalUser)
 	{
 		if (channel->HasMode(ChannelMode::CM_TOPIC))
-			user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_TOPIC) + " " + user->GetNickname() + " :" + channel->GetTopic());
-		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_NAMREPLY) + " " + user->GetNickname() + " = " + channel->GetName() + " :" + channel->GetUserListAsString(' '));
-		user->Push(":" + server_config_->GetName() + " " + std::to_string(RPL_ENDOFNAMES) + " " + user->GetNickname() + " " + channel->GetName() + " :End of /NAMES list.");
+			user->Push(":" + user->GetPrefix() + " " + std::to_string(RPL_TOPIC) + " " + user->GetNickname() + " :" + channel->GetTopic());
+		user->Push(":" + user->GetPrefix() + " " + std::to_string(RPL_NAMREPLY) + " " + user->GetNickname() + " = " + channel->GetName() + " :" + channel->GetUserListAsString(' '));
+		user->Push(":" + user->GetPrefix() + " " + std::to_string(RPL_ENDOFNAMES) + " " + user->GetNickname() + " " + channel->GetName() + " :End of /NAMES list.");
 	}
 	return (true);
 }
@@ -79,7 +79,7 @@ auto JOINHandler::StartJoinParsing(const std::vector<std::string> &params,
 		bool channel_created = false;
 		if (kvp.first.at(0) != '#' || kvp.first.size() >= 50)
 		{
-			client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHCHANNEL, kvp.first));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHCHANNEL, kvp.first));
 			continue;
 		}
 
@@ -108,13 +108,13 @@ auto JOINHandler::SafeHandle(IMessage &message) -> void
         auto remote_client_nickname = message.GetNickname();
         if (remote_client_nickname == std::nullopt)
         {
-            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NONICKNAMEGIVEN));
+            client->Push(FormatERRORMessage(client->GetPrefix(), "JOIN No nickname given"));
             return ;
         }
         auto remote_client = client_database_->GetClient(*remote_client_nickname);
         if (remote_client == std::nullopt)
         {
-            client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK));
+            client->Push(FormatERRORMessage(client->GetPrefix(), "JOIN Could not find nickname: " + *remote_client_nickname));
             return ;
         }
         client = *remote_client;

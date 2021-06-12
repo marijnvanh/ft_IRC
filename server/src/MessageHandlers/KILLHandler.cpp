@@ -31,7 +31,13 @@ auto KILLHandler::SafeHandle(IMessage &message) -> void
 			HandleKillForLocalUser(client, *otherUser, params);
 	}
 	else
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK, nickname));
+	{
+		if (client->IsServer()) {
+			client->Push(FormatERRORMessage(client->GetPrefix(),  "KILL Could not find nickname: " + nickname));
+		}
+		else
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOSUCHNICK, nickname));
+	}
 }
 
 auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
@@ -41,7 +47,7 @@ auto KILLHandler::HandleKillForLocalUser(IClient *client, IUser *otherUser,
 		auto user = dynamic_cast<IUser*>(client);
 		if (!user->HasMode(UserMode::UM_OPERATOR))
 		{
-			client->Push(GetErrorMessage(client->GetPrefix(), ERR_NOPRIVILEGES, "KILL"));
+			client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOPRIVILEGES, "KILL"));
 			return ;
 		}
 	}
@@ -74,7 +80,7 @@ auto KILLHandler::GetCorrectSender(IClient **client, IMessage &message) -> bool
         auto remote_client = client_database_->GetClient(*remote_sender);
         if (remote_client == std::nullopt)
         {
-            (*client)->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHNICK , *remote_sender));
+			(*client)->Push(FormatERRORMessage((*client)->GetPrefix(), ":KILL Could not find nickname: " + *remote_sender));
             return (false);
         }
         *client = *remote_client;

@@ -27,17 +27,22 @@ std::unordered_map<int, std::string> error_map = {
 		{ERR_PASSWDMISMATCH, "Password incorrect"}
 };
 
-auto GetErrorMessage(const std::string &prefix, int error, std::string param) -> std::string
+auto GetErrorMessage(const std::string &server_name, const std::string &target, int error, const std::string &param) -> std::string
 {
-    auto formatted_prefix = ":" + prefix + " ";
+    auto formatted_prefix = ":" + server_name + " ";
 
     auto error_pair = error_map.find(error);
 
     if (error_pair == error_map.end())
-        return formatted_prefix + "ERROR :Unknown Error";
+        return formatted_prefix + "ERROR " + target + " :Unknown Error";
 
     if (param != "")
-        return formatted_prefix + std::to_string(error) + " " + param + " :" + error_pair->second;
+        return formatted_prefix + std::to_string(error) + " " + target + " " + param + " :" + error_pair->second;
     else
-        return formatted_prefix + std::to_string(error) + " :" + error_pair->second;
+        return formatted_prefix + std::to_string(error) + " " + target + " :" + error_pair->second;
+}
+
+auto FormatERRORMessage(const std::string &target_server, const std::string message) -> std::string
+{
+    return ":" + target_server + " ERROR :" + message;
 }

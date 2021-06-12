@@ -25,7 +25,7 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 	auto user = dynamic_cast<IUser*>(client);
 	if (!user->HasMode(UserMode::UM_OPERATOR))
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOPRIVILEGES, "CONNECT"));
+		client->Push(GetErrorMessage(server_config_->GetName(), user->GetPrefix(), ERR_NOPRIVILEGES, "CONNECT"));
 		return ;
 	}
 
@@ -33,7 +33,7 @@ auto CONNECTHandler::SafeHandle(IMessage &message) -> void
 		server_config_->GetAuthorizedServer(params[SERVER_NAME_PARAM]);
     if (!authorized_server_data)
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, params[SERVER_NAME_PARAM]));
+		client->Push(GetErrorMessage(server_config_->GetName(), user->GetPrefix(), ERR_NOSUCHSERVER, params[SERVER_NAME_PARAM]));
         return ;
     }
 

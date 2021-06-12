@@ -74,9 +74,9 @@ auto NJOINHandler::AddUsersToChannel(IChannel* channel, std::vector<std::string>
             nickname = nickname.substr(1);
             is_operator = true;
         }
-        auto user = *(client_database_->GetUser(nickname));
+        auto user = client_database_->GetUser(nickname);
         if (user) {
-            AddUserToChannel(channel, user, is_operator);
+            AddUserToChannel(channel, *user, is_operator);
         }
         else {
             logger_.Log(LogLevel::ERROR, "Could not add %s to channel, user does not exits.", nickname.c_str());

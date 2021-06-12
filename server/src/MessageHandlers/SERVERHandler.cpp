@@ -23,7 +23,7 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
 
 	if (client->GetType() == IClient::Type::kLocalUser)
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), ERR_ALREADYREGISTERED));
+		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_ALREADYREGISTERED));
 		return;
 	}
     
@@ -31,6 +31,7 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
     auto server = client_database_->GetServer(params[PARAM_SERVER_NAME]);
     if (server)
     {
+        logger_.Log(LogLevel::ERROR, "Server tried to connect twice");
 		client_database_->DisconnectClient(message.GetClientUUID(), std::nullopt);
         return ;
     }
@@ -40,16 +41,17 @@ auto SERVERHandler::SafeHandle(IMessage &message) -> void
         auto remote_server_name = message.GetServername();
         if (!remote_server_name)
         {
-    		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NEEDMOREPARAMS));
+            logger_.Log(LogLevel::ERROR, "Invalid msg, need more params");
+    		client->Push(FormatERRORMessage(client->GetPrefix(), "SERVER Need more params"));
             return ;
         }
         auto remote_server = client_database_->GetServer(*remote_server_name);
         if (!remote_server)
         {
-    		client->Push(GetErrorMessage(server_config_->GetName(), ERR_NOSUCHSERVER, *remote_server_name));
+    		client->Push(FormatERRORMessage(client->GetPrefix(), "SERVER No such server name: " + *remote_server_name));
             return ;
         }
-        auto local_server = (*client_database_->GetServer(client->GetUUID()));
+        auto local_server = dynamic_cast<IServer*>(client);
         HandleRemoteServerRegistration(local_server, *remote_server, message);
         auto irc_message = ":" + *remote_server_name + " SERVER " +
 			params[PARAM_SERVER_NAME] + " " +

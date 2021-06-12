@@ -2,7 +2,7 @@
 #include "Utilities.h"
 #include "MessageHandlers/NUMERICHandler.h"
 
-#define PARAM_ERROR_MESSAGE 0
+#define PARAM_TARGET 0
 
 NUMERICHandler::NUMERICHandler(IServerConfig* server_config, IClientDatabase *client_database) :
 	CommandHandler(server_config, client_database, "NUMERIC", 0, true)
@@ -13,12 +13,13 @@ NUMERICHandler::~NUMERICHandler()
 
 static auto FormNumericMessage(IMessage &message) -> std::string
 {
-    auto prefix = *(message.GetPrefix());
-    auto numeric_message = ":" + prefix + " " + message.GetCommand();
-
+    auto prefix = *(message.GetServername());
     auto message_params = message.GetParams();
-    auto param_count = message_params.size();
-    size_t param_index = 0;
+
+    auto numeric_message = ":" + prefix + " " + message.GetCommand() + " " + message_params[PARAM_TARGET];
+
+    auto param_count = message_params.size() - 1; /* -1 for PARAM_TARGET */
+    size_t param_index = 1; /* index 1 so we skip PARAM_TARGET */
     while (param_count && param_count - 1 > 0)
     {
         numeric_message = numeric_message + " " + message_params[param_index];
@@ -34,23 +35,32 @@ auto NUMERICHandler::SafeHandle(IMessage &message) -> void
 {
 	/* If numeric does not come from a server we ignore it */
     auto client = *(client_database_->GetClient(message.GetClientUUID()));
-	if (client->GetType() != IClient::Type::kLocalServer)
+	if (client->GetType() != IClient::Type::kLocalServer) {
+        logger_.Log(LogLevel::DEBUG, "Received numeric from non server");
 		return;
+    }
 
-    auto nickname = message.GetNickname();
-    if (!nickname)
+    auto origin = message.GetServername();
+    if (!origin)
 	{
-		client->Push("ERROR :No nickname provided to numeric message");
+		client->Push(FormatERRORMessage(client->GetPrefix(), "No prefix provided to numeric message"));
+		return;
+	}
+
+    auto params = message.GetParams();
+    if (params.size() < 1)
+	{
+		client->Push(FormatERRORMessage(client->GetPrefix(), "No target for numeric message"));
 		return;
 	}
     
-    auto receiver = client_database_->GetClient(*nickname);
-    if (!receiver)
+    auto target = client_database_->GetClient(params[PARAM_TARGET]);
+    if (!target)
 	{
-		client->Push("ERROR :Unknown client with nickname: " + *nickname);
+		client->Push(FormatERRORMessage(client->GetPrefix(), "Unknown target: " + params[PARAM_TARGET]));
 		return;
 	}
 
-    (*receiver)->Push(FormNumericMessage(message));
+    (*target)->Push(FormNumericMessage(message));
     logger_.Log(LogLevel::DEBUG, "Forwarded numeric reply %s", message.GetCommand().c_str());
 }
