@@ -7,25 +7,25 @@ As part of the Codam Advanced curriculum, students are expected to create a simp
 - [Table of content](#table-of-content)
 - [Requirements](#requirements)
 - [Quick start](#quick-start)
-  - [Local](#local)
-  - [Docker](#docker)
+	- [Local](#local)
+	- [Docker](#docker)
 - [Manual build](#manual-build)
 - [Running the server](#running-the-server)
 - [Config](#config)
 - [TLS](#tls)
 - [Testing methods](#testing-methods)
-  - [Unit testing](#unit-testing)
-  - [End to End tests](#end-to-end-tests)
+	- [Unit testing](#unit-testing)
+	- [End to End tests](#end-to-end-tests)
 - [Supported client commands](#supported-client-commands)
 - [Shared Lib](#shared-lib)
 - [To be improved](#to-be-improved)
 - [Contributors](#contributors)
 - [Resources](#resources)
-  - [IRC Documentation](#irc-documentation)
-  - [Network programming](#network-programming)
-  - [OpenSSL](#openssl)
-  - [JSON parser](#json-parser)
-  - [Other recourses](#other-recourses)
+	- [IRC Documentation](#irc-documentation)
+	- [Network programming](#network-programming)
+	- [OpenSSL](#openssl)
+	- [JSON parser](#json-parser)
+	- [Other recourses](#other-recourses)
 
 
 # Requirements
@@ -48,7 +48,7 @@ Clone the repo and init the submodules:
 To run the server locally run the `run.py` script:  
 `./run.py`
 
-After the server is running you can now use an IRC client of your choise to connect to localhost on port 5000.
+After the server is running you can now use an IRC client of your choice to connect to localhost on port 5000.
 
 ## Docker
 To run the server in a docker container follow the following steps:  
@@ -59,7 +59,7 @@ Build the docker image:
 Start a container with the following line where 8080 is your local port for TCP and 8081 is your port for TCP with TLS enabled:  
 `docker run --rm -dt -p 8080:5000 -p 8081:5001 ft_irc`  
 
-After the server is running you can now use an IRC client of your choise to connect to localhost on port 8080 or with a client with TLS enabled on port 8081.
+After the server is running you can now use an IRC client of your choice to connect to localhost on port 8080 or with a client with TLS enabled on port 8081.
 
 # Manual build
 
