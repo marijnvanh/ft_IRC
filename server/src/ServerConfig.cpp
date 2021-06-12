@@ -43,7 +43,6 @@ auto ServerConfig::ParseServerData(json jf) -> void
 {
 	if (jf.contains("server-data"))
 	{
-		this->server_id_ = jf["server-data"]["id"];
 		this->server_name_ = jf["server-data"]["name"];
 		this->server_network_ = jf["server-data"]["network"];
 		this->server_description_ = jf["server-data"]["description"];
