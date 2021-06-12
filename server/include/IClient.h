@@ -33,7 +33,8 @@ class IClient
         register_state_(IClient::RegisterState::kNotRegistered),
         uuid_(IRC::UUIDGenerator::GetInstance().Generate()),
         local_server_(NULL),
-        remote_server_(NULL)
+        remote_server_(NULL),
+        hops_(0)
     {};
 
     virtual ~IClient()

@@ -251,13 +251,13 @@ auto ClientDatabase::GetClient(IRC::UUID uuid) -> std::optional<IClient*>
     if (client != clients_.end())
         return std::optional<IClient*>(client->second.get());
     client = local_users_.find(uuid);
-    if (client != clients_.end())
+    if (client != local_users_.end())
         return std::optional<IClient*>(client->second.get());
     client = remote_users_.find(uuid);
-    if (client != clients_.end())
+    if (client != remote_users_.end())
         return std::optional<IClient*>(client->second.get());
     client = servers_.find(uuid);
-    if (client != clients_.end())
+    if (client != servers_.end())
         return std::optional<IClient*>(client->second.get());
     return std::nullopt;
 }

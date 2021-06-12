@@ -128,7 +128,9 @@ auto IRC::ParseHostname(CharStream& s) -> Hostname {
 auto IRC::ParseNickname(CharStream& s) -> std::string {
   std::string accum;
 
-  accum += Satisfy([](char c) { return std::isalpha(c); }, s);
+  accum += Satisfy([](char c) {
+    return std::isalpha(c) || IsSpecial(c);
+  }, s);
   accum += ConsumeWhile([](char c){
     return std::isalpha(c)
         || std::isdigit(c)
