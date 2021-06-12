@@ -22,9 +22,6 @@ def Run(target, config_file):
     if target == "server":
         if subprocess.call([f"./bin/irc_server {config_file}"], shell=True):
             exit(-1)
-    elif target == "client":
-        if subprocess.call(["./bin/irc_client localhost"], shell=True):
-            exit(-1)
     elif target == "tests":
         if args.name_test:
             specific_test_option = f"-R '{args.name_test}'"
@@ -38,8 +35,8 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description='Build and Run tool for IRC')
     arg_parser.add_argument('-m', '--method', default='BR', choices=['BR', 'build', 'run'],
         help='Options: B - Build; R - Run. Default is build and run.')
-    arg_parser.add_argument('-t', '--target', default='server', choices=['server', 'client', 'tests'],
-        help='Options: server, client, tests.')
+    arg_parser.add_argument('-t', '--target', default='server', choices=['server', 'tests'],
+        help='Options: server, tests.')
     arg_parser.add_argument('-n', '--name_test', default=None,
         help='Name of specific test')
     arg_parser.add_argument('-c', '--config_file', default="./configs/config_1.json",

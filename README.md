@@ -17,12 +17,14 @@ As part of the Codam Advanced curriculum, students are expected to create a simp
   - [Unit testing](#unit-testing)
   - [End to End tests](#end-to-end-tests)
 - [Supported client commands](#supported-client-commands)
+- [Shared Lib](#shared-lib)
 - [To be improved](#to-be-improved)
 - [Authors](#authors)
 - [Resources](#resources)
   - [IRC Documentation](#irc-documentation)
   - [Network programming](#network-programming)
   - [OpenSSL](#openssl)
+  - [JSON parser](#json-parser)
   - [Other recourses](#other-recourses)
 
 
@@ -38,6 +40,9 @@ For supporting TLS you also need OpenSSL (`libssl-dev`) installed, however this 
 Optionally you also need python3 to run the run script.
 
 # Quick start
+
+Clone the repo and init the submodules:  
+` git clone --recursive https://github.com/marijnvanh/ft_IRC.git`
 
 ## Local
 To run the server locally run the `run.py` script:  
@@ -60,11 +65,11 @@ After the server is running you can now use an IRC client of your choise to conn
 
 To manually build the project run the following command.
 
-`cmake -B build`  
+`cmake -B build && make -C build`  
 
 To also build with TLS support run the following command where <OPENSSL_ROOT_DIR> is the root directory of you OpenSSL installation.   
 
-`cmake -B build -DENABLE_SSL=ON -DOPENSSL_ROOT_DIR=<OPENSSL_ROOT_DIR>`
+`cmake -B build -DENABLE_SSL=ON -DOPENSSL_ROOT_DIR=<OPENSSL_ROOT_DIR> && make -C build`
 
 # Running the server
 After the build the binary will be in `./bin`. You can then run the server like:  
@@ -136,10 +141,14 @@ There are no end to end tests run on the codebase. The message flows could (shou
 * CONNECT
 * OPER
 
+# Shared Lib
+The code included in shared lib mostly contains code related to handling sockets and TCP. It also contains some other tools that could be shared between a server and a client program. There is no client (yet) but this shared library could be used for both.
+
 # To be improved
 * User identification with an identity server
 * Server to Server encryption
 * Enriched server diagnostics
+* A Client
 * Improved Unit testing
 * Integration testing of different message flows
 * And probably a lot more
@@ -171,6 +180,10 @@ https://help.ubuntu.com/community/OpenSSL
 https://developer.ibm.com/tutorials/l-openssl/#get-started
 https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs  
 https://gist.github.com/darrenjs/4645f115d10aa4b5cebf57483ec82eca  
+
+## JSON parser
+
+https://github.com/nlohmann/json json parser
 
 ## Other recourses
 

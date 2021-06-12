@@ -19,7 +19,6 @@ endif()
 
 add_subdirectory(shared_lib)
 add_subdirectory(server)
-add_subdirectory(client)
 add_subdirectory(extern/json)
 
 option(PACKAGE_TESTS "Build tests" OFF)
