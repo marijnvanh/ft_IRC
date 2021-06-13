@@ -59,15 +59,14 @@ auto PINGHandler::HandleForThisServer(IClient* client, IMessage &message) -> voi
 	std::string origin;
 	auto params = message.GetParams();
 
-	/* Make sure the origin parameter for the PONG message is set correctly */
+	/* Make sure the origin parameter for the PONG message is set correctly. */
 	if (client->IsServer()) {
 		if (message.GetPrefix())
 			origin = *(message.GetPrefix());
 		else
 			origin = client->GetPrefix();
-	} else {
+	} else
 		origin = server_config_->GetName();
-	}
 
 	if (origin.empty()) {
 		client->Push(GetErrorMessage(server_config_->GetName(),
@@ -75,7 +74,7 @@ auto PINGHandler::HandleForThisServer(IClient* client, IMessage &message) -> voi
 		return ;
 	}
 
-	client->Push(":" + client->GetPrefix() +
+	client->Push(":" + server_config_->GetName() +
 		" PONG " + origin + " :" + params[PARAM_ORIGIN]);	
 }
 

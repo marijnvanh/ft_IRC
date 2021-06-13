@@ -56,7 +56,7 @@ auto PONGHandler::SafeHandle(IMessage &message) -> void
 		return ;
 	}
 
-	if (client->IsUser() && params.size() != 2) {
+	if (!client->IsServer() && params.size() < 2) {
 		client->Push(GetErrorMessage(server_config_->GetName(),
 			client->GetPrefix(), ERR_NEEDMOREPARAMS));
 		return ;
