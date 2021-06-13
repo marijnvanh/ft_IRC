@@ -22,7 +22,7 @@ RUN rm -rf build bin && \
 
 # Run the server with 'default' config.
 # This config can be mounted with different values as described below.
-ENTRYPOINT irc_server /irc/config.json
+ENTRYPOINT irc_server /irc/configs/config_1.json
 
 # BUILD
 # docker build -t ft_irc .
