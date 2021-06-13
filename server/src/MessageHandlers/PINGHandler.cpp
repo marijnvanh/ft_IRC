@@ -52,17 +52,6 @@ auto PINGHandler::HandleForTarget(IClient *client, IMessage &message) -> bool
 		origin = client->GetPrefix();
 	}
 
-	if (origin.empty()) {
-		if (client->IsServer()) {
-			client->Push(":" + server_config_->GetName() +
-				" ERROR :PING origin not valid.");
-		} else {
-			client->Push(GetErrorMessage(server_config_->GetName(),
-				client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
-		}
-		return (true);
-	}
-
 	(*target)->Push(":" + origin + " PING " + params[PARAM_ORIGIN] +
 		" :" + target_name);
 
@@ -82,17 +71,6 @@ auto PINGHandler::HandleForThisServer(IClient* client, IMessage &message) -> voi
 			origin = client->GetPrefix();
 	} else
 		origin = server_config_->GetName();
-
-	if (origin.empty()) {
-		if (client->IsServer()) {
-			client->Push(":" + server_config_->GetName() +
-				" ERROR :PING origin not valid.");
-		} else {
-			client->Push(GetErrorMessage(server_config_->GetName(),
-				client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
-		}
-		return ;
-	}
 
 	client->Push(":" + server_config_->GetName() +
 		" PONG " + origin + " :" + params[PARAM_ORIGIN]);	

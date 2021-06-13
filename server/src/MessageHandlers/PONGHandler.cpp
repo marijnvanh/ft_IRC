@@ -34,7 +34,7 @@ auto PONGHandler::HandleForTarget(IClient *client, std::string &target_name,
 		return ;
 	}
 
-	auto from = client_database_->GetClient(*(message.GetPrefix()));
+	auto from = client_database_->GetServer(*(message.GetPrefix()));
 	if (!from) {
 		if (client->IsServer()) {
 			client->Push(":" + server_config_->GetName() +
