@@ -24,15 +24,25 @@ auto PONGHandler::HandleForTarget(IClient *client, std::string &target_name,
 
 	auto target = client_database_->GetClient(target_name);
 	if (!target) {
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PONG target not known.");
+		} else {
+			client->Push(GetErrorMessage(server_config_->GetName(),
+				client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
+		}
 		return ;
 	}
 
 	auto from = client_database_->GetClient(*(message.GetPrefix()));
 	if (!from) {
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));		
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PONG message 'from' not known.");
+		} else {
+			client->Push(GetErrorMessage(server_config_->GetName(),
+				client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));	
+		}	
 		return ;
 	}
 
@@ -50,9 +60,13 @@ auto PONGHandler::SafeHandle(IMessage &message) -> void
 	auto params = message.GetParams();
 
 	if (params.size() < 1) {
-		if (client->IsUser())
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PONG no origin given.");
+		} else {
 			client->Push(GetErrorMessage(server_config_->GetName(),
 				client->GetPrefix(), ERR_NOORIGIN, client->GetPrefix()));
+		}
 		return ;
 	}
 
@@ -65,8 +79,13 @@ auto PONGHandler::SafeHandle(IMessage &message) -> void
 	/* Check if forwarding is needed .*/
 	if (params.size() == 2 && client->IsServer()) {
 		if (!message.GetPrefix()) {
-			client->Push(GetErrorMessage(server_config_->GetName(),
-				client->GetPrefix(), ERR_NEEDMOREPARAMS));
+			if (client->IsServer()) {
+				client->Push(":" + server_config_->GetName() +
+					" ERROR :PONG message has no valid prefix.");
+			} else {
+				client->Push(GetErrorMessage(server_config_->GetName(),
+					client->GetPrefix(), ERR_NEEDMOREPARAMS));
+			}
 			return ;
 		}
 		

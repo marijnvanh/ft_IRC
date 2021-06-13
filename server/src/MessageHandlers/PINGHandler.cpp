@@ -25,16 +25,26 @@ auto PINGHandler::HandleForTarget(IClient *client, IMessage &message) -> bool
 	/* If the target is not a server, don't continue with handling the PING. */
 	auto target = client_database_->GetServer(target_name);
 	if (!target) {
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PING target not known.");
+		} else {
+			client->Push(GetErrorMessage(server_config_->GetName(),
+				client->GetPrefix(), ERR_NOSUCHSERVER, target_name));
+		}
 		return (true);
 	}
 
 	/* Make sure the prefix for the redirect message is set correctly */
 	if (client->IsServer()) {
 		if (!message.GetPrefix()) {
-			client->Push(GetErrorMessage(client->GetPrefix(),
-				client->GetPrefix(), ERR_NEEDMOREPARAMS, "PING"));
+			if (client->IsServer()) {
+				client->Push(":" + server_config_->GetName() +
+					" ERROR :PING message doesn't have a prefix.");
+			} else {
+				client->Push(GetErrorMessage(client->GetPrefix(),
+					client->GetPrefix(), ERR_NEEDMOREPARAMS, "PING"));
+			}
 			return (true);
 		}
 		origin = *(message.GetPrefix());
@@ -43,8 +53,13 @@ auto PINGHandler::HandleForTarget(IClient *client, IMessage &message) -> bool
 	}
 
 	if (origin.empty()) {
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PING origin not valid.");
+		} else {
+			client->Push(GetErrorMessage(server_config_->GetName(),
+				client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
+		}
 		return (true);
 	}
 
@@ -69,8 +84,13 @@ auto PINGHandler::HandleForThisServer(IClient* client, IMessage &message) -> voi
 		origin = server_config_->GetName();
 
 	if (origin.empty()) {
-		client->Push(GetErrorMessage(server_config_->GetName(),
-			client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PING origin not valid.");
+		} else {
+			client->Push(GetErrorMessage(server_config_->GetName(),
+				client->GetPrefix(), ERR_NOSUCHSERVER, *(message.GetPrefix())));
+		}
 		return ;
 	}
 
@@ -85,8 +105,13 @@ auto PINGHandler::SafeHandle(IMessage &message) -> void
 
 	/* No origin specified, push error. */
 	if (params.size() < 1) {
-		client->Push(GetErrorMessage(server_config_->GetName(),
-				client->GetPrefix(), ERR_NOORIGIN, client->GetPrefix()));
+		if (client->IsServer()) {
+			client->Push(":" + server_config_->GetName() +
+				" ERROR :PING no origin given.");
+		} else {
+			client->Push(GetErrorMessage(server_config_->GetName(),
+					client->GetPrefix(), ERR_NOORIGIN, client->GetPrefix()));
+		}
 		return ;
 	}
 
