@@ -1,6 +1,7 @@
 #include "Numerics.h"
 #include "Utilities.h"
 #include "MessageHandlers/NUMERICHandler.h"
+#include "RawMessage.h"
 
 #define PARAM_TARGET 0
 
@@ -53,8 +54,21 @@ auto NUMERICHandler::SafeHandle(IMessage &message) -> void
 		client->Push(FormatERRORMessage(client->GetPrefix(), "No target for numeric message"));
 		return;
 	}
-    
-    auto target = client_database_->GetClient(params[PARAM_TARGET]);
+
+    /* Quick and ugly hack to parse the target of numeric, should fix this */
+    auto cs = IRC::Parser::CharStream::FromString(params[PARAM_TARGET]);
+    std::string nickname;
+    try {
+        auto prefix = IRC::ParsePrefix(cs);
+        nickname = prefix.name;
+    } 
+    catch (...) {
+        logger_.Log(LogLevel::DEBUG, "Failed to parse 'prefix': %s", params[PARAM_TARGET].c_str());
+    }
+    if (nickname == "")
+        nickname = params[PARAM_TARGET];
+
+    auto target = client_database_->GetClient(nickname);
     if (!target)
 	{
 		client->Push(FormatERRORMessage(client->GetPrefix(), "Unknown target: " + params[PARAM_TARGET]));
