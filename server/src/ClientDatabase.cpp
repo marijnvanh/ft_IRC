@@ -373,6 +373,7 @@ auto ClientDatabase::DoForEachUser(std::function<void(IClient*)> action, std::op
 
 auto ClientDatabase::DoForEachClient(std::function<void(IClient*)> action, std::optional<IRC::UUID> skip_uuid) -> void
 {
+    DoForEach(clients_, action, skip_uuid);
     DoForEach(servers_, action, skip_uuid);
     DoForEach(local_users_, action, skip_uuid);
     DoForEach(remote_users_, action, skip_uuid);
