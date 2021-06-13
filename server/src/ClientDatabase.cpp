@@ -82,8 +82,6 @@ auto ClientDatabase::DisconnectUser(IUser *user,
     user->RemoveUserFromAllChannels();
     local_users_.erase(user_uuid);
     remote_users_.erase(user_uuid);
-
-
 }
 
 auto ClientDatabase::DisconnectServer(IServer *server,

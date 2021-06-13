@@ -27,6 +27,8 @@ public:
 
 	auto ForEachChannel(std::function<void(IChannel*)> action) -> void override;
 
+	auto PurgeEmptyChannels(void) -> void override;
+
     Logger logger;
 private:
 	std::unordered_map<std::string, std::unique_ptr<IChannel>> channels_;

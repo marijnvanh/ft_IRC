@@ -91,6 +91,7 @@ auto IRCServer::RunOnce() -> void
 
 	this->PingClients();
     server_data_->client_database_.SendAll();
+	server_data_->channel_database_.PurgeEmptyChannels();
 }
 
 auto IRCServer::CreateNewConnection(std::string &ip, std::string &port) -> std::optional<IClient*>
