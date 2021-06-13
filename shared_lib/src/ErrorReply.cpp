@@ -24,7 +24,8 @@ std::unordered_map<int, std::string> error_map = {
 		{ERR_NOPRIVILEGES, "Permission Denied- You're not an IRC operator"},
         {ERR_NOSUCHSERVER, "No such server"},
 		{ERR_NOOPERHOST, "No O-lines for your host"},
-		{ERR_PASSWDMISMATCH, "Password incorrect"}
+		{ERR_PASSWDMISMATCH, "Password incorrect"},
+		{ERR_NOORIGIN, ":No origin specified"}
 };
 
 auto GetErrorMessage(const std::string &server_name, const std::string &target, int error, const std::string &param) -> std::string

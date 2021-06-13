@@ -15,6 +15,7 @@ class MockChannelDatabase : public IChannelDatabase {
     MOCK_METHOD(std::optional<IChannel*>, GetChannel, (std::string channel_name), ());
 	MOCK_METHOD(std::optional<IChannel*>, CreateChannel, (const std::string name, const std::string key, ChannelType type), ());
 	MOCK_METHOD(void, ForEachChannel, (std::function<void(IChannel*)> action), ());
+	MOCK_METHOD(void, PurgeEmptyChannels, (), ());
 
 };
 

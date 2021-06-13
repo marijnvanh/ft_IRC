@@ -36,5 +36,5 @@
 			["ServerConfig", "INFO"]
 		]
 	},
-	"ping-time": 300
+	"ping-time": 30
 }

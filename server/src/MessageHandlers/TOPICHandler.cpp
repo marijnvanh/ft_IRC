@@ -24,20 +24,23 @@ auto TOPICHandler::SafeHandle(IMessage &message) -> void
 	auto channel = channel_database_->GetChannel(params[PARAM_CHANNEL_NAME]);
 	if (!channel || !(*channel)->HasUser(client->GetUUID()))
 	{
-		client->Push(GetErrorMessage(server_config_->GetName(), client->GetPrefix(), ERR_NOTONCHANNEL, params[PARAM_CHANNEL_NAME]));
+		client->Push(GetErrorMessage(server_config_->GetName(),
+			client->GetPrefix(), ERR_NOTONCHANNEL, params[PARAM_CHANNEL_NAME]));
 		return ;
 	}
 
 	if (!(*channel)->HasMode(ChannelMode::CM_TOPIC))
 	{
-		client->Push(std::to_string(RPL_NOTOPIC) + (*channel)->GetName() + " :No topic is set");
+		client->Push(std::to_string(RPL_NOTOPIC) + " " + (*channel)->GetName() +
+			" :No topic is set");
 		return ;
 	}
 
 	// If there's no second parameter, there's just an incoming request for the channel's topic.
 	if (params.size() < 2)
 	{
-		client->Push(std::to_string(RPL_TOPIC) + (*channel)->GetName() + " :" + (*channel)->GetTopic());
+		client->Push(std::to_string(RPL_TOPIC) + " " + (*channel)->GetName() +
+			" :" + (*channel)->GetTopic());
 		return ;
 	}
 

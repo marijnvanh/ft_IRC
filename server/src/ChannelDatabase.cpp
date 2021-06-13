@@ -73,3 +73,18 @@ auto ChannelDatabase::ForEachChannel(std::function<void(IChannel*)> action) -> v
         action(it->second.get());
     }	
 }
+
+auto ChannelDatabase::PurgeEmptyChannels(void) -> void
+{
+    for (auto it = channels_.begin(), next_it = it; it != channels_.end(); it = next_it)
+    {
+        ++next_it;
+
+		if (it->second->CountUsers() > 0)
+			continue ;
+		
+		logger.Log(LogLevel::INFO, "Purging channel %s, no users left.",
+			it->second->GetName().c_str());
+    	channels_.erase(it->first);
+	}
+}

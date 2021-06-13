@@ -25,6 +25,8 @@ public:
 
 	virtual auto ForEachChannel(std::function<void(IChannel*)> action) -> void = 0;
 
+	virtual auto PurgeEmptyChannels(void) -> void = 0;
+
     class DuplicateChannel : public std::runtime_error
     {
     public:
